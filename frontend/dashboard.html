@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --gold:#f0c040;--purple:#8b5cf6;--teal:#06b6d4;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 16px #00000066;
+  --nav-w:220px;
+}
+[data-theme="light"]{
+  --bg:#f0f2fa;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#8a9ab8;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+}
+
+/* ═══ LAYOUT ═══════════════════════════════════════════════ */
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;font-size:13px;overflow:hidden}
+#app{display:flex;width:100vw;height:100vh}
+.nav{width:var(--nav-w);background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;transition:width .25s;position:relative;z-index:20}
+.nav.collapsed{width:56px}
+.content{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+
+/* ═══ LOGIN ═════════════════════════════════════════════════ */
+#login-screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity .3s}
+#login-screen.out{opacity:0;pointer-events:none}
+.login-card{background:var(--s1);border:1px solid var(--bd2);border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.login-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--ac);opacity:.05}
+.login-logo{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.login-logo-dot{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--ac),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px}
+.login-sub{font-size:13px;color:var(--tx2);margin-bottom:28px}
+.login-roles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:22px}
+.role-chip{padding:10px 8px;border-radius:10px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;text-align:center;transition:all .15s}
+.role-chip:hover{border-color:var(--bd3)}
+.role-chip.sel{border-color:var(--ac);background:var(--ac)12}
+.role-chip .ri{font-size:18px;margin-bottom:4px}
+.role-chip .rl{font-size:11px;font-weight:600;color:var(--tx2)}
+.role-chip.sel .rl{color:var(--ac)}
+.login-field{margin-bottom:12px}
+.login-field label{font-size:11px;color:var(--tx3);font-weight:500;display:block;margin-bottom:4px}
+.login-field input{width:100%;padding:10px 14px;background:var(--s2);border:1px solid var(--bd2);border-radius:9px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.login-field input:focus{border-color:var(--ac)}
+.login-btn{width:100%;padding:12px;border-radius:9px;border:none;background:var(--ac);color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:4px}
+.login-btn:hover{opacity:.88;transform:translateY(-1px)}
+.login-hint{font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;line-height:1.6}
+
+/* ═══ NAV SIDEBAR ═══════════════════════════════════════════ */
+.nav-header{padding:16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;min-height:60px}
+.nav-logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--ac),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.nav-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;opacity:1;transition:opacity .2s}
+.nav.collapsed .nav-title{opacity:0;width:0}
+.nav-club{font-size:10px;color:var(--tx3);white-space:nowrap;overflow:hidden;opacity:1;transition:opacity .2s}
+.nav.collapsed .nav-club{opacity:0}
+
+.nav-section{padding:10px 10px 4px;font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;overflow:hidden;opacity:1;transition:opacity .2s}
+.nav.collapsed .nav-section{opacity:0}
+
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;margin:1px 6px;cursor:pointer;transition:all .14s;position:relative;text-decoration:none;color:var(--tx2)}
+.nav-item:hover{background:var(--s2);color:var(--tx)}
+.nav-item.on{background:var(--ac)15;color:var(--ac)}
+.nav-item.on::before{content:'';position:absolute;left:-6px;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--ac)}
+.nav-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.nav-label{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;opacity:1;transition:opacity .2s}
+.nav.collapsed .nav-label{opacity:0;width:0}
+.nav-badge{margin-left:auto;font-size:9px;font-weight:700;border-radius:10px;padding:1px 6px;background:var(--err);color:#fff;flex-shrink:0;transition:opacity .2s}
+.nav.collapsed .nav-badge{opacity:0}
+
+.nav-footer{margin-top:auto;padding:10px;border-top:1px solid var(--bd)}
+.nav-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:background .13s}
+.nav-user:hover{background:var(--s2)}
+.nav-avatar{width:30px;height:30px;border-radius:50%;background:var(--ac)22;color:var(--ac);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.nav-user-info{overflow:hidden;opacity:1;transition:opacity .2s;min-width:0}
+.nav.collapsed .nav-user-info{opacity:0;width:0}
+.nav-user-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-user-role{font-size:10px;color:var(--tx3);white-space:nowrap}
+
+.nav-toggle{position:absolute;top:50%;right:-12px;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:var(--s1);border:1px solid var(--bd2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all .15s;z-index:10}
+.nav-toggle:hover{background:var(--s2);border-color:var(--bd3)}
+
+/* ═══ TOPBAR ════════════════════════════════════════════════ */
+.topbar{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;height:60px;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10;box-shadow:var(--sh2)}
+.topbar-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.topbar-sub{font-size:11px;color:var(--tx3);margin-top:1px}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.tb-btn{padding:6px 12px;border-radius:7px;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:5px}
+.tb-btn:hover{color:var(--tx);border-color:var(--bd3)}
+.tb-btn.primary{background:var(--ac);color:#fff;border-color:var(--ac)}
+.tb-btn.primary:hover{opacity:.88}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--err);position:absolute;top:0;right:0}
+
+/* ═══ MAIN CONTENT ══════════════════════════════════════════ */
+.page{padding:24px;flex:1;animation:pgIn .2s}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ DASHBOARD HOME ════════════════════════════════════════ */
+.kpis-home{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .14s,transform .14s}
+.kpi-card:hover{border-color:var(--bd2);transform:translateY(-1px)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-top:6px;line-height:1}
+.kpi-lbl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-top:5px}
+.kpi-trend{font-size:11px;margin-top:4px;font-weight:500}
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr 340px;gap:14px}
+.dash-col{display:flex;flex-direction:column;gap:14px}
+
+.widget{background:var(--s1);border:1px solid var(--bd);border-radius:13px;overflow:hidden}
+.w-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.w-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif}
+.w-body{padding:14px 16px}
+.w-link{font-size:11px;color:var(--ac);cursor:pointer;font-weight:500}
+.w-link:hover{text-decoration:underline}
+
+/* Actividad reciente */
+.act-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)44;font-size:12px}
+.act-row:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.act-time{font-size:10px;color:var(--tx3);flex-shrink:0;min-width:60px;text-align:right}
+
+/* Próximas clases */
+.clase-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;transition:background .12s;cursor:pointer}
+.clase-row:hover{background:var(--s2)}
+.clase-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* Mini calendario */
+.mini-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;transition:all .12s;font-family:'DM Mono',monospace}
+.cal-day:hover{background:var(--s2)}
+.cal-day.today{background:var(--ac);color:#fff;font-weight:700}
+.cal-day.has-event{position:relative}
+.cal-day.has-event::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--ok)}
+.cal-day.other-month{opacity:.3}
+
+/* ═══ IFRAME MODULES ════════════════════════════════════════ */
+.module-frame{width:100%;border:none;flex:1;min-height:calc(100vh - 60px);display:block}
+
+/* ═══ NOTIFICACIONES ════════════════════════════════════════ */
+.notif-panel{position:fixed;top:60px;right:0;width:320px;height:calc(100vh - 60px);background:var(--s1);border-left:1px solid var(--bd);z-index:30;transform:translateX(100%);transition:transform .25s;box-shadow:var(--sh);display:flex;flex-direction:column}
+.notif-panel.open{transform:translateX(0)}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--bd)55;cursor:pointer;transition:background .12s}
+.notif-item:hover{background:var(--s2)}
+.notif-item.unread{border-left:3px solid var(--ac)}
+.notif-item.unread.warn{border-left-color:var(--warn)}
+.notif-item.unread.err{border-left-color:var(--err)}
+
+/* ═══ BÚSQUEDA GLOBAL ═══════════════════════════════════════ */
+.search-overlay{position:fixed;inset:0;background:#00000066;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding-top:80px;opacity:0;pointer-events:none;transition:opacity .2s}
+.search-overlay.open{opacity:1;pointer-events:all}
+.search-box{background:var(--s1);border:1px solid var(--bd2);border-radius:14px;width:100%;max-width:560px;box-shadow:var(--sh);overflow:hidden}
+.search-inp{width:100%;padding:16px 20px;background:none;border:none;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:16px;outline:none}
+.search-results{border-top:1px solid var(--bd);max-height:360px;overflow-y:auto}
+.sr-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;transition:background .12s}
+.sr-item:hover{background:var(--s2)}
+.sr-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sr-cat{font-size:10px;color:var(--tx3);margin-top:1px}
+
+/* ═══ BTNS ══════════════════════════════════════════════════ */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+
+/* ═══ RESPONSIVO ════════════════════════════════════════════ */
+@media(max-width:768px){
+  :root{--nav-w:0px}
+  .nav{width:0;overflow:hidden}
+  .nav.mobile-open{width:240px;position:fixed;inset:0 auto 0 0;z-index:40}
+}
+
+/* ═══ THEME TOGGLE ══════════════════════════════════════════ */
+.ttog{width:36px;height:20px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(16px)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--bd3)}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-dot">⚡</div>
+      Sport Hub OS
+    </div>
+    <div class="login-sub">Ingresá a tu complejo deportivo</div>
+
+    <div class="login-roles">
+      <div class="role-chip sel" id="role-admin" onclick="selectRole('admin')">
+        <div class="ri">🏟</div>
+        <div class="rl">Admin</div>
+      </div>
+      <div class="role-chip" id="role-profesor" onclick="selectRole('profesor')">
+        <div class="ri">🏆</div>
+        <div class="rl">Profesor</div>
+      </div>
+      <div class="role-chip" id="role-jugador" onclick="selectRole('jugador')">
+        <div class="ri">🎾</div>
+        <div class="rl">Jugador</div>
+      </div>
+    </div>
+
+    <div class="login-field">
+      <label>Email o teléfono</label>
+      <input type="text" id="login-user" value="admin@sporthubos.app" placeholder="usuario@email.com">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" value="admin123" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Ingresar →</button>
+    <div class="login-hint">
+      Demo: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2647424b4f486655564954524e5344495508475656">[email&#160;protected]</a> / admin123<br>
+      Profesor: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="40322f243229272f00232c35226e232f2d">[email&#160;protected]</a> / profe123<br>
+      Jugador: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b9cad6dfd0d8f9ded4d8d0d597dad6d4">[email&#160;protected]</a> / jugador123
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP ════════════════════════════════════════════════ -->
+<div id="app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <nav class="nav" id="sidebar">
+    <div class="nav-header">
+      <div class="nav-logo">⚡</div>
+      <div>
+        <div class="nav-title">Sport Hub OS</div>
+        <div class="nav-club" id="nav-club-name">Sport Hub Norte</div>
+      </div>
+    </div>
+
+    <div id="nav-links" style="flex:1;overflow-y:auto;padding:8px 0"></div>
+
+    <div class="nav-footer">
+      <div class="nav-user" onclick="showUserMenu()">
+        <div class="nav-avatar" id="nav-avatar">A</div>
+        <div class="nav-user-info">
+          <div class="nav-user-name" id="nav-user-name">Administrador</div>
+          <div class="nav-user-role" id="nav-user-role">Admin · Sport Hub Norte</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-toggle" id="nav-toggle" onclick="toggleNav()" title="Colapsar menú">‹</div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-sub" id="topbar-sub">Bienvenido a Sport Hub Norte</div>
+      </div>
+      <div class="topbar-actions">
+        <!-- Búsqueda -->
+        <button class="tb-btn" onclick="openSearch()" title="Buscar (Ctrl+K)">
+          🔍 <span style="color:var(--tx3);font-size:11px">Ctrl+K</span>
+        </button>
+        <!-- Notificaciones -->
+        <button class="tb-btn" id="notif-btn" onclick="toggleNotifPanel()" style="position:relative">
+          🔔 <span id="notif-count" style="position:absolute;top:-4px;right:-4px;background:var(--err);color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;display:none">0</span>
+        </button>
+        <!-- Tema -->
+        <div class="ttog" onclick="toggleTheme()"></div>
+        <!-- Logout -->
+        <button class="tb-btn" onclick="doLogout()">Salir</button>
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div id="page-content" class="page"></div>
+
+  </div><!-- /content -->
+
+  <!-- PANEL NOTIFICACIONES -->
+  <div class="notif-panel" id="notif-panel">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">Notificaciones</span>
+      <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Marcar leídas</button>
+    </div>
+    <div id="notif-list" style="flex:1;overflow-y:auto"></div>
+  </div>
+
+  <!-- BÚSQUEDA GLOBAL -->
+  <div class="search-overlay" id="search-overlay" onclick="if(event.target===this)closeSearch()">
+    <div class="search-box">
+      <input class="search-inp" id="search-inp" placeholder="Buscar reservas, jugadores, clases..." oninput="doSearch(this.value)" onkeydown="handleSearchKey(event)">
+      <div class="search-results" id="search-results"></div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══════════════════════════════════════════════════════════
+//  USUARIOS Y ROLES
+// ══════════════════════════════════════════════════════════
+const USERS = {
+  'admin@sporthubos.app':   { pass:'admin123',   nombre:'Administrador',  rol:'admin',    avatar:'AD', club:'Sport Hub Norte' },
+  'rodrigo@club.com':       { pass:'profe123',   nombre:'Rodrigo Campos', rol:'profesor', avatar:'RC', club:'Sport Hub Norte', sport:'Pádel' },
+  'sofia@gmail.com':        { pass:'jugador123', nombre:'Sofía López',    rol:'jugador',  avatar:'SL', club:'Sport Hub Norte', elo:1760 },
+}
+
+const ROL_NAV = {
+  admin: [
+    { section: 'Operación' },
+    { id:'home',        icon:'⚡', label:'Dashboard',     badge:null },
+    { id:'reservas',    icon:'📅', label:'Reservas',       badge:'3' },
+    { id:'caja',        icon:'💰', label:'Caja diaria',    badge:null },
+    { id:'tienda',      icon:'🛍', label:'Tienda',         badge:null },
+    { section: 'Comunidad' },
+    { id:'jugadores',   icon:'👤', label:'Jugadores',      badge:null },
+    { id:'clases',      icon:'🎓', label:'Clases',         badge:null },
+    { id:'membresias',  icon:'⭐', label:'Membresías',     badge:'2' },
+    { id:'torneos',     icon:'🏆', label:'Torneos',        badge:null },
+    { id:'ranking',     icon:'🏅', label:'Ranking / ELO',  badge:null },
+    { section: 'Sistema' },
+    { id:'agente',      icon:'🤖', label:'Agente IA',      badge:null },
+    { id:'config',      icon:'⚙',  label:'Configuración',  badge:null },
+    { id:'superadmin',  icon:'👑', label:'SuperAdmin',     badge:null },
+  ],
+  profesor: [
+    { section: 'Mis clases' },
+    { id:'home',        icon:'⚡', label:'Inicio',         badge:null },
+    { id:'clases',      icon:'🎓', label:'Mis clases',     badge:null },
+    { id:'asistencia',  icon:'✅', label:'Asistencia',     badge:'1' },
+    { section: 'Club' },
+    { id:'ranking',     icon:'🏅', label:'Ranking',        badge:null },
+    { id:'torneos',     icon:'🏆', label:'Torneos',        badge:null },
+  ],
+  jugador: [
+    { section: 'Mi cuenta' },
+    { id:'home',        icon:'⚡', label:'Mi perfil',      badge:null },
+    { id:'reservas',    icon:'📅', label:'Mis reservas',   badge:null },
+    { section: 'Club' },
+    { id:'ranking',     icon:'🏅', label:'Ranking',        badge:null },
+    { id:'torneos',     icon:'🏆', label:'Torneos',        badge:null },
+    { id:'matchmaking', icon:'⚡', label:'Buscar rival',   badge:null },
+  ],
+}
+
+// Títulos y subtítulos de páginas
+const PAGE_META = {
+  home:       ['Dashboard',       'Resumen de actividad del club'],
+  reservas:   ['Reservas',        'Gestión de canchas y horarios'],
+  caja:       ['Caja diaria',     'Ingresos, egresos y cierre'],
+  tienda:     ['Tienda',          'Productos y stock'],
+  jugadores:  ['Jugadores',       'CRM y base de datos'],
+  clases:     ['Clases y academia','Horarios, inscriptos, asistencia'],
+  membresias: ['Membresías',      'Planes, socios y cobros'],
+  torneos:    ['Torneos',         'Fixture y competencia'],
+  ranking:    ['Ranking / ELO',   'Posiciones y matchmaking'],
+  agente:     ['Agente IA',       'Configuración del bot de WhatsApp'],
+  config:     ['Configuración',   'Ajustes del sistema'],
+  superadmin: ['SuperAdmin',      'Panel de control global'],
+  asistencia: ['Asistencia',      'Tomar asistencia del día'],
+  matchmaking:['Matchmaking',     'Encontrar rival compatible'],
+}
+
+// Módulos con iframe real
+const MODULE_FRAMES = {
+  reservas:   'modulo1-reservas.html',
+  jugadores:  'modulo2-jugadores-crm.html',
+  caja:       'modulo3-caja-diaria.html',
+  tienda:     'modulo4-tienda.html',
+  clases:     'modulo5-clases.html',
+  membresias: 'modulo6-membresias.html',
+  torneos:    'modulo7-torneos.html',
+  ranking:    'modulo8-ranking.html',
+  eventos:    'modulo9-eventos.html',
+  fidelidad:  'modulo10-fidelidad.html',
+  agente:     'modulo-agente-config.html',
+  config:     'modulo-configuracion.html',
+  superadmin: 'superadmin.html',
+}
+
+let currentUser   = null
+let selectedRole  = 'admin'
+let activeModule  = 'home'
+let navCollapsed  = false
+let notifOpen     = false
+let unreadCount   = 3
+
+// ══════════════════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════════════════
+function selectRole(rol) {
+  selectedRole = rol
+  document.querySelectorAll('.role-chip').forEach(el => el.classList.remove('sel'))
+  document.getElementById('role-'+rol)?.classList.add('sel')
+  // Prellenar usuario demo según rol
+  const demos = { admin:'admin@sporthubos.app', profesor:'rodrigo@club.com', jugador:'sofia@gmail.com' }
+  const passes = { admin:'admin123', profesor:'profe123', jugador:'jugador123' }
+  document.getElementById('login-user').value = demos[rol]
+  document.getElementById('login-pass').value = passes[rol]
+}
+
+function doLogin() {
+  const user = document.getElementById('login-user').value.trim()
+  const pass = document.getElementById('login-pass').value
+
+  const u = USERS[user]
+  if (!u || u.pass !== pass) {
+    shake(document.querySelector('.login-card'))
+    return
+  }
+
+  currentUser = { ...u, email: user }
+  document.getElementById('login-screen').classList.add('out')
+  setTimeout(() => {
+    document.getElementById('login-screen').style.display = 'none'
+    document.getElementById('app').style.display = 'flex'
+    initApp()
+  }, 300)
+}
+
+function shake(el) {
+  el.style.animation = 'none'
+  el.offsetHeight
+  el.style.animation = 'shake .4s'
+  if (!document.querySelector('#shake-kf')) {
+    const s = document.createElement('style')
+    s.id = 'shake-kf'
+    s.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}'
+    document.head.appendChild(s)
+  }
+}
+
+function doLogout() {
+  currentUser = null
+  document.getElementById('app').style.display = 'none'
+  const ls = document.getElementById('login-screen')
+  ls.style.display = 'flex'
+  ls.classList.remove('out')
+  document.getElementById('login-pass').value = ''
+}
+
+// ══════════════════════════════════════════════════════════
+//  APP INIT
+// ══════════════════════════════════════════════════════════
+function initApp() {
+  // User info
+  document.getElementById('nav-avatar').textContent    = currentUser.avatar
+  document.getElementById('nav-user-name').textContent = currentUser.nombre
+  document.getElementById('nav-user-role').textContent = currentUser.rol.charAt(0).toUpperCase()+currentUser.rol.slice(1)+' · '+currentUser.club
+  document.getElementById('nav-club-name').textContent = currentUser.club
+
+  // Construir nav según rol
+  buildNav(currentUser.rol)
+
+  // Notificaciones
+  buildNotifications()
+
+  // Navegar a home
+  navigate('home')
+
+  // Atajo búsqueda
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey||e.metaKey) && e.key==='k') { e.preventDefault(); openSearch() }
+    if (e.key==='Escape') { closeSearch(); closeNotifPanel() }
+  })
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function buildNav(rol) {
+  const items = ROL_NAV[rol] || ROL_NAV.admin
+  const container = document.getElementById('nav-links')
+  container.innerHTML = items.map(item => {
+    if (item.section) {
+      return `<div class="nav-section">${item.section}</div>`
+    }
+    const badge = item.badge ? `<span class="nav-badge">${item.badge}</span>` : ''
+    return `<div class="nav-item" id="nav-${item.id}" onclick="navigate('${item.id}')">
+      <span class="nav-icon">${item.icon}</span>
+      <span class="nav-label">${item.label}</span>
+      ${badge}
+    </div>`
+  }).join('')
+}
+
+function toggleNav() {
+  const nav  = document.getElementById('sidebar')
+  const btn  = document.getElementById('nav-toggle')
+  navCollapsed = !navCollapsed
+  nav.classList.toggle('collapsed', navCollapsed)
+  btn.textContent = navCollapsed ? '›' : '‹'
+  btn.title = navCollapsed ? 'Expandir menú' : 'Colapsar menú'
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════════════════════
+function navigate(moduleId) {
+  activeModule = moduleId
+
+  // Actualizar nav
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('on'))
+  document.getElementById('nav-'+moduleId)?.classList.add('on')
+
+  // Actualizar topbar
+  const meta = PAGE_META[moduleId] || [moduleId, '']
+  document.getElementById('topbar-title').textContent = meta[0]
+  document.getElementById('topbar-sub').textContent   = meta[1]
+
+  // Renderizar contenido
+  const content = document.getElementById('page-content')
+
+  if (moduleId === 'home') {
+    content.className = 'page'
+    content.innerHTML = renderHome()
+    return
+  }
+
+  // Módulo con iframe
+  if (MODULE_FRAMES[moduleId]) {
+    content.className = ''
+    content.innerHTML = `<iframe class="module-frame" src="${MODULE_FRAMES[moduleId]}" title="${meta[0]}" loading="lazy"></iframe>`
+    return
+  }
+
+  // Módulo placeholder
+  content.className = 'page'
+  content.innerHTML = renderPlaceholder(moduleId, meta)
+}
+
+// ══════════════════════════════════════════════════════════
+//  HOME DASHBOARD
+// ══════════════════════════════════════════════════════════
+function renderHome() {
+  if (currentUser.rol === 'jugador') return renderHomeJugador()
+  if (currentUser.rol === 'profesor') return renderHomeProfesor()
+  return renderHomeAdmin()
+}
+
+function renderHomeAdmin() {
+  const kpis = [
+    { label:'Reservas hoy',      val:'14',     trend:'+3 vs ayer',      color:'var(--ac)',   click:'reservas' },
+    { label:'Ingresos del día',  val:'$84.200', trend:'+12% vs lunes',  color:'var(--ok)',   click:'caja' },
+    { label:'Clases activas',    val:'6',       trend:'próxima 18:00hs', color:'var(--warn)', click:'clases' },
+    { label:'Socios activos',    val:'93',      trend:'2 vencen esta semana', color:'var(--gold)', click:'membresias' },
+  ]
+
+  let html = `<div class="kpis-home">`
+  kpis.forEach(k => {
+    html += `<div class="kpi-card" onclick="navigate('${k.click}')" style="border-top:3px solid ${k.color}">
+      <div style="font-size:11px;color:var(--tx2)">${k.label}</div>
+      <div class="kpi-val" style="color:${k.color}">${k.val}</div>
+      <div class="kpi-trend" style="color:var(--tx3)">${k.trend}</div>
+    </div>`
+  })
+  html += '</div>'
+
+  html += '<div class="dash-grid">'
+
+  // COL 1 — Actividad reciente
+  html += '<div class="dash-col"><div class="widget">'
+  html += '<div class="w-head"><span class="w-title">⚡ Actividad reciente</span><span class="w-link" onclick="navigate(\'reservas\')">Ver todas →</span></div>'
+  html += '<div class="w-body">'
+  const acts = [
+    { color:'var(--ok)',   text:'Carlos M. reservó Cancha 2 · mañana 20hs', time:'hace 8 min' },
+    { color:'var(--ac)',   text:'Bot atendió consulta de precios a Laura V.', time:'hace 15 min' },
+    { color:'var(--ok)',   text:'Pago recibido — Sofía L. (Membresía Sport)', time:'hace 22 min' },
+    { color:'var(--warn)', text:'Valentina R. canceló reserva hoy 18hs', time:'hace 1h' },
+    { color:'var(--ok)',   text:'Facundo T. inscripto en Copa Pádel Junio', time:'hace 2h' },
+    { color:'var(--err)',  text:'Stock bajo: Pelotas de pádel (3 unidades)', time:'hace 3h' },
+    { color:'var(--ac)',   text:'Rodrigo confirmó asistencia a 12 alumnos', time:'hace 4h' },
+  ]
+  acts.forEach(a => {
+    html += `<div class="act-row">
+      <div class="act-dot" style="background:${a.color}"></div>
+      <div style="flex:1;color:var(--tx2)">${a.text}</div>
+      <div class="act-time">${a.time}</div>
+    </div>`
+  })
+  html += '</div></div>'
+
+  // Próximas clases
+  html += '<div class="widget"><div class="w-head"><span class="w-title">🎓 Clases de hoy</span><span class="w-link" onclick="navigate(\'clases\')">Ver todas →</span></div><div class="w-body">'
+  const clases = [
+    { hora:'08:00', nombre:'Yoga Vinyasa',       prof:'Ana Torres',    cupo:'8/10', color:'#06b6d4', estado:'En curso' },
+    { hora:'09:00', nombre:'Crossfit RX',        prof:'Laura Méndez',  cupo:'14/15',color:'#ef4444', estado:'En curso' },
+    { hora:'18:00', nombre:'Crossfit Beginner',  prof:'Laura Méndez',  cupo:'9/12', color:'#ef4444', estado:'Próxima' },
+    { hora:'19:00', nombre:'Pádel Principiantes',prof:'Rodrigo Campos',cupo:'7/8',  color:'#5b7fff', estado:'Próxima' },
+    { hora:'20:00', nombre:'Pádel Intermedios',  prof:'Rodrigo Campos',cupo:'8/8',  color:'#5b7fff', estado:'Próxima' },
+  ]
+  clases.forEach(c => {
+    html += `<div class="clase-row">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tx3);min-width:44px">${c.hora}</div>
+      <div class="clase-dot" style="background:${c.color}"></div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:500;color:var(--tx)">${c.nombre}</div>
+        <div style="font-size:10px;color:var(--tx3)">${c.prof}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;font-weight:600;color:${c.cupo.includes(c.cupo.split('/')[1]+'/'+c.cupo.split('/')[1])?'var(--err)':'var(--ok)'}">${c.cupo}</div>
+        <div style="font-size:9px;color:${c.estado==='En curso'?'var(--ok)':'var(--tx3)'}">${c.estado}</div>
+      </div>
+    </div>`
+  })
+  html += '</div></div></div>'
+
+  // COL 2 — Revenue semanal + torneos
+  html += '<div class="dash-col">'
+
+  // Mini gráfico revenue
+  html += '<div class="widget"><div class="w-head"><span class="w-title">📈 Revenue esta semana</span><span class="w-link" onclick="navigate(\'caja\')">Ver caja →</span></div><div class="w-body">'
+  const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Hoy']
+  const vals = [68400, 52300, 71200, 48900, 84200, 97600, 84200]
+  const maxV = Math.max(...vals)
+  html += '<div style="display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:8px">'
+  dias.forEach((d,i) => {
+    const h = Math.round(vals[i]/maxV*76)
+    const isToday = i === 6
+    html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+      <div style="width:100%;height:${h}px;background:${isToday?'var(--ac)':'var(--bd2)'};border-radius:4px 4px 0 0;min-height:4px;transition:height .4s"></div>
+      <span style="font-size:9px;color:${isToday?'var(--ac)':'var(--tx3)'};font-weight:${isToday?700:400}">${d}</span>
+    </div>`
+  })
+  html += '</div>'
+  html += '<div style="display:flex;justify-content:space-between;font-size:11px">'
+  html += '<span style="color:var(--tx2)">Total semana</span>'
+  html += '<span style="font-family:\'DM Mono\',monospace;font-weight:700;color:var(--ok)">$'+vals.reduce((a,b)=>a+b,0).toLocaleString()+'</span>'
+  html += '</div>'
+  html += '</div></div>'
+
+  // Torneos activos
+  html += '<div class="widget"><div class="w-head"><span class="w-title">🏆 Torneos activos</span><span class="w-link" onclick="navigate(\'torneos\')">Ver todos →</span></div><div class="w-body">'
+  const torns = [
+    { nombre:'Copa Pádel Junio', estado:'En curso', final:'28 Jun', equipos:'8/8', color:'var(--ok)' },
+    { nombre:'Liga Fútbol 5 Invierno', estado:'Inscripción', final:'1 Jul', equipos:'3/8', color:'var(--ac)' },
+  ]
+  torns.forEach(t => {
+    html += `<div style="padding:10px;background:var(--s2);border-radius:9px;margin-bottom:8px;cursor:pointer;transition:background .12s" onclick="navigate('torneos')" onmouseover="this.style.background='var(--s3)'" onmouseout="this.style.background='var(--s2)'">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:600;color:var(--tx)">${t.nombre}</span>
+        <span style="font-size:10px;font-weight:600;color:${t.color}">${t.estado}</span>
+      </div>
+      <div style="display:flex;gap:12px;font-size:10px;color:var(--tx3)">
+        <span>Final: ${t.final}</span>
+        <span>Equipos: ${t.equipos}</span>
+      </div>
+    </div>`
+  })
+  html += '</div></div>'
+
+  // Ranking top 3
+  html += '<div class="widget"><div class="w-head"><span class="w-title">🏅 Ranking Pádel</span><span class="w-link" onclick="navigate(\'ranking\')">Ver completo →</span></div><div class="w-body">'
+  const top = [
+    { nombre:'Laura V.',   elo:1820, cat:'2ª', medal:'🥇', genero:'♀' },
+    { nombre:'Sofía L.',   elo:1760, cat:'2ª', medal:'🥈', genero:'♀' },
+    { nombre:'Carlos M.',  elo:1720, cat:'2ª', medal:'🥉', genero:'♂' },
+  ]
+  top.forEach(p => {
+    html += `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd)44">
+      <span style="font-size:18px">${p.medal}</span>
+      <span style="flex:1;font-size:12px;font-weight:500">${p.nombre} <span style="font-size:10px;color:var(--tx3)">${p.genero}</span></span>
+      <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--gold)">${p.elo}</span>
+    </div>`
+  })
+  html += '</div></div>'
+  html += '</div>'
+
+  // COL 3 — Mini calendario + accesos rápidos
+  html += '<div class="dash-col">'
+
+  // Calendario
+  html += '<div class="widget"><div class="w-head"><span class="w-title">📅 Junio 2025</span></div><div class="w-body">'
+  html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;margin-bottom:8px">'
+  ;['L','M','M','J','V','S','D'].forEach(d => {
+    html += `<div style="font-size:9px;font-weight:700;color:var(--tx3);padding:3px 0">${d}</div>`
+  })
+  html += '</div>'
+  html += '<div class="mini-cal">'
+  const today = 20
+  const hasEvent = [7,14,15,20,21,22,28]
+  for (let i=1; i<=30; i++) {
+    const isToday  = i === today
+    const hasEv    = hasEvent.includes(i)
+    html += `<div class="cal-day ${isToday?'today':''} ${hasEv&&!isToday?'has-event':''}" onclick="navigate('reservas')">${i}</div>`
+  }
+  html += '</div></div></div>'
+
+  // Accesos rápidos
+  html += '<div class="widget"><div class="w-head"><span class="w-title">⚡ Accesos rápidos</span></div><div class="w-body">'
+  const accesos = [
+    { icon:'📅', label:'Nueva reserva',   id:'reservas' },
+    { icon:'👤', label:'Nuevo socio',      id:'membresias' },
+    { icon:'💰', label:'Registrar cobro',  id:'caja' },
+    { icon:'✅', label:'Tomar asistencia', id:'clases' },
+    { icon:'📊', label:'Ver estadísticas', id:'superadmin' },
+    { icon:'🤖', label:'Configurar bot',   id:'agente' },
+  ]
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'
+  accesos.forEach(a => {
+    html += `<button class="btn btn-ghost btn-sm" onclick="navigate('${a.id}')" style="justify-content:flex-start;gap:6px;padding:8px 10px">
+      <span style="font-size:14px">${a.icon}</span>
+      <span style="font-size:11px">${a.label}</span>
+    </button>`
+  })
+  html += '</div></div></div>'
+
+  // Alertas
+  html += '<div class="widget"><div class="w-head"><span class="w-title">⚠ Alertas</span></div><div class="w-body">'
+  const alertas = [
+    { color:'var(--err)',  icon:'💳', text:'3 socios con cuota vencida',  link:'membresias' },
+    { color:'var(--warn)', icon:'📦', text:'Stock bajo en 2 productos',    link:'tienda' },
+    { color:'var(--ac)',   icon:'🏆', text:'Final Copa Pádel en 8 días',   link:'torneos' },
+  ]
+  alertas.forEach(a => {
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)44;cursor:pointer" onclick="navigate('${a.link}')">
+      <span style="font-size:14px">${a.icon}</span>
+      <span style="flex:1;font-size:11px;color:var(--tx2)">${a.text}</span>
+      <span style="font-size:10px;color:${a.color}">→</span>
+    </div>`
+  })
+  html += '</div></div>'
+  html += '</div>'
+
+  html += '</div>' // end dash-grid
+  return html
+}
+
+function renderHomeProfesor() {
+  return `<div>
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Hola, ${currentUser.nombre.split(' ')[0]} 👋</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:20px">Tus clases de hoy — ${currentUser.sport}</div>
+    <div class="kpis-home" style="grid-template-columns:repeat(3,1fr)">
+      ${[
+        {l:'Alumnos hoy',      v:'38',  c:'var(--ac)'},
+        {l:'Clases dictadas',  v:'2/4', c:'var(--ok)'},
+        {l:'Asistencia prom.', v:'94%', c:'var(--gold)'},
+      ].map(k=>`<div class="kpi-card" style="border-top:3px solid ${k.c}">
+        <div style="font-size:11px;color:var(--tx2)">${k.l}</div>
+        <div class="kpi-val" style="color:${k.c}">${k.v}</div>
+      </div>`).join('')}
+    </div>
+    <div class="widget">
+      <div class="w-head"><span class="w-title">Mis clases hoy</span><span class="w-link" onclick="navigate('clases')">Ir a clases →</span></div>
+      <div class="w-body">
+        ${[
+          {h:'09:00',n:'Crossfit RX',    a:'14/15',est:'Finalizada',c:'var(--ok)'},
+          {h:'18:00',n:'Crossfit Beginner',a:'9/12',est:'Próxima en 2hs',c:'var(--warn)'},
+        ].map(c=>`<div class="clase-row" onclick="navigate('asistencia')">
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tx3);min-width:44px">${c.h}</div>
+          <div class="clase-dot" style="background:${c.c}"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">${c.n}</div></div>
+          <div style="text-align:right">
+            <div style="font-size:12px;font-weight:600;color:var(--ok)">${c.a}</div>
+            <div style="font-size:10px;color:${c.c}">${c.est}</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();navigate('asistencia')">Tomar asistencia</button>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`
+}
+
+function renderHomeJugador() {
+  return `<div>
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Hola, ${currentUser.nombre.split(' ')[0]} 👋</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:20px">ELO actual: <strong style="color:var(--gold)">${currentUser.elo}</strong> · Categoría 2ª Pádel</div>
+    <div class="kpis-home" style="grid-template-columns:repeat(3,1fr)">
+      ${[
+        {l:'ELO actual', v:currentUser.elo, c:'var(--gold)'},
+        {l:'Partidos este mes', v:'12', c:'var(--ac)'},
+        {l:'Victorias', v:'9',  c:'var(--ok)'},
+      ].map(k=>`<div class="kpi-card" style="border-top:3px solid ${k.c}">
+        <div style="font-size:11px;color:var(--tx2)">${k.l}</div>
+        <div class="kpi-val" style="color:${k.c}">${k.v}</div>
+      </div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="widget">
+        <div class="w-head"><span class="w-title">Mis próximas reservas</span><span class="w-link" onclick="navigate('reservas')">Ver todas →</span></div>
+        <div class="w-body">
+          ${[
+            {d:'Vie 21 Jun',h:'20:00',c:'Cancha 2',s:'Confirmada'},
+            {d:'Sáb 22 Jun',h:'10:00',c:'Cancha Central',s:'Torneo Final'},
+          ].map(r=>`<div style="padding:8px 0;border-bottom:1px solid var(--bd)44">
+            <div style="font-size:12px;font-weight:600">${r.d} · ${r.h}hs</div>
+            <div style="font-size:11px;color:var(--tx3)">${r.c} · <span style="color:var(--ok)">${r.s}</span></div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="widget">
+        <div class="w-head"><span class="w-title">Mi posición en el ranking</span><span class="w-link" onclick="navigate('ranking')">Ver ranking →</span></div>
+        <div class="w-body" style="text-align:center;padding:20px">
+          <div style="font-size:40px">🥈</div>
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--gold);margin:8px 0">#2</div>
+          <div style="font-size:12px;color:var(--tx2)">Ranking Pádel Femenino</div>
+          <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="navigate('matchmaking')">⚡ Buscar rival</button>
+        </div>
+      </div>
+    </div>
+  </div>`
+}
+
+// ══════════════════════════════════════════════════════════
+//  PLACEHOLDERS para módulos sin iframe propio aún
+// ══════════════════════════════════════════════════════════
+function renderPlaceholder(moduleId, meta) {
+  const modInfo = {
+    reservas:   { icon:'📅', desc:'Gestión de canchas, horarios y reservas en tiempo real.' },
+    caja:       { icon:'💰', desc:'Control de ingresos, egresos y cierre de caja diario.' },
+    tienda:     { icon:'🛍', desc:'Catálogo de productos, ventas y control de stock.' },
+    jugadores:  { icon:'👤', desc:'Base de datos de jugadores, CRM y mapa de demanda.' },
+    agente:     { icon:'🤖', desc:'Configuración del bot de WhatsApp, plantillas y estadísticas.' },
+    config:     { icon:'⚙',  desc:'Ajustes del sistema: deportes, sectores, horarios, apariencia.' },
+    superadmin: { icon:'👑', desc:'Panel de gestión multi-club, planes y facturación.' },
+    asistencia: { icon:'✅', desc:'Tomar asistencia de las clases del día.' },
+    matchmaking:{ icon:'⚡', desc:'Encontrar el rival ideal según ELO y categoría.' },
+  }
+  const info = modInfo[moduleId] || { icon:'📋', desc:'Módulo en construcción.' }
+
+  return `<div style="max-width:500px;margin:60px auto;text-align:center">
+    <div style="font-size:56px;margin-bottom:16px">${info.icon}</div>
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--tx);margin-bottom:8px">${meta[0]}</div>
+    <div style="font-size:14px;color:var(--tx2);margin-bottom:24px;line-height:1.6">${info.desc}</div>
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px;font-size:12px;color:var(--tx3)">
+      Este módulo está integrado en el archivo correspondiente.<br>En producción se carga como iframe o componente React.
+    </div>
+  </div>`
+}
+
+// ══════════════════════════════════════════════════════════
+//  NOTIFICACIONES
+// ══════════════════════════════════════════════════════════
+const NOTIFS = [
+  { id:1, type:'err',  icon:'💳', title:'3 socios con cuota vencida',          sub:'Valentina R., Nicolás F., Ana C.',      time:'hace 10 min', unread:true,  link:'membresias' },
+  { id:2, type:'warn', icon:'🏆', title:'Final Copa Pádel — 8 días',            sub:'28 Jun · Cancha Central · 20hs',        time:'hace 1h',     unread:true,  link:'torneos' },
+  { id:3, type:'ok',   icon:'🤖', title:'Bot generó 5 reservas automáticas',    sub:'Último turno: Carlos M. · Cancha 2',    time:'hace 2h',     unread:true,  link:'agente' },
+  { id:4, type:'',     icon:'📦', title:'Stock bajo: Pelotas de pádel',          sub:'Quedan 3 unidades',                     time:'ayer',        unread:false, link:'tienda' },
+  { id:5, type:'',     icon:'👤', title:'2 nuevos jugadores registrados',        sub:'Pedro G. y Florencia M.',               time:'ayer',        unread:false, link:'jugadores' },
+  { id:6, type:'',     icon:'📈', title:'Reporte semanal disponible',            sub:'Revenue: $522.600 (+8% vs semana ant.)', time:'hace 2 días', unread:false, link:'caja' },
+]
+
+function buildNotifications() {
+  const list = document.getElementById('notif-list')
+  list.innerHTML = NOTIFS.map(n => {
+    const typeColors = { err:'var(--err)', warn:'var(--warn)', ok:'var(--ok)', '':'var(--bd2)' }
+    return `<div class="notif-item ${n.unread?'unread '+(n.type||''):''}" onclick="goNotif(${n.id})">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span style="font-size:18px;flex-shrink:0">${n.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:${n.unread?600:400};color:var(--tx)">${n.title}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:2px">${n.sub}</div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:3px">${n.time}</div>
+        </div>
+      </div>
+    </div>`
+  }).join('')
+
+  // Badge
+  unreadCount = NOTIFS.filter(n=>n.unread).length
+  const badge = document.getElementById('notif-count')
+  badge.textContent = unreadCount
+  badge.style.display = unreadCount ? '' : 'none'
+}
+
+function goNotif(id) {
+  const n = NOTIFS.find(x=>x.id===id)
+  if (n) { n.unread=false; buildNotifications(); closeNotifPanel(); navigate(n.link) }
+}
+
+function markAllRead() {
+  NOTIFS.forEach(n=>n.unread=false)
+  buildNotifications()
+}
+
+function toggleNotifPanel() {
+  notifOpen = !notifOpen
+  document.getElementById('notif-panel').classList.toggle('open', notifOpen)
+}
+function closeNotifPanel() {
+  notifOpen = false
+  document.getElementById('notif-panel').classList.remove('open')
+}
+
+// ══════════════════════════════════════════════════════════
+//  BÚSQUEDA GLOBAL
+// ══════════════════════════════════════════════════════════
+const SEARCH_INDEX = [
+  { icon:'👤', label:'Carlos Martínez',    cat:'Jugador · Pádel 2ª',    id:'jugadores' },
+  { icon:'👤', label:'Sofía López',         cat:'Jugador · Pádel 2ª',   id:'jugadores' },
+  { icon:'📅', label:'Cancha 1 — Lunes 20hs', cat:'Reserva',            id:'reservas'  },
+  { icon:'🎓', label:'Pádel Principiantes', cat:'Clase · Rodrigo',       id:'clases'    },
+  { icon:'🎓', label:'Crossfit RX',         cat:'Clase · Laura',         id:'clases'    },
+  { icon:'⭐', label:'Plan Sport',           cat:'Membresía',             id:'membresias'},
+  { icon:'🏆', label:'Copa Pádel Junio',     cat:'Torneo · En curso',     id:'torneos'   },
+  { icon:'🏅', label:'Ranking Pádel ♀',      cat:'Ranking · ELO',        id:'ranking'   },
+  { icon:'💰', label:'Cierre de caja hoy',   cat:'Caja',                  id:'caja'      },
+  { icon:'📦', label:'Pelotas de pádel',     cat:'Tienda · Stock bajo',   id:'tienda'    },
+  { icon:'🤖', label:'Configurar bot',       cat:'Agente IA',             id:'agente'    },
+]
+
+function openSearch() {
+  document.getElementById('search-overlay').classList.add('open')
+  setTimeout(()=>document.getElementById('search-inp').focus(), 50)
+  doSearch('')
+}
+function closeSearch() {
+  document.getElementById('search-overlay').classList.remove('open')
+  document.getElementById('search-inp').value = ''
+}
+function doSearch(q) {
+  const results = q.length < 1
+    ? SEARCH_INDEX.slice(0, 6)
+    : SEARCH_INDEX.filter(x => x.label.toLowerCase().includes(q.toLowerCase()) || x.cat.toLowerCase().includes(q.toLowerCase()))
+  const container = document.getElementById('search-results')
+  if (!results.length) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--tx3);font-size:12px">Sin resultados</div>'
+    return
+  }
+  container.innerHTML = results.map((r,i) =>
+    `<div class="sr-item" onclick="closeSearch();navigate('${r.id}')" id="sr-${i}">
+      <div class="sr-icon" style="background:var(--s2)">${r.icon}</div>
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--tx)">${r.label}</div>
+        <div class="sr-cat">${r.cat}</div>
+      </div>
+    </div>`
+  ).join('')
+}
+let searchSel = -1
+function handleSearchKey(e) {
+  const items = document.querySelectorAll('.sr-item')
+  if (e.key==='ArrowDown') { searchSel=Math.min(searchSel+1,items.length-1); items.forEach((el,i)=>el.style.background=i===searchSel?'var(--s2)':'') }
+  if (e.key==='ArrowUp')   { searchSel=Math.max(searchSel-1,0); items.forEach((el,i)=>el.style.background=i===searchSel?'var(--s2)':'') }
+  if (e.key==='Enter' && searchSel>=0) items[searchSel]?.click()
+}
+
+// ══════════════════════════════════════════════════════════
+//  TEMA
+// ══════════════════════════════════════════════════════════
+function toggleTheme() {
+  const h = document.documentElement
+  const t = h.getAttribute('data-theme')==='dark' ? 'light' : 'dark'
+  h.setAttribute('data-theme', t)
+  localStorage.setItem('shos-theme', t)
+}
+const st = localStorage.getItem('shos-theme')
+if (st) document.documentElement.setAttribute('data-theme', st)
+
+function showUserMenu() {
+  toast('Próximamente: perfil y configuración de cuenta')
+}
+
+// ══════════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════════
+function toast(msg, type='ok') {
+  const cols = {ok:'var(--ok)', warn:'var(--warn)', err:'var(--err)'}
+  const el = document.createElement('div')
+  el.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 18px;font-size:12px;color:var(--tx);z-index:400;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s;white-space:nowrap

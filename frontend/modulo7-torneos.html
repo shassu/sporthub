@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Torneos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --gold:#f0c040;--purple:#8b5cf6;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000055;
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --gold:#ca8a04;--purple:#7c3aed;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#f0c040,#f97316);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;font-family:'Syne',sans-serif}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--gold);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--gold)}
+
+.main{padding:22px 26px;max-width:1400px;margin:0 auto}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-top:5px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* TORNEOS GRID */
+.torneos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.torneo-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s}
+.torneo-card:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.tc-header{padding:16px;border-bottom:1px solid var(--bd)}
+.tc-sport{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.tc-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:3px}
+.tc-meta{font-size:11px;color:var(--tx2)}
+.tc-status{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:3px 10px;margin-top:6px}
+.tc-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--bd)}
+.tcs{padding:10px 12px;text-align:center;border-right:1px solid var(--bd)}
+.tcs:last-child{border-right:none}
+.tcs-val{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.tcs-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;margin-top:2px}
+
+/* BRACKET */
+.bracket-wrap{overflow-x:auto;padding-bottom:10px}
+.bracket{display:flex;gap:0;align-items:stretch;min-width:fit-content}
+.bracket-round{display:flex;flex-direction:column;justify-content:space-around;min-width:180px;padding:0 8px;border-right:1px solid var(--bd)55}
+.bracket-round:last-child{border-right:none}
+.round-title{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;text-align:center;padding:6px 0 10px}
+.match-slot{margin:4px 0;position:relative}
+.match-card{background:var(--s2);border:1px solid var(--bd);border-radius:8px;overflow:hidden;transition:border-color .14s}
+.match-card:hover{border-color:var(--bd2)}
+.match-card.clickable{cursor:pointer}
+.match-team{display:flex;align-items:center;gap:7px;padding:7px 10px;border-bottom:1px solid var(--bd)55;font-size:12px;transition:background .12s}
+.match-team:last-child{border-bottom:none}
+.match-team.winner{background:var(--ok)0c;font-weight:600;color:var(--ok)}
+.match-team.loser{opacity:.5}
+.match-seed{font-size:9px;color:var(--tx3);width:14px;text-align:center;flex-shrink:0}
+.match-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.match-score{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0;min-width:18px;text-align:center}
+.match-bye{padding:14px 10px;font-size:11px;color:var(--tx3);text-align:center;font-style:italic}
+.bracket-connector{position:absolute;right:-8px;top:50%;width:8px;height:1px;background:var(--bd2)}
+
+/* TABLA POSICIONES */
+.pos-table{width:100%;border-collapse:collapse;font-size:12px}
+.pos-table th{padding:8px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left}
+.pos-table th.r{text-align:right}
+.pos-table td{padding:9px 12px;border-bottom:1px solid var(--bd)44;vertical-align:middle}
+.pos-table tr:hover td{background:var(--s2)}
+.pos-table tr:last-child td{border-bottom:none}
+.pos-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'Syne',sans-serif}
+
+/* INSCRIPTOS */
+.inscripto-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bd)44;font-size:12px;transition:background .12s}
+.inscripto-row:hover{background:var(--s2)}
+.inscripto-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+
+/* CARD / BTN */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif}
+.card-body{padding:14px 16px}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-gold{background:var(--gold);color:#0d1020}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--ok)18;color:var(--ok);border:1px solid var(--ok)44}
+.btn-err{background:var(--err)18;color:var(--err);border:1px solid var(--err)44}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl th.r{text-align:right}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--bd)55;vertical-align:middle}
+.tbl tr:hover td{background:var(--s2)}
+.tbl tr:last-child td{border-bottom:none}
+
+/* FORM */
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:540px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--gold)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.tog{width:34px;height:19px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tog.on{background:var(--ok)}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog.on::after{transform:translateX(15px)}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">🏆</div>
+  <div>
+    <div class="ln">Sport Hub OS — Torneos y Fixture</div>
+    <div style="font-size:10px;color:var(--tx3)">Sport Hub Norte</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-ghost btn-sm" onclick="switchTab('lista')">Ver todos</button>
+    <button class="btn btn-gold" onclick="openNuevoTorneo()">+ Nuevo torneo</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-lista"       onclick="switchTab('lista')">🏆 Torneos</div>
+  <div class="tab"    id="tab-fixture"     onclick="switchTab('fixture')">📊 Fixture</div>
+  <div class="tab"    id="tab-posiciones"  onclick="switchTab('posiciones')">📋 Posiciones</div>
+  <div class="tab"    id="tab-inscriptos"  onclick="switchTab('inscriptos')">👤 Inscriptos</div>
+  <div class="tab"    id="tab-resultados"  onclick="switchTab('resultados')">⚽ Cargar resultados</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+const fmt = n => n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n.toLocaleString()
+
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+// ── Base global de jugadores del club (deporte, categoría, género) ──────────
+// En producción esto viene de la DB — jugadores que alguna vez participaron
+const JUGADORES_CLUB = [
+  // Pádel
+  {id:1,  nombre:'Carlos M.',    deportes:['Pádel'],            categorias:['3ª','4ª'],     genero:'M', activo:true,  phone:'11-4521-3344'},
+  {id:2,  nombre:'Rodrigo F.',   deportes:['Pádel'],            categorias:['3ª','4ª'],     genero:'M', activo:true,  phone:'11-3322-6677'},
+  {id:3,  nombre:'Facundo T.',   deportes:['Pádel','Fútbol 5'], categorias:['4ª','Amateur'],genero:'M', activo:true,  phone:'11-9988-4455'},
+  {id:4,  nombre:'Agustín P.',   deportes:['Pádel','Fútbol 5'], categorias:['4ª','Amateur'],genero:'M', activo:true,  phone:'11-7744-8899'},
+  {id:5,  nombre:'Lucas M.',     deportes:['Pádel','Fútbol 5'], categorias:['3ª','Amateur'],genero:'M', activo:true,  phone:'11-5533-2211'},
+  {id:6,  nombre:'Tomás H.',     deportes:['Pádel','Fútbol 5'], categorias:['4ª','Amateur'],genero:'M', activo:true,  phone:'11-6677-3344'},
+  {id:7,  nombre:'Emilio R.',    deportes:['Pádel'],            categorias:['5ª'],          genero:'M', activo:true,  phone:'11-7788-9900'},
+  {id:8,  nombre:'Nicolás F.',   deportes:['Pádel'],            categorias:['5ª'],          genero:'M', activo:true,  phone:'11-8899-0011'},
+  {id:9,  nombre:'Diego H.',     deportes:['Pádel','Fútbol 5'], categorias:['4ª','Amateur'],genero:'M', activo:false, phone:'11-3344-5566'},
+  {id:10, nombre:'Matías R.',    deportes:['Pádel','Fútbol 5'], categorias:['5ª','Amateur'],genero:'M', activo:true,  phone:'11-2233-4455'},
+  // Mujeres pádel
+  {id:11, nombre:'Sofía L.',     deportes:['Pádel'],            categorias:['3ª','4ª'],     genero:'F', activo:true,  phone:'11-8899-1122'},
+  {id:12, nombre:'Valentina R.', deportes:['Pádel'],            categorias:['4ª'],          genero:'F', activo:true,  phone:'11-4455-7788'},
+  {id:13, nombre:'Ana C.',       deportes:['Pádel','Yoga'],     categorias:['4ª'],          genero:'F', activo:true,  phone:'11-6677-8899'},
+  {id:14, nombre:'Camila V.',    deportes:['Pádel','Yoga'],     categorias:['4ª','5ª'],     genero:'F', activo:true,  phone:'11-5544-9900'},
+  {id:15, nombre:'Martina G.',   deportes:['Pádel'],            categorias:['5ª'],          genero:'F', activo:false, phone:'11-3322-0011'},
+  {id:16, nombre:'Isabella D.',  deportes:['Pádel','Natación'], categorias:['5ª'],          genero:'F', activo:true,  phone:'11-2211-3344'},
+  {id:17, nombre:'Laura V.',     deportes:['Pádel','Tenis'],    categorias:['3ª'],          genero:'F', activo:true,  phone:'11-5533-2211'},
+  {id:18, nombre:'Florencia T.', deportes:['Pádel'],            categorias:['3ª','4ª'],     genero:'F', activo:true,  phone:'11-1122-4455'},
+  // Fútbol 5
+  {id:19, nombre:'Pablo R.',     deportes:['Fútbol 5'],         categorias:['Amateur'],     genero:'M', activo:true,  phone:'11-4466-7788'},
+  {id:20, nombre:'Jorge F.',     deportes:['Fútbol 5'],         categorias:['Amateur'],     genero:'M', activo:true,  phone:'11-5577-8899'},
+  {id:21, nombre:'Martín S.',    deportes:['Fútbol 5','Pádel'], categorias:['Amateur','5ª'],genero:'M', activo:true,  phone:'11-6688-9900'},
+  // Tenis
+  {id:22, nombre:'Carlos Méndez',deportes:['Tenis'],            categorias:['2ª'],          genero:'M', activo:true,  phone:'11-7799-0011'},
+  {id:23, nombre:'Ana Torres',   deportes:['Tenis','Natación'], categorias:['3ª'],          genero:'F', activo:true,  phone:'11-8800-1122'},
+]
+
+// Categorías disponibles por deporte
+const CATEGORIAS_POR_DEPORTE = {
+  padel:  ['1ª','2ª','3ª','4ª','5ª','6ª','7ª','Recreativo','Iniciación'],
+  futbol: ['1ª División','2ª División','Amateur','Sub-20','Sub-17','Mixto'],
+  tenis:  ['1ª','2ª','3ª','4ª','Recreativo'],
+  general:['Elite','Avanzado','Intermedio','Principiante','Recreativo'],
+}
+
+function getCategoriasPorSport(sport) {
+  const s = sport.toLowerCase()
+  if (s.includes('pádel') || s.includes('padel')) return CATEGORIAS_POR_DEPORTE.padel
+  if (s.includes('fútbol') || s.includes('futbol')) return CATEGORIAS_POR_DEPORTE.futbol
+  if (s.includes('tenis')) return CATEGORIAS_POR_DEPORTE.tenis
+  return CATEGORIAS_POR_DEPORTE.general
+}
+
+// ── Panel de invitaciones — entrada principal ────────────────────────────────
+function openPanelInvitaciones() {
+  // Recopilar deportes y categorías disponibles
+  const deportes = [...new Set(JUGADORES_CLUB.flatMap(j=>j.deportes))].sort()
+
+  showModal(buildPanelInvModal(deportes))
+  filtrarJugadoresInv()
+}
+
+function buildPanelInvModal(deportes) {
+  return `
+    <div class="modal-title">📨 Enviar invitaciones a torneo</div>
+    <div class="modal-sub">Filtrá por deporte, categoría y género para encontrar exactamente a quién invitar.</div>
+
+    <!-- Deporte -->
+    <label class="flbl">Deporte</label>
+    <div id="inv-deportes" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">
+      <div onclick="setInvDeporte('todos')" id="invd-todos"
+        style="padding:5px 14px;border-radius:8px;border:1px solid var(--gold);background:var(--gold)15;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer">
+        Todos los deportes
+      </div>
+      ${deportes.map(d=>`
+        <div onclick="setInvDeporte('${d}')" id="invd-${d.replace(/\s/g,'_')}"
+          style="padding:5px 14px;border-radius:8px;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);font-size:12px;font-weight:500;cursor:pointer;transition:all .13s">
+          ${d}
+        </div>`).join('')}
+    </div>
+
+    <!-- Categorías (se actualizan dinámicamente) -->
+    <label class="flbl">Categoría <span style="color:var(--tx3)">(podés elegir varias)</span></label>
+    <div id="inv-categorias" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">
+      <div onclick="toggleInvCat('todas')" id="invc-todas"
+        style="padding:4px 12px;border-radius:7px;border:1px solid var(--ac)33;background:var(--ac)12;color:var(--ac);font-size:11px;font-weight:600;cursor:pointer">
+        ✓ Todas las categorías
+      </div>
+    </div>
+
+    <!-- Género -->
+    <label class="flbl">Género del torneo</label>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      ${[
+        {id:'todos',   label:'Mixto',   icon:'⚧',  color:'var(--purple)'},
+        {id:'M',       label:'Masculino',icon:'♂',  color:'var(--ac)'},
+        {id:'F',       label:'Femenino', icon:'♀',  color:'var(--err)'},
+      ].map(g=>`
+        <div onclick="setInvGenero('${g.id}')" id="invg-${g.id}"
+          style="flex:1;text-align:center;padding:8px 10px;border-radius:9px;border:1px solid ${g.id==='todos'?g.color+' ':'var(--bd2)'};
+          background:${g.id==='todos'?g.color+'18':'var(--s2)'};
+          color:${g.id==='todos'?g.color:'var(--tx2)'};cursor:pointer;transition:all .15s;font-size:12px;font-weight:500">
+          <div style="font-size:16px">${g.icon}</div>${g.label}
+        </div>`).join('')}
+    </div>
+
+    <!-- Solo activos -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div class="tog on" id="inv-solo-activos" onclick="this.classList.toggle('on');filtrarJugadoresInv()"></div>
+      <div style="font-size:12px;color:var(--tx2)">Solo jugadores activos</div>
+      <div style="margin-left:auto">
+        <button class="btn btn-ghost btn-sm" onclick="selTodosInv(true)">✓ Todos</button>
+        <button class="btn btn-ghost btn-sm" onclick="selTodosInv(false)">✗ Ninguno</button>
+      </div>
+    </div>
+
+    <!-- Lista filtrada -->
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">
+      Jugadores a invitar — <span id="inv-count" style="color:var(--gold)">0</span> seleccionados
+    </div>
+    <div id="inv-lista" style="display:flex;flex-wrap:wrap;gap:5px;max-height:160px;overflow-y:auto;
+      border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:14px;background:var(--s2)">
+    </div>
+
+    <!-- Mensaje -->
+    <label class="flbl">Mensaje WhatsApp — personalizá antes de enviar</label>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
+      ${[
+        {l:'Formal 🎾',    msg:'¡Hola {nombre}! Te invitamos a participar del próximo torneo de {deporte} en Sport Hub Norte. Categoría {categoria}. ¿Te anotás?'},
+        {l:'Casual 😎',    msg:'Ey {nombre}! Se viene torneo de {deporte}. Categoría {categoria}. ¿Vas? 🔥'},
+        {l:'Femenino 💪',  msg:'¡Hola {nombre}! Organizamos un torneo femenino de {deporte}. ¡Te esperamos! 🎾'},
+        {l:'Masculino ⚽', msg:'¡Hola {nombre}! Hay torneo de {deporte} categoría {categoria}. ¿Te sumás al equipo?'},
+        {l:'Mixto 🤝',     msg:'¡Hola {nombre}! Torneo mixto de {deporte} categoría {categoria}. ¡Todos bienvenidos! 🏆'},
+      ].map(t=>`<button class="btn btn-ghost btn-sm" onclick="setInvMsg2('${t.msg.replace(/'/g,"\\'")}')">${t.l}</button>`).join('')}
+    </div>
+    <textarea class="finp" id="inv-mensaje2" rows="4" style="font-family:'DM Mono',monospace;font-size:11px"></textarea>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="closeModal();openNuevoTorneo(invGetCatSeleccionada(),invGetJugadoresSeleccionados())">
+        Continuar → Crear torneo
+      </button>
+      <button class="btn btn-gold" onclick="enviarInvitacionesDirectas()">
+        📱 Enviar invitaciones ahora
+      </button>
+    </div>
+  `
+}
+
+// Estado del filtro de invitaciones
+let _invDeporte   = 'todos'
+let _invCats      = new Set(['todas'])
+let _invGenero    = 'todos'
+let _invSel       = new Set()  // ids seleccionados
+
+function setInvDeporte(d) {
+  _invDeporte = d
+  // Actualizar chips de deporte
+  document.querySelectorAll('[id^="invd-"]').forEach(el => {
+    el.style.background  = 'var(--s2)'
+    el.style.borderColor = 'var(--bd2)'
+    el.style.color       = 'var(--tx2)'
+  })
+  const sel = document.getElementById('invd-' + (d==='todos'?'todos':d.replace(/\s/g,'_')))
+  if (sel) { sel.style.background='var(--gold)15'; sel.style.borderColor='var(--gold)'; sel.style.color='var(--gold)' }
+
+  // Actualizar categorías según el deporte
+  const catsCont = document.getElementById('inv-categorias')
+  if (catsCont) {
+    const cats = d==='todos'
+      ? [...new Set(JUGADORES_CLUB.flatMap(j=>j.categorias))].sort()
+      : getCategoriasPorSport(d)
+    _invCats = new Set(['todas'])
+    catsCont.innerHTML = '<div onclick="toggleInvCat(\'todas\')" id="invc-todas" style="padding:4px 12px;border-radius:7px;border:1px solid var(--ac)33;background:var(--ac)12;color:var(--ac);font-size:11px;font-weight:600;cursor:pointer">✓ Todas</div>' +
+      cats.map(c => '<div onclick="toggleInvCat(\''+c+'\')" id="invc-'+c.replace(/\s/g,'_')+'" ' +
+        'style="padding:4px 12px;border-radius:7px;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);font-size:11px;cursor:pointer;transition:all .13s">'+c+'</div>'
+      ).join('')
+  }
+  filtrarJugadoresInv()
+}
+
+function toggleInvCat(cat) {
+  if (cat === 'todas') {
+    _invCats = new Set(['todas'])
+    document.querySelectorAll('[id^="invc-"]').forEach(el => {
+      const isTodas = el.id === 'invc-todas'
+      el.style.background  = isTodas ? 'var(--ac)12' : 'var(--s2)'
+      el.style.borderColor = isTodas ? 'var(--ac)33' : 'var(--bd2)'
+      el.style.color       = isTodas ? 'var(--ac)' : 'var(--tx2)'
+    })
+  } else {
+    _invCats.delete('todas')
+    if (_invCats.has(cat)) {
+      _invCats.delete(cat)
+    } else {
+      _invCats.add(cat)
+    }
+    if (_invCats.size === 0) _invCats.add('todas')
+    // Actualizar UI de chips
+    document.querySelectorAll('[id^="invc-"]').forEach(el => {
+      const c = el.id.replace('invc-','').replace(/_/g,' ')
+      const sel = _invCats.has(c) || (c==='todas' && _invCats.has('todas'))
+      el.style.background  = sel ? 'var(--ac)12' : 'var(--s2)'
+      el.style.borderColor = sel ? 'var(--ac)33' : 'var(--bd2)'
+      el.style.color       = sel ? 'var(--ac)' : 'var(--tx2)'
+      if (c==='todas') {
+        el.style.background  = _invCats.has('todas') ? 'var(--ac)12' : 'var(--s2)'
+        el.style.borderColor = _invCats.has('todas') ? 'var(--ac)33' : 'var(--bd2)'
+        el.style.color       = _invCats.has('todas') ? 'var(--ac)' : 'var(--tx2)'
+      }
+    })
+  }
+  filtrarJugadoresInv()
+}
+
+function setInvGenero(g) {
+  _invGenero = g
+  ;['todos','M','F'].forEach(id => {
+    const el = document.getElementById('invg-'+id)
+    if (!el) return
+    const gColors = {todos:'var(--purple)', M:'var(--ac)', F:'var(--err)'}
+    const sel = id === g
+    el.style.background  = sel ? gColors[id]+'18' : 'var(--s2)'
+    el.style.borderColor = sel ? gColors[id] : 'var(--bd2)'
+    el.style.color       = sel ? gColors[id] : 'var(--tx2)'
+  })
+  filtrarJugadoresInv()
+}
+
+function filtrarJugadoresInv() {
+  const soloActivos = document.getElementById('inv-solo-activos')?.classList.contains('on') ?? true
+
+  const filtrados = JUGADORES_CLUB.filter(j => {
+    if (soloActivos && !j.activo) return false
+    if (_invDeporte !== 'todos' && !j.deportes.includes(_invDeporte)) return false
+    if (!_invCats.has('todas') && !j.categorias.some(c => _invCats.has(c))) return false
+    if (_invGenero !== 'todos' && j.genero !== _invGenero) return false
+    return true
+  })
+
+  // Actualizar _invSel con los filtrados (por defecto todos seleccionados)
+  _invSel = new Set(filtrados.map(j=>j.id))
+
+  renderInvLista(filtrados)
+  updateInvCount()
+  updateInvMsgDefault()
+}
+
+function renderInvLista(jugadores) {
+  const lista = document.getElementById('inv-lista')
+  if (!lista) return
+
+  if (!jugadores.length) {
+    lista.innerHTML = '<div style="font-size:12px;color:var(--tx3);text-align:center;width:100%;padding:10px">Sin jugadores con ese filtro</div>'
+    return
+  }
+
+  lista.innerHTML = jugadores.map(j => {
+    const gIcon = j.genero==='M' ? '♂' : '♀'
+    const gColor = j.genero==='M' ? 'var(--ac)' : 'var(--err)'
+    const sel = _invSel.has(j.id)
+    return '<div id="invjug-'+j.id+'" onclick="toggleInvJug('+j.id+')" ' +
+      'style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:7px;' +
+      'border:1px solid '+(sel?'var(--ok)33':'var(--bd2)')+';' +
+      'background:'+(sel?'var(--ok)10':'var(--s2)')+';' +
+      'color:'+(sel?'var(--ok)':'var(--tx3)')+';' +
+      'font-size:11px;font-weight:500;cursor:pointer;transition:all .13s;user-select:none">' +
+      '<span style="color:'+gColor+';font-size:10px">'+gIcon+'</span>' +
+      '<span>'+(sel?'✓ ':'')+j.nombre+'</span>' +
+      '<span style="font-size:9px;color:var(--tx3);margin-left:2px">'+j.categorias[0]+'</span>' +
+      '</div>'
+  }).join('')
+}
+
+function toggleInvJug(id) {
+  if (_invSel.has(id)) _invSel.delete(id)
+  else _invSel.add(id)
+  const j = JUGADORES_CLUB.find(x=>x.id===id)
+  const el = document.getElementById('invjug-'+id)
+  if (!el || !j) return
+  const sel = _invSel.has(id)
+  el.style.background  = sel ? 'var(--ok)10' : 'var(--s2)'
+  el.style.borderColor = sel ? 'var(--ok)33' : 'var(--bd2)'
+  el.style.color       = sel ? 'var(--ok)' : 'var(--tx3)'
+  el.innerHTML = '<span style="color:'+(j.genero==='M'?'var(--ac)':'var(--err)')+';font-size:10px">'+(j.genero==='M'?'♂':'♀')+'</span>' +
+    '<span>'+(sel?'✓ ':'')+j.nombre+'</span>' +
+    '<span style="font-size:9px;color:var(--tx3);margin-left:2px">'+j.categorias[0]+'</span>'
+  updateInvCount()
+}
+
+function selTodosInv(val) {
+  const lista = document.getElementById('inv-lista')
+  const chips = lista?.querySelectorAll('[id^="invjug-"]') || []
+  chips.forEach(el => {
+    const id = parseInt(el.id.replace('invjug-',''))
+    if (val) _invSel.add(id)
+    else _invSel.delete(id)
+    const j = JUGADORES_CLUB.find(x=>x.id===id)
+    el.style.background  = val ? 'var(--ok)10' : 'var(--s2)'
+    el.style.borderColor = val ? 'var(--ok)33' : 'var(--bd2)'
+    el.style.color       = val ? 'var(--ok)' : 'var(--tx3)'
+    const gColor = j?.genero==='M' ? 'var(--ac)' : 'var(--err)'
+    const gIcon  = j?.genero==='M' ? '♂' : '♀'
+    el.innerHTML = '<span style="color:'+gColor+';font-size:10px">'+gIcon+'</span>' +
+      '<span>'+(val?'✓ ':'')+(j?.nombre||'')+'</span>' +
+      '<span style="font-size:9px;color:var(--tx3);margin-left:2px">'+(j?.categorias[0]||'')+'</span>'
+  })
+  updateInvCount()
+}
+
+function updateInvCount() {
+  const el = document.getElementById('inv-count')
+  if (el) el.textContent = _invSel.size
+}
+
+function updateInvMsgDefault() {
+  const ta = document.getElementById('inv-mensaje2')
+  if (!ta || ta.value) return
+  const deporte = _invDeporte === 'todos' ? '{deporte}' : _invDeporte
+  const genLabel = _invGenero==='M' ? 'masculino' : _invGenero==='F' ? 'femenino' : 'mixto'
+  ta.value = '¡Hola {nombre}! 🎾\n\nTe invitamos al próximo torneo ' + genLabel + ' de ' + deporte +
+    ' en Sport Hub Norte.\n\n📅 Fecha: por confirmar\n🏆 Categoría: {categoria}\n💰 Inscripción: a confirmar\n\n¿Participás? Respondé este mensaje para anotarte 🙌'
+}
+
+function setInvMsg2(msg) {
+  const ta = document.getElementById('inv-mensaje2')
+  if (ta) ta.value = msg
+}
+
+function invGetJugadoresSeleccionados() {
+  return JUGADORES_CLUB.filter(j=>_invSel.has(j.id)).map(j=>j.nombre)
+}
+
+function invGetCatSeleccionada() {
+  if (_invCats.has('todas')) return ''
+  return [..._invCats].join(', ')
+}
+
+function enviarInvitacionesDirectas() {
+  const n = _invSel.size
+  if (!n) { toast('Seleccioná al menos un jugador','warn'); return }
+  closeModal()
+  toast('📱 ' + n + ' invitaciones enviadas por WhatsApp')
+}
+
+const TORNEOS = [
+  {
+    id:1, nombre:'Copa Pádel Junio', sport:'Pádel', formato:'eliminacion',
+    estado:'en_curso', inicio:'7 Jun 2025', fin:'28 Jun 2025',
+    inscripcion_precio:5000, premio:'$80.000 + trofeo', max_equipos:16,
+    categoria:'3ª-5ª',
+    equipos:[
+      {id:1,  nombre:'Los Pitucos',    seed:1,  jugadores:['Carlos M.','Rodrigo F.'],   pts:6, pg:3, pp:0, sets_f:6,  sets_c:1},
+      {id:2,  nombre:'Smash Bros',     seed:2,  jugadores:['Facundo T.','Agustín P.'],  pts:6, pg:3, pp:0, sets_f:6,  sets_c:2},
+      {id:3,  nombre:'Doble Falta',    seed:3,  jugadores:['Lucas M.','Tomás H.'],      pts:3, pg:1, pp:1, sets_f:3,  sets_c:3},
+      {id:4,  nombre:'Al Fondo',       seed:4,  jugadores:['Emilio R.','Nicolás F.'],   pts:3, pg:1, pp:1, sets_f:4,  sets_c:4},
+      {id:5,  nombre:'Net Surfers',    seed:5,  jugadores:['Diego H.','Matías R.'],     pts:3, pg:1, pp:2, sets_f:5,  sets_c:6},
+      {id:6,  nombre:'Set Point',      seed:6,  jugadores:['Sofía L.','Valentina R.'],  pts:0, pg:0, pp:2, sets_f:1,  sets_c:4},
+      {id:7,  nombre:'Los Rematadores',seed:7,  jugadores:['Ana C.','Camila V.'],       pts:0, pg:0, pp:3, sets_f:2,  sets_c:6},
+      {id:8,  nombre:'Bandeja & Smash',seed:8,  jugadores:['Martina G.','Isabella D.'], pts:0, pg:0, pp:3, sets_f:0,  sets_c:6},
+    ],
+    // Fixture eliminación directa (8 equipos → 3 rondas)
+    partidos:[
+      // Cuartos
+      {id:1,  ronda:0, eq1:1, eq2:8, res1:2, res2:0, ganador:1, jugado:true,  cancha:'Cancha 1', fecha:'7 Jun 19hs'},
+      {id:2,  ronda:0, eq1:4, eq2:5, res1:2, res2:1, ganador:4, jugado:true,  cancha:'Cancha 2', fecha:'7 Jun 20hs'},
+      {id:3,  ronda:0, eq1:2, eq2:7, res1:2, res2:0, ganador:2, jugado:true,  cancha:'Cancha 1', fecha:'14 Jun 19hs'},
+      {id:4,  ronda:0, eq1:3, eq2:6, res1:2, res2:1, ganador:3, jugado:true,  cancha:'Cancha 2', fecha:'14 Jun 20hs'},
+      // Semis
+      {id:5,  ronda:1, eq1:1, eq2:4, res1:2, res2:0, ganador:1, jugado:true,  cancha:'Cancha 1', fecha:'21 Jun 19hs'},
+      {id:6,  ronda:1, eq1:2, eq2:3, res1:2, res2:1, ganador:2, jugado:true,  cancha:'Cancha 2', fecha:'21 Jun 20hs'},
+      // Final
+      {id:7,  ronda:2, eq1:1, eq2:2, res1:null, res2:null, ganador:null, jugado:false, cancha:'Cancha Central', fecha:'28 Jun 20hs'},
+    ],
+  },
+  {
+    id:2, nombre:'Liga Fútbol 5 — Invierno', sport:'Fútbol 5', formato:'liga',
+    estado:'inscripcion', inicio:'1 Jul 2025', fin:'31 Ago 2025',
+    inscripcion_precio:8000, premio:'Trofeo + medallas', max_equipos:8,
+    categoria:'Amateur',
+    equipos:[
+      {id:9,  nombre:'Los Cracks',      seed:1, jugadores:['Matías R.','Facundo T.','Diego H.','Agustín P.','Carlos M.'], pts:0,pg:0,pp:0,sets_f:0,sets_c:0},
+      {id:10, nombre:'La Máquina',      seed:2, jugadores:['Lucas M.','Tomás H.','Emilio R.','Rodrigo F.','Nicolás F.'],  pts:0,pg:0,pp:0,sets_f:0,sets_c:0},
+      {id:11, nombre:'Veteranos FC',    seed:3, jugadores:['Carlos M.','Diego H.','Martín S.','Pablo R.','Jorge F.'],     pts:0,pg:0,pp:0,sets_f:0,sets_c:0},
+    ],
+    partidos:[],
+  },
+  {
+    id:3, nombre:'Torneo Relámpago Pádel', sport:'Pádel', formato:'grupos',
+    estado:'finalizado', inicio:'1 Jun 2025', fin:'1 Jun 2025',
+    inscripcion_precio:2000, premio:'Productos de la tienda', max_equipos:8,
+    categoria:'Recreativo',
+    equipos:[
+      {id:12, nombre:'Equipo A', seed:1, jugadores:['Sofía L.','Isabella D.'],    pts:9, pg:3, pp:0, sets_f:6, sets_c:0},
+      {id:13, nombre:'Equipo B', seed:2, jugadores:['Valentina R.','Camila V.'],  pts:6, pg:2, pp:1, sets_f:5, sets_c:3},
+      {id:14, nombre:'Equipo C', seed:3, jugadores:['Ana C.','Martina G.'],       pts:3, pg:1, pp:2, sets_f:3, sets_c:5},
+      {id:15, nombre:'Equipo D', seed:4, jugadores:['Laura V.','Sofía R.'],       pts:0, pg:0, pp:3, sets_f:0, sets_c:6},
+    ],
+    partidos:[],
+  },
+]
+
+let activeTab     = 'lista'
+let activeTorneoId = 1
+
+const getTeam  = (t,id) => t.equipos.find(e=>e.id===id)
+const getMatch = (t,id) => t.partidos.find(p=>p.id===id)
+
+const STATUS = {
+  inscripcion: {label:'Inscripción abierta', color:'var(--ac)'},
+  en_curso:    {label:'En curso',            color:'var(--ok)'},
+  finalizado:  {label:'Finalizado',          color:'var(--tx3)'},
+  pausado:     {label:'Pausado',             color:'var(--warn)'},
+}
+
+// ── Catálogo de formatos por deporte ─────────────────────
+const FORMATOS_POR_DEPORTE = {
+  padel: [
+    { id:'americano',     label:'Americano',                      desc:'Parejas rotativas · todos juegan con todos · 1 jornada',    individual:true  },
+    { id:'americano_mx',  label:'Americano Mexicano',              desc:'Americano con comodín + todos puntúan',                    individual:true  },
+    { id:'eliminacion',   label:'Eliminación directa (duplas)',    desc:'Cuadro de 8/16/32 · duplas fijas',                        individual:false },
+    { id:'liga_duplas',   label:'Liga de duplas',                  desc:'Round-robin · duplas fijas · ranking equipo',             individual:false },
+    { id:'liga_indiv',    label:'Liga individual (ranking propio)',desc:'Cada jugador acumula puntos aunque cambie de pareja',     individual:true  },
+    { id:'grupos_elim',   label:'Fase de grupos + eliminación',   desc:'Grupos de 4 → cuartos → final',                          individual:false },
+    { id:'round_robin',   label:'Round-robin puro',               desc:'Todos contra todos · clasifican los 2 mejores por grupo', individual:true  },
+    { id:'personalizado', label:'Personalizado…',                  desc:'Definís vos las reglas y el formato',                    individual:null  },
+  ],
+  futbol: [
+    { id:'liga',          label:'Liga (todos contra todos)',       desc:'Ida y vuelta · 3 pts victoria · tabla AFA',               individual:false },
+    { id:'eliminacion',   label:'Eliminación directa',            desc:'Cuadro · partido único o ida y vuelta',                   individual:false },
+    { id:'copa',          label:'Copa (grupos + eliminación)',     desc:'Fase de grupos → octavos/cuartos → final',               individual:false },
+    { id:'torneo_arg',    label:'Torneo estilo Apertura/Clausura',desc:'Liga con playoffs finales para el campeón',              individual:false },
+    { id:'triangular',    label:'Triangular / Cuadrangular',      desc:'3 ó 4 equipos · todos contra todos · 1 sola fecha',      individual:false },
+    { id:'penales',       label:'Torneo de penales',              desc:'Solo shootouts · ideal para un solo día',                individual:false },
+    { id:'personalizado', label:'Personalizado…',                 desc:'Definís vos las reglas',                                 individual:null  },
+  ],
+  tenis: [
+    { id:'eliminacion',   label:'Cuadro de eliminación',          desc:'ATP style · cabezas de serie · byes automáticos',        individual:true  },
+    { id:'round_robin',   label:'Round-robin',                    desc:'Todos contra todos · clasifican los 2 mejores',          individual:true  },
+    { id:'super_tie',     label:'Super tie-break final',          desc:'Sets normales + super tie-break en lugar del 3er set',   individual:true  },
+    { id:'personalizado', label:'Personalizado…',                 desc:'Definís vos las reglas',                                 individual:null  },
+  ],
+  general: [
+    { id:'eliminacion',   label:'Eliminación directa',            desc:'Cuadro único · el perdedor queda fuera',                 individual:false },
+    { id:'doble_elim',    label:'Doble eliminación',              desc:'Se necesitan 2 derrotas para quedar eliminado',          individual:false },
+    { id:'liga',          label:'Liga (todos contra todos)',       desc:'Round-robin completo',                                   individual:false },
+    { id:'grupos_elim',   label:'Grupos + eliminación',           desc:'Fase de grupos → playoffs',                             individual:false },
+    { id:'personalizado', label:'Personalizado…',                 desc:'Definís vos las reglas',                                individual:null  },
+  ],
+}
+
+// Estado del editor de formato personalizado
+let _formatoPersonalizado = {
+  nombre: '',
+  num_rondas: 3,
+  avance: '1_set',
+  puntos_victoria: 3,
+  puntos_empate: 1,
+  puntos_derrota: 0,
+  desempate: 'diferencia_sets',
+  notas: '',
+}
+
+function getFormatosPorSport(sport) {
+  const s = sport.toLowerCase()
+  if (s.includes('pádel') || s.includes('padel')) return FORMATOS_POR_DEPORTE.padel
+  if (s.includes('fútbol') || s.includes('futbol') || s.includes('soccer')) return FORMATOS_POR_DEPORTE.futbol
+  if (s.includes('tenis') || s.includes('tennis')) return FORMATOS_POR_DEPORTE.tenis
+  return FORMATOS_POR_DEPORTE.general
+}
+
+const FORMATO = {
+  americano:     'Americano',
+  americano_mx:  'Americano Mexicano',
+  eliminacion:   'Eliminación directa',
+  liga_duplas:   'Liga de duplas',
+  liga_indiv:    'Liga individual',
+  grupos_elim:   'Grupos + eliminación',
+  round_robin:   'Round-robin',
+  liga:          'Liga',
+  copa:          'Copa',
+  torneo_arg:    'Apertura/Clausura',
+  triangular:    'Triangular',
+  penales:       'Torneo de penales',
+  super_tie:     'Super tie-break',
+  doble_elim:    'Doble eliminación',
+  personalizado: 'Personalizado',
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  const enCurso = TORNEOS.filter(t=>t.estado==='en_curso').length
+  const inscAb  = TORNEOS.filter(t=>t.estado==='inscripcion').length
+  const totalEq = TORNEOS.reduce((a,t)=>a+t.equipos.length,0)
+  const ingresos= TORNEOS.reduce((a,t)=>a+t.equipos.length*t.inscripcion_precio,0)
+  const proxFinal = TORNEOS.find(t=>t.estado==='en_curso')
+
+  const kpiHtml = `<div class="kpis">
+    <div class="kpi" style="border-top:3px solid var(--gold)">
+      <div style="font-size:11px;color:var(--tx2)">Torneos activos</div>
+      <div class="kv" style="color:var(--gold)">${enCurso}</div>
+      <div class="kl">en curso</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ac)">
+      <div style="font-size:11px;color:var(--tx2)">Inscripción abierta</div>
+      <div class="kv" style="color:var(--ac)">${inscAb}</div>
+      <div class="kl">aceptando equipos</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ok)">
+      <div style="font-size:11px;color:var(--tx2)">Equipos inscriptos</div>
+      <div class="kv" style="color:var(--ok)">${totalEq}</div>
+      <div class="kl">en todos los torneos</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--warn)">
+      <div style="font-size:11px;color:var(--tx2)">Ingresos inscripciones</div>
+      <div class="kv" style="color:var(--warn)">${fmt(ingresos)}</div>
+      <div class="kl">todos los torneos</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--purple)">
+      <div style="font-size:11px;color:var(--tx2)">Próxima final</div>
+      <div class="kv" style="color:var(--purple);font-size:14px;margin-top:3px">28 Jun</div>
+      <div class="kl">${proxFinal?.nombre||'—'}</div>
+    </div>
+  </div>`
+
+  const content = document.getElementById('main')
+  switch(activeTab) {
+    case 'lista':       content.innerHTML = kpiHtml + renderLista();       break
+    case 'fixture':     content.innerHTML = kpiHtml + renderFixture();     break
+    case 'posiciones':  content.innerHTML = kpiHtml + renderPosiciones();  break
+    case 'inscriptos':  content.innerHTML = kpiHtml + renderInscriptos();  break
+    case 'resultados':  content.innerHTML = kpiHtml + renderResultados();  break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  LISTA DE TORNEOS
+// ══════════════════════════════════════════════════════════
+function renderLista() {
+  let html = '<div class="torneos-grid">'
+
+  TORNEOS.forEach(t => {
+    const st  = STATUS[t.estado]
+    const rev = t.equipos.length * t.inscripcion_precio
+    const pct = Math.round(t.equipos.length / t.max_equipos * 100)
+
+    html += `<div class="torneo-card" onclick="selectTorneo(${t.id})">
+      <div class="tc-header">
+        <div class="tc-sport" style="color:var(--gold)">${t.sport} · ${FORMATO[t.formato]}</div>
+        <div class="tc-name">${t.nombre}</div>
+        <div class="tc-meta">${t.inicio} → ${t.fin} · Categoría: ${t.categoria}</div>
+        <div class="tc-meta" style="margin-top:2px">🏅 Premio: ${t.premio}</div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:8px">
+          <span class="tc-status" style="background:${st.color}18;color:${st.color}">${st.label}</span>
+        </div>
+        <!-- Barra de llenado -->
+        <div style="background:var(--bd);border-radius:3px;height:4px;overflow:hidden;margin-top:10px">
+          <div style="width:${pct}%;height:100%;background:${pct>=100?'var(--err)':pct>=75?'var(--warn)':'var(--ok)'};border-radius:3px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-top:3px">
+          <span>${t.equipos.length}/${t.max_equipos} equipos</span>
+          <span>${pct}% completo</span>
+        </div>
+      </div>
+      <div class="tc-stats">
+        <div class="tcs">
+          <div class="tcs-val" style="color:var(--gold)">${t.equipos.length}</div>
+          <div class="tcs-lbl">Equipos</div>
+        </div>
+        <div class="tcs">
+          <div class="tcs-val" style="color:var(--ok)">${fmt(rev)}</div>
+          <div class="tcs-lbl">Inscripciones</div>
+        </div>
+        <div class="tcs">
+          <div class="tcs-val">${fmt(t.inscripcion_precio)}</div>
+          <div class="tcs-lbl">Precio eq.</div>
+        </div>
+      </div>
+    </div>`
+  })
+
+  html += '</div>'
+
+  // Tabla compacta
+  html += `<div class="card">
+    <div class="card-head">
+      <span class="card-title">Todos los torneos</span>
+      <button class="btn btn-gold btn-sm" onclick="openNuevoTorneo()">+ Nuevo torneo</button>
+    </div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Torneo</th><th>Deporte</th><th>Formato</th><th>Período</th>
+        <th class="r">Equipos</th><th class="r">Ingresos</th><th>Estado</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${TORNEOS.map(t=>{
+          const st = STATUS[t.estado]
+          return `<tr onclick="selectTorneo(${t.id})" style="cursor:pointer">
+            <td><strong>${t.nombre}</strong><div style="font-size:10px;color:var(--tx3)">${t.categoria}</div></td>
+            <td>${t.sport}</td>
+            <td style="color:var(--tx2)">${FORMATO[t.formato]}</td>
+            <td style="color:var(--tx2);font-size:11px">${t.inicio} → ${t.fin}</td>
+            <td class="r">${t.equipos.length}/${t.max_equipos}</td>
+            <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--ok)">${fmt(t.equipos.length*t.inscripcion_precio)}</td>
+            <td><span class="badge" style="background:${st.color}18;color:${st.color}">${st.label}</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();selectTorneo(${t.id});switchTab('fixture')">Ver fixture</button></td>
+          </tr>`
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`
+
+  return html
+}
+
+function selectTorneo(id) {
+  activeTorneoId = id
+  switchTab('fixture')
+}
+
+// ══════════════════════════════════════════════════════════
+//  FIXTURE — BRACKET
+// ══════════════════════════════════════════════════════════
+function renderFixture() {
+  const t = TORNEOS.find(x=>x.id===activeTorneoId)
+  if (!t) return '<div style="padding:20px;color:var(--tx3)">Seleccioná un torneo</div>'
+
+  let html = ''
+
+  // Selector de torneo
+  html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">'
+  html += '<span style="font-size:12px;color:var(--tx2)">Torneo:</span>'
+  TORNEOS.forEach(x => {
+    const sel = x.id === activeTorneoId
+    html += `<button class="btn btn-sm ${sel?'btn-gold':'btn-ghost'}" onclick="activeTorneoId=${x.id};renderMain()">${x.nombre}</button>`
+  })
+  html += '</div>'
+
+  if (t.formato === 'eliminacion') {
+    html += renderBracketEliminacion(t)
+  } else if (t.formato === 'liga' || t.formato === 'grupos') {
+    html += renderLigaCalendario(t)
+  }
+
+  return html
+}
+
+function renderBracketEliminacion(t) {
+  const RONDAS = ['Cuartos de final', 'Semifinales', 'Final']
+  const numRondas = Math.ceil(Math.log2(t.equipos.length))
+  const rondasUsadas = [...new Set(t.partidos.map(p=>p.ronda))].sort()
+
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800">${t.nombre}</div>
+      <div style="font-size:12px;color:var(--tx2)">${t.sport} · Eliminación directa · ${t.equipos.length} equipos</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" onclick="openInscripcionEquipo(${t.id})">+ Inscribir equipo</button>
+      <button class="btn btn-gold btn-sm" onclick="switchTab('resultados')">⚽ Cargar resultado</button>
+    </div>
+  </div>`
+
+  html += '<div class="bracket-wrap"><div class="bracket">'
+
+  rondasUsadas.forEach((ronda, ri) => {
+    const partidos = t.partidos.filter(p=>p.ronda===ronda)
+    const rondaNombre = RONDAS[ronda] || 'Ronda '+(ronda+1)
+    const isLast = ri === rondasUsadas.length - 1
+
+    html += `<div class="bracket-round" style="min-width:${isLast?200:180}px">`
+    html += `<div class="round-title">${rondaNombre}</div>`
+
+    partidos.forEach(p => {
+      const eq1 = getTeam(t, p.eq1)
+      const eq2 = getTeam(t, p.eq2)
+      const w   = p.ganador
+
+      html += `<div class="match-slot">`
+      html += `<div class="match-card ${p.jugado?'':'clickable'}" onclick="${!p.jugado?'openCargarResultado('+t.id+','+p.id+')':''}">`
+
+      // Equipo 1
+      html += `<div class="match-team ${w===p.eq1?'winner':w&&w!==p.eq1?'loser':''}">`
+      html += `<span class="match-seed">${eq1?.seed||'?'}</span>`
+      html += `<span class="match-name">${eq1?.nombre||'?'}</span>`
+      html += `<span class="match-score">${p.jugado?(p.res1??''):'—'}</span>`
+      html += `</div>`
+
+      // Equipo 2
+      html += `<div class="match-team ${w===p.eq2?'winner':w&&w!==p.eq2?'loser':''}">`
+      html += `<span class="match-seed">${eq2?.seed||'?'}</span>`
+      html += `<span class="match-name">${eq2?.nombre||'TBD'}</span>`
+      html += `<span class="match-score">${p.jugado?(p.res2??''):'—'}</span>`
+      html += `</div>`
+
+      html += `</div>` // match-card
+
+      // Info del partido
+      html += `<div style="font-size:9px;color:var(--tx3);text-align:center;padding:3px 0">${p.fecha} · ${p.cancha}</div>`
+      html += `</div>` // match-slot
+    })
+
+    // Campeón si es la final ya jugada
+    if (isLast) {
+      const finalP = partidos[0]
+      if (finalP?.ganador) {
+        const campeon = getTeam(t, finalP.ganador)
+        html += `<div style="margin-top:10px;padding:10px 12px;background:var(--gold)18;border:1px solid var(--gold)44;border-radius:10px;text-align:center">
+          <div style="font-size:16px">🏆</div>
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--gold);margin-top:3px">${campeon?.nombre}</div>
+          <div style="font-size:10px;color:var(--tx3)">Campeón</div>
+        </div>`
+      } else if (finalP && !finalP.jugado) {
+        html += `<div style="margin-top:10px;padding:10px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;text-align:center">
+          <div style="font-size:11px;color:var(--tx3)">Final pendiente</div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:2px">${finalP.fecha}</div>
+          <button class="btn btn-gold btn-sm" style="margin-top:8px;width:100%;justify-content:center" onclick="openCargarResultado(${t.id},${finalP.id})">Cargar resultado</button>
+        </div>`
+      }
+    }
+
+    html += `</div>` // bracket-round
+  })
+
+  html += '</div></div>'
+  return html
+}
+
+function renderLigaCalendario(t) {
+  if (t.estado === 'inscripcion' || t.partidos.length === 0) {
+    return '<div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:30px;text-align:center">' +
+      '<div style="font-size:32px;margin-bottom:10px">📅</div>' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:16px;font-weight:700;margin-bottom:5px">' + t.nombre + '</div>' +
+      '<div style="font-size:13px;color:var(--tx2);margin-bottom:16px">' +
+        (t.estado==='inscripcion'?'Inscripción abierta — el sorteo y fixture se generan al cerrar.':'Sin partidos cargados.') +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
+        '<button class="btn btn-gold" onclick="openGenerarSorteo('+t.id+')">⚡ Generar sorteo y fixture</button>' +
+        '<button class="btn btn-ghost" onclick="openInscripcionEquipo('+t.id+')">+ Inscribir equipo</button>' +
+      '</div>' +
+    '</div>'
+  }
+
+  // Liga con partidos — mostrar calendario
+  const canchas = [...new Set(t.partidos.map(p=>p.cancha))]
+  let html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">'
+  html += '<div><div style="font-family:\'Syne\',sans-serif;font-size:17px;font-weight:800">' + t.nombre + '</div>'
+  html += '<div style="font-size:12px;color:var(--tx2)">' + t.sport + ' · ' + (FORMATO[t.formato]||t.formato) + ' · ' + t.equipos.length + ' equipos</div></div>'
+  html += '<button class="btn btn-gold btn-sm" onclick="switchTab(\'resultados\')">⚽ Cargar resultado</button>'
+  html += '</div>'
+
+  // Agrupar por fecha
+  const porFecha = {}
+  t.partidos.forEach(p => {
+    const f = p.fecha || 'Sin fecha'
+    if (!porFecha[f]) porFecha[f] = []
+    porFecha[f].push(p)
+  })
+
+  Object.entries(porFecha).forEach(([fecha, partidos]) => {
+    html += '<div class="card" style="margin-bottom:10px">'
+    html += '<div class="card-head" style="background:var(--s2)"><span class="card-title">📅 ' + fecha + '</span></div>'
+    partidos.forEach(p => {
+      const eq1 = getTeam(t,p.eq1), eq2 = getTeam(t,p.eq2)
+      const w = p.ganador
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bd)44;font-size:12px">'
+      html += '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--tx3);flex-shrink:0;min-width:40px">' + (p.hora||'') + '</div>'
+      html += '<div style="flex:1;display:flex;align-items:center;gap:8px;min-width:0">'
+      html += '<span style="font-weight:' + (w===p.eq1?700:400) + ';color:' + (w===p.eq1?'var(--ok)':w?'var(--tx3)':'var(--tx)') + '">' + (eq1?.nombre||'?') + '</span>'
+      if (p.jugado) {
+        html += '<span style="font-family:\'DM Mono\',monospace;font-size:15px;font-weight:800;color:var(--tx);background:var(--s2);padding:2px 8px;border-radius:6px">' + p.res1 + ' - ' + p.res2 + '</span>'
+      } else {
+        html += '<span style="font-size:12px;color:var(--tx3);padding:2px 8px">vs</span>'
+      }
+      html += '<span style="font-weight:' + (w===p.eq2?700:400) + ';color:' + (w===p.eq2?'var(--ok)':w?'var(--tx3)':'var(--tx)') + '">' + (eq2?.nombre||'TBD') + '</span>'
+      html += '</div>'
+      html += '<span style="font-size:10px;color:var(--tx3);flex-shrink:0">' + (p.cancha||'') + '</span>'
+      if (!p.jugado) html += '<button class="btn btn-ghost btn-sm" onclick="openCargarResultado(' + t.id + ',' + p.id + ')">Cargar</button>'
+      html += '</div>'
+    })
+    html += '</div>'
+  })
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  POSICIONES
+// ══════════════════════════════════════════════════════════
+// Deportes donde el ranking es POR JUGADOR individual (no por equipo)
+const SPORTS_INDIVIDUAL = ['Pádel', 'Tenis', 'Pádel dobles']
+
+function esDeporteIndividual(sport) {
+  return SPORTS_INDIVIDUAL.some(s => sport.toLowerCase().includes(s.toLowerCase()))
+}
+
+// Construye el ranking de jugadores individuales a partir de los partidos del torneo
+function buildRankingIndividual(t) {
+  const jugMap = {}  // nombre → stats
+
+  const getOrCreate = (nombre) => {
+    if (!jugMap[nombre]) jugMap[nombre] = {
+      nombre, equipos:[], pts:0, pg:0, pp:0, sets_f:0, sets_c:0
+    }
+    return jugMap[nombre]
+  }
+
+  t.partidos.forEach(p => {
+    if (!p.jugado) return
+    const eq1 = t.equipos.find(e=>e.id===p.eq1)
+    const eq2 = t.equipos.find(e=>e.id===p.eq2)
+    if (!eq1 || !eq2) return
+    const gano1 = p.ganador === p.eq1
+
+    eq1.jugadores.forEach(j => {
+      const jug = getOrCreate(j)
+      if (!jug.equipos.includes(eq1.nombre)) jug.equipos.push(eq1.nombre)
+      if (gano1) { jug.pts+=3; jug.pg++; jug.sets_f+=p.res1; jug.sets_c+=p.res2 }
+      else       { jug.pp++;              jug.sets_f+=p.res1; jug.sets_c+=p.res2 }
+    })
+    eq2.jugadores.forEach(j => {
+      const jug = getOrCreate(j)
+      if (!jug.equipos.includes(eq2.nombre)) jug.equipos.push(eq2.nombre)
+      if (!gano1) { jug.pts+=3; jug.pg++; jug.sets_f+=p.res2; jug.sets_c+=p.res1 }
+      else        { jug.pp++;              jug.sets_f+=p.res2; jug.sets_c+=p.res1 }
+    })
+  })
+
+  return Object.values(jugMap).sort((a,b)=>b.pts-a.pts||(b.sets_f-b.sets_c)-(a.sets_f-a.sets_c))
+}
+
+function renderPosiciones() {
+  const t = TORNEOS.find(x=>x.id===activeTorneoId)
+  if (!t || !t.equipos.length) return '<div style="padding:20px;color:var(--tx3)">Sin datos</div>'
+
+  const individual = esDeporteIndividual(t.sport)
+
+  let html = '<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">'
+  TORNEOS.forEach(x => {
+    html += '<button class="btn btn-sm ' + (x.id===activeTorneoId?'btn-gold':'btn-ghost') + '" onclick="activeTorneoId='+x.id+';renderMain()">'+x.nombre+'</button>'
+  })
+  // Indicador del modo
+  html += '<span style="margin-left:auto;font-size:11px;padding:3px 10px;border-radius:6px;background:' +
+    (individual?'var(--ac)15':'var(--ok)15') + ';color:' + (individual?'var(--ac)':'var(--ok)') + ';font-weight:600">' +
+    (individual?'👤 Ranking individual':'👥 Ranking por equipo') + '</span>'
+  html += '</div>'
+
+  if (individual) {
+    html += renderPosicionesIndividual(t)
+  } else {
+    html += renderPosicionesEquipo(t)
+  }
+
+  return html
+}
+
+// ── RANKING INDIVIDUAL (pádel, tenis) ─────────────────────
+function renderPosicionesIndividual(t) {
+  const jugadores = buildRankingIndividual(t)
+
+  if (!jugadores.length) {
+    return '<div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:30px;text-align:center;color:var(--tx3);font-size:13px">' +
+      'No hay partidos jugados aún — el ranking aparece al cargar los primeros resultados.' +
+      '</div>'
+  }
+
+  let html = '<div style="display:grid;grid-template-columns:1fr 300px;gap:14px">'
+
+  // Tabla principal de jugadores
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head">'
+  html += '<span class="card-title">👤 Ranking individual — ' + t.nombre + '</span>'
+  html += '<span style="font-size:11px;color:var(--tx3)">Acumula puntos con cualquier dupla</span>'
+  html += '</div>'
+  html += '<table class="pos-table"><thead><tr>'
+  html += '<th style="width:40px">#</th>'
+  html += '<th>Jugador</th>'
+  html += '<th class="r">PJ</th>'
+  html += '<th class="r">PG</th>'
+  html += '<th class="r">PP</th>'
+  html += '<th class="r">Sets G</th>'
+  html += '<th class="r">Sets C</th>'
+  html += '<th class="r">Dif.</th>'
+  html += '<th class="r" style="color:var(--gold)">PTS</th>'
+  html += '</tr></thead><tbody>'
+
+  const posColors = ['var(--gold)','var(--tx2)','#cd7f32']
+
+  jugadores.forEach((jug, i) => {
+    const dif = jug.sets_f - jug.sets_c
+    const posColor = i < 3 ? posColors[i] : 'var(--tx3)'
+    const zonaBg   = i===0?'var(--gold)0a':i<4?'var(--ok)05':''
+
+    html += '<tr style="' + (zonaBg?'background:'+zonaBg:'') + '">'
+    html += '<td><div class="pos-num" style="background:' + posColor + '22;color:' + posColor + '">' + (i+1) + '</div></td>'
+    html += '<td>'
+    html += '<div style="font-weight:600;color:var(--tx)">' + jug.nombre + '</div>'
+    html += '<div style="font-size:10px;color:var(--tx3)">Duplas: ' + jug.equipos.join(', ') + '</div>'
+    html += '</td>'
+    html += '<td class="r" style="color:var(--tx2)">' + (jug.pg+jug.pp) + '</td>'
+    html += '<td class="r" style="color:var(--ok);font-weight:600">' + jug.pg + '</td>'
+    html += '<td class="r" style="color:var(--err)">' + jug.pp + '</td>'
+    html += '<td class="r">' + jug.sets_f + '</td>'
+    html += '<td class="r">' + jug.sets_c + '</td>'
+    html += '<td class="r" style="font-weight:600;color:' + (dif>0?'var(--ok)':dif<0?'var(--err)':'var(--tx3)') + '">' + (dif>0?'+':'') + dif + '</td>'
+    html += '<td class="r"><div style="font-family:\'Syne\',sans-serif;font-size:16px;font-weight:800;color:var(--gold)">' + jug.pts + '</div></td>'
+    html += '</tr>'
+  })
+
+  html += '</tbody></table></div>'
+
+  // Panel derecho — podio
+  html += '<div>'
+  html += '<div class="card" style="margin:0 0 12px">'
+  html += '<div class="card-head"><span class="card-title">🏅 Podio actual</span></div>'
+  html += '<div class="card-body" style="padding:14px">'
+
+  const podio = jugadores.slice(0,3)
+  const podioIcons = ['🥇','🥈','🥉']
+  const podioColors = ['var(--gold)','var(--tx2)','#cd7f32']
+
+  podio.forEach((jug,i) => {
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;' + (i<2?'border-bottom:1px solid var(--bd)55':'') + '">'
+    html += '<div style="font-size:22px">' + podioIcons[i] + '</div>'
+    html += '<div style="flex:1">'
+    html += '<div style="font-weight:700;color:' + podioColors[i] + ';font-family:\'Syne\',sans-serif">' + jug.nombre + '</div>'
+    html += '<div style="font-size:10px;color:var(--tx3);margin-top:1px">' + jug.pg + ' victorias · ' + jug.pts + ' pts</div>'
+    html += '</div>'
+    html += '</div>'
+  })
+
+  html += '</div></div>'
+
+  // Nota explicativa
+  html += '<div style="background:var(--ac)08;border:1px solid var(--ac)22;border-radius:10px;padding:12px 14px;font-size:11px;color:var(--tx2);line-height:1.6">'
+  html += '<strong style="color:var(--ac)">Por qué ranking individual en pádel</strong><br>'
+  html += 'En pádel los jugadores cambian de pareja entre torneos. El ranking refleja el rendimiento de cada persona, independientemente de con quién juegue. Los puntos se asignan a cada jugador de la dupla ganadora.'
+  html += '</div>'
+
+  // Bloque invitaciones
+  html += '<div style="background:var(--gold)08;border:1px solid var(--gold)33;border-radius:10px;padding:12px 14px;margin-top:10px">'
+  html += '<div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:5px">📨 Invitar a un nuevo torneo</div>'
+  html += '<div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Enviá invitaciones a todos los jugadores rankeados en esta categoría para un torneo nuevo.</div>'
+  const jugNombres = jugadores.map(j=>j.nombre)
+  html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">'
+  jugadores.forEach(j => {
+    html += '<span style="font-size:10px;padding:2px 8px;border-radius:6px;background:var(--s1);border:1px solid var(--bd2);color:var(--tx2)">'+j.nombre+'</span>'
+  })
+  html += '</div>'
+  html += '<button class="btn btn-gold" style="width:100%;justify-content:center" onclick="openInvitarDesdeRanking('+JSON.stringify(jugNombres).replace(/"/g,"'")+')">'
+  html += '📨 Crear torneo e invitar a estos '+jugadores.length+' jugadores</button>'
+  html += '</div>'
+
+  html += '</div>'
+
+  html += '</div>'  // end grid
+
+  // Leyenda
+  html += '<div style="display:flex;gap:14px;font-size:11px;color:var(--tx3);flex-wrap:wrap;margin-top:12px">'
+  html += '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--gold)0a;border:1px solid var(--gold)33;margin-right:5px"></span>Líder</span>'
+  html += '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--ok)05;border:1px solid var(--ok)22;margin-right:5px"></span>Zona de clasificación</span>'
+  html += '</div>'
+
+  return html
+}
+
+// ── RANKING POR EQUIPO (fútbol, básquet, voley) ────────────
+function renderPosicionesEquipo(t) {
+  const sorted = [...t.equipos].sort((a,b)=>b.pts-a.pts||(b.sets_f-b.sets_c)-(a.sets_f-a.sets_c))
+  const posColors = ['var(--gold)','var(--tx2)','#cd7f32']
+  const usesSets = t.sport.includes('Pádel') || t.sport.includes('Tenis')
+  const gfLabel  = usesSets ? 'GF' : 'GF'
+  const gcLabel  = usesSets ? 'GC' : 'GC'
+
+  let html = '<div class="card" style="margin-bottom:14px">'
+  html += '<div class="card-head"><span class="card-title">👥 Tabla de posiciones — ' + t.nombre + '</span></div>'
+  html += '<table class="pos-table"><thead><tr>'
+  html += '<th style="width:40px">#</th><th>Equipo</th>'
+  html += '<th class="r">PJ</th><th class="r">PG</th><th class="r">PP</th>'
+  html += '<th class="r">' + gfLabel + '</th><th class="r">' + gcLabel + '</th>'
+  html += '<th class="r">Dif.</th><th class="r" style="color:var(--gold)">PTS</th>'
+  html += '</tr></thead><tbody>'
+
+  sorted.forEach((eq, i) => {
+    const dif = eq.sets_f - eq.sets_c
+    const posColor = i<3 ? posColors[i] : 'var(--tx3)'
+    const zonaBg   = i===0?'var(--gold)0a':i<4?'var(--ok)05':''
+
+    html += '<tr style="' + (zonaBg?'background:'+zonaBg:'') + '">'
+    html += '<td><div class="pos-num" style="background:' + posColor + '22;color:' + posColor + '">' + (i+1) + '</div></td>'
+    html += '<td>'
+    html += '<div style="font-weight:600;color:var(--tx)">' + eq.nombre + '</div>'
+    html += '<div style="font-size:10px;color:var(--tx3)">' + eq.jugadores.join(' · ') + '</div>'
+    html += '</td>'
+    html += '<td class="r" style="color:var(--tx2)">' + (eq.pg+eq.pp) + '</td>'
+    html += '<td class="r" style="color:var(--ok);font-weight:600">' + eq.pg + '</td>'
+    html += '<td class="r" style="color:var(--err)">' + eq.pp + '</td>'
+    html += '<td class="r">' + eq.sets_f + '</td>'
+    html += '<td class="r">' + eq.sets_c + '</td>'
+    html += '<td class="r" style="font-weight:600;color:' + (dif>0?'var(--ok)':dif<0?'var(--err)':'var(--tx3)') + '">' + (dif>0?'+':'') + dif + '</td>'
+    html += '<td class="r"><div style="font-family:\'Syne\',sans-serif;font-size:16px;font-weight:800;color:var(--gold)">' + eq.pts + '</div></td>'
+    html += '</tr>'
+  })
+
+  html += '</tbody></table></div>'
+
+  html += '<div style="display:flex;gap:14px;font-size:11px;color:var(--tx3);flex-wrap:wrap">'
+  html += '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--gold)0a;border:1px solid var(--gold)33;margin-right:5px"></span>Líder</span>'
+  html += '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--ok)05;border:1px solid var(--ok)22;margin-right:5px"></span>Zona de clasificación</span>'
+  html += '</div>'
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  INSCRIPTOS
+// ══════════════════════════════════════════════════════════
+function renderInscriptos() {
+  let html = ''
+
+  TORNEOS.forEach(t => {
+    if (!t.equipos.length) return
+    const st = STATUS[t.estado]
+    const pct = Math.round(t.equipos.length/t.max_equipos*100)
+
+    html += `<div class="card">
+      <div class="card-head">
+        <span class="card-title">${t.nombre}
+          <span class="badge" style="background:${st.color}18;color:${st.color}">${st.label}</span>
+        </span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:11px;color:var(--tx3)">${t.equipos.length}/${t.max_equipos} equipos · ${pct}%</span>
+          <button class="btn btn-ghost btn-sm" onclick="openInscripcionEquipo(${t.id})">+ Inscribir</button>
+        </div>
+      </div>`
+
+    t.equipos.forEach((eq,i) => {
+      const colors = ['#5b7fff','#2ecc71','#f0c040','#a855f7','#ef4444','#f97316','#06b6d4','#ec4899']
+      const color = colors[i % colors.length]
+      const ini = eq.nombre[0]
+      html += `<div class="inscripto-row">
+        <div class="inscripto-avatar" style="background:${color}22;color:${color}">${ini}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;color:var(--tx)">${eq.nombre}</div>
+          <div style="font-size:11px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${eq.jugadores.join(' · ')}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--ok)">${fmt(t.inscripcion_precio)}</span>
+          <div style="font-size:9px;color:var(--tx3);margin-top:1px">Seed #${eq.seed}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="toast('Editando equipo ${eq.nombre}...')">✏</button>
+      </div>`
+    })
+
+    html += `<div style="padding:10px 16px;background:var(--ok)05;border-top:1px solid var(--ok)22;display:flex;justify-content:space-between;font-size:12px">
+      <span style="color:var(--tx2)">Total inscripciones cobradas</span>
+      <span style="font-weight:700;color:var(--ok)">${fmt(t.equipos.length*t.inscripcion_precio)}</span>
+    </div>`
+
+    html += '</div>'
+  })
+
+  return html || '<div style="padding:20px;color:var(--tx3)">No hay torneos con equipos inscriptos aún.</div>'
+}
+
+// ══════════════════════════════════════════════════════════
+//  CARGAR RESULTADOS
+// ══════════════════════════════════════════════════════════
+function renderResultados() {
+  const t = TORNEOS.find(x=>x.id===activeTorneoId)
+  if (!t) return ''
+
+  const pendientes = t.partidos.filter(p=>!p.jugado)
+  const jugados    = t.partidos.filter(p=>p.jugado)
+
+  let html = '<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">'
+  TORNEOS.forEach(x => {
+    html += `<button class="btn btn-sm ${x.id===activeTorneoId?'btn-gold':'btn-ghost'}" onclick="activeTorneoId=${x.id};renderMain()">${x.nombre}</button>`
+  })
+  html += '</div>'
+
+  if (pendientes.length) {
+    html += `<div class="card" style="margin-bottom:14px">
+      <div class="card-head"><span class="card-title" style="color:var(--warn)">⏳ Partidos pendientes (${pendientes.length})</span></div>
+      <table class="tbl">
+        <thead><tr><th>Partido</th><th>Cancha</th><th>Fecha</th><th></th></tr></thead>
+        <tbody>
+          ${pendientes.map(p=>{
+            const eq1 = getTeam(t,p.eq1), eq2 = getTeam(t,p.eq2)
+            return `<tr>
+              <td>
+                <div style="font-weight:600;color:var(--tx)">${eq1?.nombre} <span style="color:var(--tx3)">vs</span> ${eq2?.nombre||'TBD'}</div>
+                <div style="font-size:10px;color:var(--tx3)">${['Cuartos','Semifinales','Final'][p.ronda]||'Ronda '+(p.ronda+1)}</div>
+              </td>
+              <td style="color:var(--tx2)">${p.cancha}</td>
+              <td style="color:var(--tx2)">${p.fecha}</td>
+              <td><button class="btn btn-gold btn-sm" onclick="openCargarResultado(${t.id},${p.id})">Cargar resultado</button></td>
+            </tr>`
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`
+  }
+
+  if (jugados.length) {
+    html += `<div class="card">
+      <div class="card-head"><span class="card-title">✅ Resultados cargados (${jugados.length})</span></div>
+      <table class="tbl">
+        <thead><tr><th>Partido</th><th>Resultado</th><th>Ganador</th><th>Cancha</th></tr></thead>
+        <tbody>
+          ${jugados.map(p=>{
+            const eq1 = getTeam(t,p.eq1), eq2 = getTeam(t,p.eq2)
+            const winner = getTeam(t,p.ganador)
+            return `<tr>
+              <td>
+                <div style="font-weight:500">${eq1?.nombre} vs ${eq2?.nombre}</div>
+                <div style="font-size:10px;color:var(--tx3)">${p.fecha}</div>
+              </td>
+              <td>
+                <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--tx)">${p.res1} - ${p.res2}</span>
+              </td>
+              <td style="color:var(--ok);font-weight:600">✓ ${winner?.nombre}</td>
+              <td style="color:var(--tx3)">${p.cancha}</td>
+            </tr>`
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`
+  }
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════════
+function openCargarResultado(torneoId, partidoId) {
+  const t = TORNEOS.find(x=>x.id===torneoId)
+  const p = t?.partidos.find(x=>x.id===partidoId)
+  if (!t || !p) return
+  const eq1 = getTeam(t,p.eq1), eq2 = getTeam(t,p.eq2)
+  const rondaNombre = ['Cuartos de final','Semifinales','Final'][p.ronda] || 'Ronda '+(p.ronda+1)
+
+  showModal(`
+    <div class="modal-title">⚽ Cargar resultado</div>
+    <div class="modal-sub">${rondaNombre} · ${p.cancha} · ${p.fecha}</div>
+
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:16px">
+      <div style="text-align:center;background:var(--s2);border-radius:10px;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tx)">${eq1?.nombre}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${eq1?.jugadores.join(' / ')}</div>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:var(--tx3)">VS</div>
+      <div style="text-align:center;background:var(--s2);border-radius:10px;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tx)">${eq2?.nombre||'TBD'}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${eq2?.jugadores.join(' / ')||'—'}</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:14px">
+      <div>
+        <label class="flbl" style="text-align:center;display:block">${t.sport==='Pádel'||t.sport==='Tenis'?'Sets ganados':'Goles'} ${eq1?.nombre}</label>
+        <input type="number" class="finp" id="cr-res1" value="0" min="0" max="99" style="text-align:center;font-size:22px;font-weight:700;font-family:'Syne',sans-serif;margin:0">
+      </div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx3);text-align:center;padding-top:24px">—</div>
+      <div>
+        <label class="flbl" style="text-align:center;display:block">${t.sport==='Pádel'||t.sport==='Tenis'?'Sets ganados':'Goles'} ${eq2?.nombre||'TBD'}</label>
+        <input type="number" class="finp" id="cr-res2" value="0" min="0" max="99" style="text-align:center;font-size:22px;font-weight:700;font-family:'Syne',sans-serif;margin:0">
+      </div>
+    </div>
+
+    <div>
+      <label class="flbl">Observaciones (opcional)</label>
+      <input class="finp" id="cr-obs" placeholder="Ej: Partido reñido, se fue al tie-break...">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveResultado(${torneoId},${partidoId})">Confirmar resultado</button>
+    </div>
+  `)
+}
+
+function saveResultado(torneoId, partidoId) {
+  const t  = TORNEOS.find(x=>x.id===torneoId)
+  const p  = t?.partidos.find(x=>x.id===partidoId)
+  if (!t || !p) return
+
+  const r1 = parseInt(document.getElementById('cr-res1')?.value)||0
+  const r2 = parseInt(document.getElementById('cr-res2')?.value)||0
+  if (r1 === r2) { toast('El resultado no puede ser empate en eliminación','warn'); return }
+
+  p.res1    = r1
+  p.res2    = r2
+  p.ganador = r1 > r2 ? p.eq1 : p.eq2
+  p.jugado  = true
+
+  // Actualizar puntos en tabla
+  const ganEq = t.equipos.find(e=>e.id===p.ganador)
+  const perEq = t.equipos.find(e=>e.id===(p.ganador===p.eq1?p.eq2:p.eq1))
+  if (ganEq) { ganEq.pts+=3; ganEq.pg++; ganEq.sets_f+=r1; ganEq.sets_c+=r2 }
+  if (perEq) { perEq.pp++;   perEq.sets_f+=r2; perEq.sets_c+=r1 }
+
+  // Auto-avanzar al ganador en la siguiente ronda si es eliminación
+  const nextRoundMatch = t.partidos.find(x=>!x.jugado && x.ronda===p.ronda+1 && (x.eq1===0||x.eq2===0||x.eq1===null||x.eq2===null))
+  if (nextRoundMatch) {
+    if (!nextRoundMatch.eq1 || nextRoundMatch.eq1===0) nextRoundMatch.eq1=p.ganador
+    else nextRoundMatch.eq2=p.ganador
+  }
+
+  const ganNom = t.equipos.find(e=>e.id===p.ganador)?.nombre
+  closeModal()
+  renderMain()
+  toast('✓ Resultado cargado — Gana '+ganNom+' '+r1+'-'+r2)
+}
+
+function openNuevoTorneo(preCategoria, preJugadores) {
+  // preCategoria y preJugadores vienen del botón "Invitar desde ranking"
+  showModal(buildNuevoTorneoModal(preCategoria, preJugadores))
+  const today = new Date().toISOString().slice(0,10)
+  const el = document.getElementById('nt-inicio')
+  if (el) el.value = today
+  updateFormatoOptions()
+}
+
+function buildNuevoTorneoModal(preCategoria, preJugadores) {
+  const invMsg = preJugadores && preJugadores.length
+    ? '<div style="background:var(--ac)0a;border:1px solid var(--ac)22;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--ac)">📨 Se enviarán invitaciones a <strong>'+preJugadores.length+' jugadores</strong> del ranking al crear el torneo.</div>'
+    : ''
+
+  return `
+    <div class="modal-title">🏆 Nuevo torneo</div>
+    <div class="modal-sub">Configurá el torneo — el fixture se genera al cerrar inscripción</div>
+    ${invMsg}
+
+    <!-- Deporte + Nombre -->
+    <div class="frow">
+      <div>
+        <label class="flbl">Deporte</label>
+        <select class="fsel" id="nt-sport" onchange="updateFormatoOptions()">
+          <option>Pádel</option>
+          <option>Pádel dobles</option>
+          <option>Fútbol 5</option>
+          <option>Fútbol 7</option>
+          <option>Fútbol 11</option>
+          <option>Tenis</option>
+          <option>Básquet</option>
+          <option>Voley</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Nombre del torneo</label>
+        <input class="finp" id="nt-nombre" placeholder="Ej: Copa Pádel Julio">
+      </div>
+    </div>
+
+    <!-- Categoría + Max -->
+    <div class="frow">
+      <div>
+        <label class="flbl">Categoría</label>
+        <input class="finp" id="nt-cat" value="${preCategoria||''}" placeholder="Ej: 3ª-5ª, Amateur, +40...">
+      </div>
+      <div>
+        <label class="flbl">Cupo máximo (equipos/jugadores)</label>
+        <select class="fsel" id="nt-maxeq">
+          <option value="4">4</option>
+          <option value="8">8</option>
+          <option value="16" selected>16</option>
+          <option value="24">24</option>
+          <option value="32">32</option>
+          <option value="64">64</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Formato — se actualiza dinámicamente según deporte -->
+    <label class="flbl">Formato del torneo</label>
+    <div id="formato-options" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px"></div>
+
+    <!-- Panel personalizado — oculto hasta que se seleccione "personalizado" -->
+    <div id="panel-personalizado" style="display:none;background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Editor de formato personalizado</div>
+      <div class="frow">
+        <div>
+          <label class="flbl">Nombre del formato</label>
+          <input class="finp" id="fp-nombre" placeholder="Ej: Copa Relámpago, Swiss System...">
+        </div>
+        <div>
+          <label class="flbl">Número de rondas</label>
+          <input type="number" class="finp" id="fp-rondas" value="3" min="1" max="20">
+        </div>
+      </div>
+      <div class="frow3">
+        <div>
+          <label class="flbl">Sistema de avance</label>
+          <select class="fsel" id="fp-avance" onchange="updateAvanceDesc(this.value)">
+            <option value="1_set">1 solo set (6 games, tie-break en 6-6)</option>
+            <option value="mejor_de_3" selected>Mejor de 3 sets</option>
+            <option value="mejor_de_5">Mejor de 5 sets</option>
+            <option value="partido_unico">Partido único (sin sets)</option>
+            <option value="ida_vuelta">Ida y vuelta</option>
+            <option value="super_tiebreak">Super tie-break (1 set + tie-break 10 pts)</option>
+            <option value="pro_set">Pro set (8 games, sin sets)</option>
+            <option value="americano_sets">Americano — sets cortos a 4 games</option>
+          </select>
+          <div id="avance-desc" style="font-size:10px;color:var(--ac);margin-top:-7px;margin-bottom:8px;padding:0 2px"></div>
+        </div>
+        <div>
+          <label class="flbl">Pts. victoria</label>
+          <input type="number" class="finp" id="fp-pts-v" value="3" min="1" max="10">
+        </div>
+        <div>
+          <label class="flbl">Pts. empate</label>
+          <input type="number" class="finp" id="fp-pts-e" value="1" min="0" max="5">
+        </div>
+      </div>
+      <div class="frow">
+        <div>
+          <label class="flbl">Criterio de desempate</label>
+          <select class="fsel" id="fp-desempate">
+            <option value="diferencia_sets">Diferencia de sets</option>
+            <option value="diferencia_goles">Diferencia de goles</option>
+            <option value="sets_favor">Sets/goles a favor</option>
+            <option value="enfrentamiento_directo">Enfrentamiento directo</option>
+            <option value="penalty_shootout">Penales / tie-break</option>
+          </select>
+        </div>
+        <div>
+          <label class="flbl">Ranking resultante</label>
+          <select class="fsel" id="fp-ranking">
+            <option value="individual">Individual (por jugador)</option>
+            <option value="equipo">Por equipo</option>
+          </select>
+        </div>
+      </div>
+      <label class="flbl">Notas y reglas especiales</label>
+      <textarea class="finp" id="fp-notas" rows="2" placeholder="Ej: En caso de empate en goles se va a penales. Cancha de cemento obligatoria..."></textarea>
+    </div>
+
+    <!-- Precios y premios -->
+    <div class="frow">
+      <div>
+        <label class="flbl">Precio inscripción ($)</label>
+        <input type="number" class="finp" id="nt-precio" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="flbl">Premio</label>
+        <input class="finp" id="nt-premio" placeholder="Trofeo, $, medallas...">
+      </div>
+    </div>
+
+    <!-- Fechas -->
+    <div class="frow">
+      <div><label class="flbl">Fecha inicio</label><input type="date" class="finp" id="nt-inicio"></div>
+      <div><label class="flbl">Fecha fin</label><input type="date" class="finp" id="nt-fin"></div>
+    </div>
+
+    <!-- Auto-generar fixture -->
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--ok)0a;border:1px solid var(--ok)22;border-radius:8px;margin-bottom:6px">
+      <div class="tog on" id="nt-autofixture"></div>
+      <div style="font-size:12px;color:var(--tx2)">Generar fixture automáticamente al cerrar inscripción</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveNuevoTorneo(${preJugadores?JSON.stringify(preJugadores).replace(/"/g,"'"):null})">Crear torneo ${preJugadores&&preJugadores.length?' + Enviar '+preJugadores.length+' invitaciones':''}</button>
+    </div>
+  `
+}
+
+let _selectedFormato = 'eliminacion'
+
+function updateFormatoOptions() {
+  const sport   = document.getElementById('nt-sport')?.value || 'Pádel'
+  const fmts    = getFormatosPorSport(sport)
+  const panel   = document.getElementById('formato-options')
+  const panelP  = document.getElementById('panel-personalizado')
+  if (!panel) return
+
+  panel.innerHTML = fmts.map(f => {
+    const sel = _selectedFormato === f.id
+    return '<div onclick="selectFormato(\''+f.id+'\')" id="fopt-'+f.id+'" '+
+      'style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;'+
+      'border:1px solid '+(sel?'var(--gold)':'var(--bd2)')+';'+
+      'background:'+(sel?'var(--gold)0a':'var(--s2)')+';cursor:pointer;transition:all .13s">'+
+      '<div style="width:14px;height:14px;border-radius:50%;border:2px solid '+(sel?'var(--gold)':'var(--bd2)')+
+      ';background:'+(sel?'var(--gold)':'none')+';margin-top:1px;flex-shrink:0;transition:all .13s"></div>'+
+      '<div style="flex:1">'+
+      '<div style="font-size:12px;font-weight:600;color:'+(sel?'var(--gold)':'var(--tx)')+'">'+ f.label +'</div>'+
+      '<div style="font-size:10px;color:var(--tx3);margin-top:1px">'+ f.desc +'</div>'+
+      (f.individual!==null?'<div style="font-size:9px;margin-top:3px;color:'+(f.individual?'var(--ac)':'var(--ok)')+'">'+
+      (f.individual?'👤 Ranking individual':'👥 Ranking por equipo')+'</div>':'')
+      +'</div></div>'
+  }).join('')
+
+  // Mostrar/ocultar panel personalizado
+  if (panelP) panelP.style.display = _selectedFormato==='personalizado' ? 'block' : 'none'
+}
+
+function selectFormato(id) {
+  _selectedFormato = id
+  updateFormatoOptions()
+}
+
+function saveNuevoTorneo(jugadoresInvitar) {
+  const nombre = document.getElementById('nt-nombre')?.value.trim()
+  if (!nombre) { toast('Ingresá el nombre','warn'); return }
+
+  const formato = _selectedFormato
+  let formatoPersonalizado = null
+
+  if (formato === 'personalizado') {
+    const fpNombre = document.getElementById('fp-nombre')?.value.trim()
+    if (!fpNombre) { toast('Escribí un nombre para el formato personalizado','warn'); return }
+    formatoPersonalizado = {
+      nombre:   fpNombre,
+      rondas:   parseInt(document.getElementById('fp-rondas')?.value)||3,
+      avance:   document.getElementById('fp-avance')?.value,
+      pts_v:    parseInt(document.getElementById('fp-pts-v')?.value)||3,
+      pts_e:    parseInt(document.getElementById('fp-pts-e')?.value)||1,
+      desempate:document.getElementById('fp-desempate')?.value,
+      ranking:  document.getElementById('fp-ranking')?.value,
+      notas:    document.getElementById('fp-notas')?.value,
+    }
+  }
+
+  const nuevoTorneo = {
+    id: TORNEOS.length+1, nombre,
+    sport:              document.getElementById('nt-sport')?.value||'Pádel',
+    formato,
+    formatoPersonalizado,
+    estado:             'inscripcion',
+    inicio:             document.getElementById('nt-inicio')?.value||'',
+    fin:                document.getElementById('nt-fin')?.value||'',
+    inscripcion_precio: parseInt(document.getElementById('nt-precio')?.value)||0,
+    premio:             document.getElementById('nt-premio')?.value||'',
+    max_equipos:        parseInt(document.getElementById('nt-maxeq')?.value)||16,
+    categoria:          document.getElementById('nt-cat')?.value||'Abierto',
+    equipos:[], partidos:[],
+  }
+  TORNEOS.push(nuevoTorneo)
+
+  let msg = '✓ Torneo "'+nombre+'" creado'
+
+  // Enviar invitaciones si vienen del ranking
+  if (jugadoresInvitar && jugadoresInvitar.length) {
+    msg += ' · 📨 '+jugadoresInvitar.length+' invitaciones enviadas por WhatsApp'
+  }
+
+  closeModal()
+  activeTorneoId = nuevoTorneo.id
+  renderMain()
+  toast(msg)
+}
+
+function openInscripcionEquipo(torneoId) {
+  const t = TORNEOS.find(x=>x.id===torneoId)
+  if (!t) return
+  const isPadel = t.sport.includes('Pádel') || t.sport.includes('Tenis')
+
+  showModal(`
+    <div class="modal-title">Inscribir equipo</div>
+    <div class="modal-sub">${t.nombre} · Precio: ${fmt(t.inscripcion_precio)}/equipo</div>
+    <label class="flbl">Nombre del equipo</label>
+    <input class="finp" id="ie-nombre" placeholder="Ej: Los Cracks, Equipo A...">
+    <label class="flbl">Jugador 1</label>
+    <input class="finp" id="ie-jug1" placeholder="Nombre completo">
+    ${isPadel?`<label class="flbl">Jugador 2 (dupla)</label>
+    <input class="finp" id="ie-jug2" placeholder="Nombre completo">`:''}
+    <div class="frow">
+      <div>
+        <label class="flbl">Forma de pago</label>
+        <select class="fsel" id="ie-pago">
+          <option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">¿Ya pagó?</label>
+        <select class="fsel" id="ie-pagado">
+          <option value="1">Sí, pagado</option><option value="0">No, pendiente</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveInscripcionEquipo(${torneoId},${isPadel})">Inscribir equipo</button>
+    </div>
+  `)
+}
+
+function saveInscripcionEquipo(torneoId, isPadel) {
+  const t = TORNEOS.find(x=>x.id===torneoId)
+  if (!t) return
+  const nombre = document.getElementById('ie-nombre')?.value.trim()
+  const jug1   = document.getElementById('ie-jug1')?.value.trim()
+  if (!nombre || !jug1) { toast('Completá nombre y al menos un jugador','warn'); return }
+  if (t.equipos.length >= t.max_equipos) { toast('El torneo está completo','warn'); return }
+
+  const jug2 = isPadel ? (document.getElementById('ie-jug2')?.value.trim()||'') : ''
+  const jugadores = [jug1, jug2].filter(Boolean)
+
+  const newId = Math.max(0,...TORNEOS.flatMap(x=>x.equipos.map(e=>e.id)))+1
+  t.equipos.push({
+    id:newId, nombre, seed:t.equipos.length+1,
+    jugadores, pts:0, pg:0, pp:0, sets_f:0, sets_c:0
+  })
+  if (t.estado==='inscripcion' && t.equipos.length>=t.max_equipos) t.estado='en_curso'
+
+  closeModal(); renderMain()
+  toast('✓ '+nombre+' inscripto en '+t.nombre)
+}
+
+// Descripciones de los sistemas de avance
+const AVANCE_DESC = {
+  '1_set':          '⚡ Rápido — ideal para americanos y torneos relámpago de 1 jornada',
+  'mejor_de_3':     'Estándar — el primero en ganar 2 sets gana el partido',
+  'mejor_de_5':     'Largo — usado en torneos importantes o finales',
+  'partido_unico':  'Un único partido sin contar sets, solo el resultado final',
+  'ida_vuelta':     'Dos partidos entre las mismas parejas, avanza quien suma más',
+  'super_tiebreak': '1 set normal + si hay 1-1 se juega tie-break a 10 puntos',
+  'pro_set':        '8 games seguidos, tie-break si 8-8 — más rápido que 3 sets',
+  'americano_sets': 'Sets cortos a 4 games, ideal para rotar parejas en americano',
+}
+
+function updateAvanceDesc(val) {
+  const el = document.getElementById('avance-desc')
+  if (el) el.textContent = AVANCE_DESC[val] || ''
+}
+
+
+// Descripciones de los sistemas de avance
+// Descripciones de los sistemas de avance
+// ══════════════════════════════════════════════════════════
+//  GENERADOR DE SORTEO, FIXTURE Y NOTIFICACIONES
+// ══════════════════════════════════════════════════════════
+
+function openGenerarSorteo(torneoId) {
+  const t = TORNEOS.find(x=>x.id===torneoId)
+  if (!t) return
+  if (t.equipos.length < 2) { toast('Necesitás al menos 2 equipos inscriptos','warn'); return }
+
+  const esFutbol  = t.sport.toLowerCase().includes('fútbol') || t.sport.toLowerCase().includes('futbol')
+  const esPadel   = t.sport.toLowerCase().includes('pádel') || t.sport.toLowerCase().includes('padel') || t.sport.toLowerCase().includes('tenis')
+  const unidad    = esFutbol ? 'equipo' : 'jugador/dupla'
+  const numPart   = calcularNumPartidos(t)
+
+  // Canchas disponibles (demo)
+  const CANCHAS_DISP = esFutbol
+    ? ['Cancha Fútbol 5 - A','Cancha Fútbol 5 - B','Cancha Fútbol 7']
+    : ['Cancha 1','Cancha 2','Cancha 3','Cancha 4']
+
+  showModal(
+    '<div class="modal-title">⚡ Generar sorteo y fixture</div>' +
+    '<div class="modal-sub">' + t.nombre + ' · ' + t.equipos.length + ' ' + unidad + 's · ' + numPart + ' partidos estimados</div>' +
+
+    // ── Resumen inscriptos ──
+    '<div style="background:var(--s2);border-radius:10px;padding:10px 14px;margin-bottom:14px">' +
+    '<div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em">Inscriptos (' + t.equipos.length + '/' + t.max_equipos + ')</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:5px">' +
+    t.equipos.map(e =>
+      '<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--s1);border:1px solid var(--bd2);color:var(--tx2)">' + e.nombre + '</span>'
+    ).join('') +
+    '</div></div>' +
+
+    // ── Tipo de sorteo ──
+    '<label class="flbl">Tipo de sorteo</label>' +
+    '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px" id="sorteo-opts">' +
+    buildSorteoOpt('aleatorio', '🎲 Aleatorio', 'Los cruces se sortean al azar', true) +
+    buildSorteoOpt('sembrado',  '🌱 Sembrado por ranking', 'Los mejores rankeados quedan en partes opuestas del cuadro', false) +
+    buildSorteoOpt('manual',    '✏ Manual', 'Definís vos cada cruce', false) +
+    '</div>' +
+
+    // ── Horarios ──
+    '<div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Horarios y canchas</div>' +
+    '<div class="frow">' +
+    '<div><label class="flbl">Primer partido</label><input type="date" class="finp" id="sg-fecha-ini" value="' + new Date().toISOString().slice(0,10) + '"></div>' +
+    '<div><label class="flbl">Hora de inicio</label>' +
+    '<select class="fsel" id="sg-hora-ini">' +
+    ['08:00','09:00','10:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'].map(h =>
+      '<option' + (h==='18:00'?' selected':'') + '>' + h + '</option>'
+    ).join('') +
+    '</select></div></div>' +
+    '<div class="frow">' +
+    '<div><label class="flbl">Duración por partido (min)</label>' +
+    '<select class="fsel" id="sg-duracion">' +
+    ['45','60','75','90'].map(d => '<option' + (d==='60'?' selected':'') + '>' + d + '</option>').join('') +
+    '</select></div>' +
+    '<div><label class="flbl">Pausa entre partidos (min)</label>' +
+    '<select class="fsel" id="sg-pausa"><option value="10">10</option><option value="15" selected>15</option><option value="20">20</option><option value="30">30</option></select>' +
+    '</div></div>' +
+
+    // Canchas disponibles
+    '<label class="flbl">Canchas disponibles</label>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="canchas-disp">' +
+    CANCHAS_DISP.map((c,i) =>
+      '<div id="cancha-chip-'+i+'" onclick="toggleCanchaChip('+i+')" ' +
+      'style="padding:5px 12px;border-radius:7px;border:1px solid var(--ok)33;background:var(--ok)10;color:var(--ok);font-size:11px;font-weight:500;cursor:pointer;transition:all .13s">' +
+      '✓ ' + c + '</div>'
+    ).join('') +
+    '</div>' +
+
+    // ── Notificaciones ──
+    '<div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Notificaciones</div>' +
+    buildNotifPreview(t) +
+
+    '<div class="modal-actions">' +
+    '<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>' +
+    '<button class="btn btn-gold" style="gap:6px" onclick="ejecutarSorteo(' + torneoId + ')">⚡ Generar sorteo y notificar</button>' +
+    '</div>'
+  )
+
+  window._canchasSeleccionadas = [...CANCHAS_DISP]
+  window._sorteoTipo = 'aleatorio'
+}
+
+function buildSorteoOpt(id, label, desc, checked) {
+  return '<div onclick="selectSorteoTipo(\''+id+'\')" id="sopt-'+id+'" ' +
+    'style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;' +
+    'border:1px solid '+(checked?'var(--gold)':'var(--bd2)')+';' +
+    'background:'+(checked?'var(--gold)0a':'var(--s2)')+';cursor:pointer;transition:all .13s">' +
+    '<div style="width:14px;height:14px;border-radius:50%;border:2px solid '+(checked?'var(--gold)':'var(--bd2)')+
+    ';background:'+(checked?'var(--gold)':'none')+';margin-top:2px;flex-shrink:0"></div>' +
+    '<div><div style="font-size:12px;font-weight:600;color:'+(checked?'var(--gold)':'var(--tx)')+'">'+label+'</div>' +
+    '<div style="font-size:10px;color:var(--tx3)">'+desc+'</div></div></div>'
+}
+
+function buildNotifPreview(t) {
+  const msg = buildMsgNotificacion(t, '__NOMBRE__', '__RIVAL__', '__FECHA__', '__HORA__', '__CANCHA__')
+  return '<div style="background:var(--s2);border-radius:10px;overflow:hidden;margin-bottom:12px">' +
+    '<div style="padding:8px 12px;background:#1f2c34;display:flex;align-items:center;gap:8px">' +
+    '<div style="width:28px;height:28px;border-radius:50%;background:var(--gold)33;display:flex;align-items:center;justify-content:center;font-size:14px">🤖</div>' +
+    '<div style="font-size:11px;font-weight:600;color:#e9edef">Bot Sport Hub — Vista previa del mensaje</div>' +
+    '</div>' +
+    '<div style="padding:10px 14px;font-size:11px;color:var(--tx2);font-family:\'DM Mono\',monospace;line-height:1.6;white-space:pre-wrap;background:#0d1117">' +
+    msg +
+    '</div></div>'
+}
+
+function buildMsgNotificacion(t, nombre, rival, fecha, hora, cancha) {
+  const st = STATUS[t.estado] || {}
+  return '¡Hola ' + nombre + '! 🎾\n\n' +
+    '📢 *' + t.nombre + '*\n' +
+    '━━━━━━━━━━━━━━━━━━\n' +
+    '📅 Inscripción: ' + (t.inicio||'por confirmar') + '\n' +
+    '🚀 Comienzo:    ' + (t.inicio||'por confirmar') + '\n' +
+    '🏁 Cierre:      ' + (t.fin||'por confirmar') + '\n' +
+    '🏆 Premio:      ' + (t.premio||'a confirmar') + '\n' +
+    '💰 Categoría:   ' + (t.categoria||'abierto') + '\n' +
+    '━━━━━━━━━━━━━━━━━━\n' +
+    '⚔ Tu primer partido:\n' +
+    '   Rival: *' + rival + '*\n' +
+    '   Fecha: *' + fecha + '*\n' +
+    '   Hora:  *' + hora  + '*\n' +
+    '   Cancha: ' + cancha + '\n\n' +
+    '✅ Confirmá tu asistencia respondiendo este mensaje.\n' +
+    '❌ Si no podés, avisá con 24hs de anticipación.\n\n' +
+    '¡Mucha suerte! 💪\n' +
+    '_Sport Hub Norte_'
+}
+
+function selectSorteoTipo(id) {
+  window._sorteoTipo = id
+  ;['aleatorio','sembrado','manual'].forEach(opt => {
+    const el = document.getElementById('sopt-'+opt)
+    if (!el) return
+    const sel = opt === id
+    el.style.borderColor = sel ? 'var(--gold)' : 'var(--bd2)'
+    el.style.background  = sel ? 'var(--gold)0a' : 'var(--s2)'
+    const dot = el.querySelector('div')
+    if (dot) { dot.style.borderColor = sel?'var(--gold)':'var(--bd2)'; dot.style.background=sel?'var(--gold)':'none' }
+    const lbl = el.querySelectorAll('div')[2]
+    if (lbl) lbl.style.color = sel?'var(--gold)':'var(--tx)'
+  })
+}
+
+function toggleCanchaChip(i) {
+  const el = document.getElementById('cancha-chip-'+i)
+  if (!el) return
+  const act = el.style.background.includes('ok')
+  el.style.background  = act ? 'var(--s2)' : 'var(--ok)10'
+  el.style.borderColor = act ? 'var(--bd2)' : 'var(--ok)33'
+  el.style.color       = act ? 'var(--tx3)' : 'var(--ok)'
+  el.textContent       = (act?'○ ':'✓ ') + el.textContent.slice(2)
+}
+
+function calcularNumPartidos(t) {
+  const n = t.equipos.length
+  if (t.formato==='liga' || t.formato==='liga_duplas' || t.formato==='liga_indiv' || t.formato==='round_robin') {
+    return n*(n-1)/2
+  }
+  return n - 1  // eliminación
+}
+
+function ejecutarSorteo(torneoId) {
+  const t = TORNEOS.find(x=>x.id===torneoId)
+  if (!t) return
+
+  const fechaIni  = document.getElementById('sg-fecha-ini')?.value || new Date().toISOString().slice(0,10)
+  const horaIni   = document.getElementById('sg-hora-ini')?.value || '18:00'
+  const durMin    = parseInt(document.getElementById('sg-duracion')?.value) || 60
+  const pausaMin  = parseInt(document.getElementById('sg-pausa')?.value) || 15
+  const sorteoTipo = window._sorteoTipo || 'aleatorio'
+
+  // Canchas activas
+  const canchasEls = document.querySelectorAll('[id^="cancha-chip-"]')
+  const canchas = []
+  canchasEls.forEach(el => {
+    if (el.style.background.includes('ok') || el.style.color.includes('ok')) {
+      canchas.push(el.textContent.slice(2).trim())
+    }
+  })
+  if (!canchas.length) { toast('Seleccioná al menos una cancha','warn'); return }
+
+  // ── Generar orden de equipos según tipo de sorteo ──
+  let orden = [...t.equipos]
+  if (sorteoTipo === 'aleatorio') {
+    for (let i=orden.length-1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [orden[i],orden[j]] = [orden[j],orden[i]]
+    }
+  } else if (sorteoTipo === 'sembrado') {
+    orden.sort((a,b) => a.seed - b.seed)
+    // Distribuir sembrados: 1 vs último, 2 vs penúltimo, etc.
+    const n = orden.length
+    const reordenado = new Array(n)
+    for (let i=0; i<Math.ceil(n/2); i++) {
+      reordenado[i*2]   = orden[i]
+      reordenado[i*2+1] = orden[n-1-i]
+    }
+    orden = reordenado.filter(Boolean)
+  }
+  // manual: orden as-is
+
+  // ── Armar partidos con fechas y horarios ──
+  t.partidos = []
+  const totalSlots = durMin + pausaMin
+  let partidoId   = 1
+
+  const isEliminacion = ['eliminacion','liga_duplas','copa','grupos_elim'].includes(t.formato) ||
+    t.formato === 'americano'
+
+  if (isEliminacion) {
+    // Bracket de eliminación simple
+    const n = orden.length
+    for (let i=0; i<Math.floor(n/2); i++) {
+      const eq1 = orden[i*2]
+      const eq2 = orden[i*2+1]
+      if (!eq1 || !eq2) continue
+      const {fecha, hora} = calcSlot(fechaIni, horaIni, i, canchas.length, totalSlots)
+      t.partidos.push({
+        id: partidoId++, ronda: 0,
+        eq1: eq1.id, eq2: eq2.id,
+        res1:null, res2:null, ganador:null, jugado:false,
+        cancha: canchas[i % canchas.length],
+        fecha, hora,
+      })
+    }
+    // Si número impar → bye para el primero
+    if (n % 2 !== 0) {
+      const byeEq = orden[n-1]
+      t.partidos.push({
+        id: partidoId++, ronda:0,
+        eq1: byeEq.id, eq2: null,
+        res1:null, res2:null, ganador: byeEq.id, jugado:true,
+        cancha:'—', fecha:'—', hora:'BYE',
+        esBye:true,
+      })
+    }
+  } else {
+    // Round-robin / liga
+    let slotIdx = 0
+    for (let i=0; i<orden.length; i++) {
+      for (let j=i+1; j<orden.length; j++) {
+        const {fecha, hora} = calcSlot(fechaIni, horaIni, slotIdx, canchas.length, totalSlots)
+        t.partidos.push({
+          id: partidoId++, ronda:0,
+          eq1: orden[i].id, eq2: orden[j].id,
+          res1:null, res2:null, ganador:null, jugado:false,
+          cancha: canchas[slotIdx % canchas.length],
+          fecha, hora,
+        })
+        slotIdx++
+      }
+    }
+  }
+
+  t.estado = 'en_curso'
+  closeModal()
+
+  // ── Mostrar confirmación con vista previa de fixture y notificaciones ──
+  const totalN = t.equipos.reduce((a,e)=>a+e.jugadores.length,0)
+  renderMain()
+  openConfirmacionSorteo(t, totalN)
+}
+
+function calcSlot(fechaBase, horaBase, slotIdx, numCanchas, totalMin) {
+  const [hh,mm] = horaBase.split(':').map(Number)
+  const baseMin = hh*60 + mm
+  // Partidos en paralelo según número de canchas
+  const rondaSlot = Math.floor(slotIdx / numCanchas)
+  const totalMinOffset = rondaSlot * totalMin
+  let minAbs = baseMin + totalMinOffset
+
+  // Si supera las 23hs, pasar al día siguiente
+  const diasExtra = Math.floor(minAbs / (24*60))
+  minAbs = minAbs % (24*60)
+  const hFin = String(Math.floor(minAbs/60)).padStart(2,'0')
+  const mFin = String(minAbs%60).padStart(2,'0')
+
+  // Calcular fecha
+  const base = new Date(fechaBase + 'T00:00:00')
+  base.setDate(base.getDate() + diasExtra)
+  const diaNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']
+  const mesNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+  const fechaStr = diaNames[base.getDay()] + ' ' + base.getDate() + ' ' + mesNames[base.getMonth()]
+
+  return { fecha: fechaStr, hora: hFin+':'+mFin+'hs' }
+}
+
+function openConfirmacionSorteo(t, totalJugadores) {
+  const primeros = t.partidos.filter(p=>!p.esBye).slice(0,4)
+
+  let html = '<div class="modal-title">✅ Sorteo generado</div>'
+  html += '<div class="modal-sub">' + t.partidos.length + ' partidos armados · ' + totalJugadores + ' jugadores a notificar</div>'
+
+  // Preview de primeros cruces
+  html += '<div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Primeros cruces</div>'
+  html += '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px">'
+  primeros.forEach(p => {
+    const eq1 = getTeam(t,p.eq1), eq2 = getTeam(t,p.eq2)
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--s2);border-radius:8px;font-size:12px">'
+    html += '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--tx3);flex-shrink:0">' + p.hora + '</span>'
+    html += '<span style="font-weight:600;color:var(--tx)">' + (eq1?.nombre||'?') + '</span>'
+    html += '<span style="color:var(--tx3)">vs</span>'
+    html += '<span style="font-weight:600;color:var(--tx)">' + (eq2?.nombre||'?') + '</span>'
+    html += '<span style="margin-left:auto;font-size:10px;color:var(--tx3)">' + p.cancha + ' · ' + p.fecha + '</span>'
+    html += '</div>'
+  })
+  if (t.partidos.length > 4) html += '<div style="font-size:11px;color:var(--tx3);text-align:center">... y ' + (t.partidos.length-4) + ' partidos más</div>'
+  html += '</div>'
+
+  // Preview de la notificación
+  html += '<div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Notificación que recibirá cada jugador</div>'
+  const p0 = primeros[0]
+  const eq1 = p0 ? getTeam(t,p0.eq1) : null
+  const rival = p0 ? (getTeam(t,p0.eq2)?.nombre||'rival') : 'rival'
+  html += '<div style="background:#0d1117;border-radius:10px;padding:12px 14px;font-size:11px;font-family:\'DM Mono\',monospace;color:#8696a0;line-height:1.7;white-space:pre-wrap;margin-bottom:14px">'
+  html += buildMsgNotificacion(t, eq1?.jugadores[0]||'Jugador', rival, p0?.fecha||'—', p0?.hora||'—', p0?.cancha||'—')
+  html += '</div>'
+
+  html += '<div class="modal-actions">'
+  html += '<button class="btn btn-ghost" onclick="closeModal()">Ver fixture primero</button>'
+  html += '<button class="btn btn-gold" onclick="closeModal();enviarNotificaciones(' + t.id + ')">📱 Enviar notificaciones a ' + totalJugadores + ' jugadores</button>'
+  html += '</div>'
+
+  showModal(html)
+}
+
+function enviarNotificaciones(torneoId) {
+  const t = TORNEOS.find(x=>x.id===torneoId)
+  if (!t) return
+  const total = t.equipos.reduce((a,e)=>a+e.jugadores.length,0)
+  // Simular envío
+  let enviados = 0
+  const interval = setInterval(() => {
+    enviados++
+    if (enviados >= total) {
+      clearInterval(interval)
+      toast('📱 ' + total + ' notificaciones enviadas — todos los jugadores fueron notificados')
+      renderMain()
+    }
+  }, 80)
+  toast('Enviando notificaciones...')
+}
+
+// ══════════════════════════════════════════════════════════
+//  INVITACIONES DESDE RANKING
+// ══════════════════════════════════════════════════════════
+function openInvitarDesdeRanking(jugadores) {
+  // Detectar categoría activa del torneo seleccionado
+  const t = TORNEOS.find(x=>x.id===activeTorneoId)
+  const cat = t?.categoria || ''
+
+  showModal(`
+    <div class="modal-title">📨 Invitar desde el ranking</div>
+    <div class="modal-sub">Vas a crear un torneo nuevo y enviar invitaciones por WhatsApp a los jugadores rankeados.</div>
+
+    <div style="background:var(--s2);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Jugadores que recibirán la invitación</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${jugadores.map((j,i)=>`
+          <div id="inv-jug-${i}" onclick="toggleInvJugador(${i})"
+            style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:7px;border:1px solid var(--ok)33;background:var(--ok)10;cursor:pointer;transition:all .13s;font-size:11px;font-weight:500;color:var(--ok)">
+            <span>✓</span><span>${j}</span>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:10px;color:var(--tx3);margin-top:8px">Tocá para deseleccionar jugadores que no querés invitar</div>
+    </div>
+
+    <label class="flbl">Mensaje de invitación (se envía por WhatsApp)</label>
+    <textarea class="finp" id="inv-mensaje" rows="4" style="font-family:'DM Mono',monospace;font-size:12px">¡Hola {nombre}! 🎾
+
+Te invitamos a participar del próximo torneo de pádel en Sport Hub Norte.
+
+📅 Fecha: por confirmar
+🏆 Categoría: ${cat}
+💰 Inscripción: a confirmar
+
+¿Participás? Respondé este mensaje para anotarte 🙌</textarea>
+
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+      ${[
+        {l:'Pádel formal',   msg:'¡Hola {nombre}! Te invitamos al torneo oficial de pádel categoría ${cat}. ¿Te sumás? 🎾'},
+        {l:'Informal',       msg:'Ey {nombre}! Hay torneo el finde. ¿Vas? 🏓'},
+        {l:'Con fecha',      msg:'¡Hola {nombre}! Torneo de pádel el sábado 28/6. Categoría ${cat}. ¿Anotamos?'},
+      ].map(t=>`<button class="btn btn-ghost btn-sm" onclick="setInvMsg('${t.msg.replace(/'/g,"\'")}')">${t.l}</button>`).join('')}
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="closeModal();openNuevoTorneo('${cat}',${JSON.stringify(jugadores).replace(/"/g,"'")})">
+        Continuar → Crear torneo
+      </button>
+    </div>
+  `)
+
+  // guardar lista para toggle
+  window._invJugadores = [...jugadores]
+}
+
+function toggleInvJugador(i) {
+  const el = document.getElementById('inv-jug-'+i)
+  if (!el) return
+  const activo = el.style.background.includes('ok')
+  el.style.background = activo ? 'var(--s2)' : 'var(--ok)10'
+  el.style.borderColor = activo ? 'var(--bd2)' : 'var(--ok)33'
+  el.style.color = activo ? 'var(--tx3)' : 'var(--ok)'
+  el.querySelector('span').textContent = activo ? '○' : '✓'
+  if (window._invJugadores) {
+    window._invJugadores[i] = activo ? null : window._invJugadores[i]
+  }
+}
+
+function setInvMsg(msg) {
+  const ta = document.getElementById('inv-mensaje')
+  if (ta) ta.value = msg
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html
+  document.getElementById('modal').style.display  = 'flex'
+}
+function closeModal() { document.getElementById('modal').style.display='none' }
+
+function toast(msg,type='success') {
+  const cols={success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t=document.createElement('div');t.className='toast'
+  t.innerHTML='<span style="color:'+(cols[type]||cols.success)+'">●</span> '+msg
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2600)
+}
+function toggleTheme() {
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme',h.getAttribute('data-theme'))
+}
+const st=localStorage.getItem('shos-theme')
+if(st) document.documentElement.setAttribute('data-theme',st)
+
+renderMain()
+</script>
+</body>
+</html>

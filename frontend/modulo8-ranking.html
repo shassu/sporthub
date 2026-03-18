@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Ranking y Matchmaking</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --gold:#f0c040;--purple:#8b5cf6;--teal:#06b6d4;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000055
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#8a9ab8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --gold:#ca8a04;--purple:#7c3aed;--teal:#0891b2;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#f0c040,#8b5cf6);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--gold);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--gold)}
+
+.main{padding:22px 26px;max-width:1400px;margin:0 auto}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-top:5px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* RANKING TABLE */
+.rank-row{display:grid;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bd)44;transition:background .12s;cursor:pointer}
+.rank-row:hover{background:var(--s2)}
+.rank-row:last-child{border-bottom:none}
+.rank-num{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;width:36px;text-align:center;flex-shrink:0}
+.rank-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.rank-name{font-size:13px;font-weight:600;color:var(--tx)}
+.rank-meta{font-size:11px;color:var(--tx3);margin-top:1px}
+.elo-pill{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;border-radius:8px;padding:3px 10px}
+.trend-up{color:var(--ok);font-size:11px;font-weight:600}
+.trend-dn{color:var(--err);font-size:11px;font-weight:600}
+.trend-eq{color:var(--tx3);font-size:11px}
+
+/* CATEGORÍAS TABS */
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.cat-tab{padding:5px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);transition:all .13s}
+.cat-tab.on{background:var(--gold)18;border-color:var(--gold);color:var(--gold)}
+
+/* MATCHMAKING */
+.match-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:10px;transition:border-color .14s}
+.match-card:hover{border-color:var(--bd2)}
+.compatibility-bar{height:8px;border-radius:4px;background:var(--bd);overflow:hidden;margin-top:6px}
+.compatibility-fill{height:100%;border-radius:4px;transition:width .4s}
+.jugador-chip{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;cursor:pointer;transition:all .13s}
+.jugador-chip:hover{border-color:var(--ac)}
+.jugador-chip.sel{border-color:var(--gold);background:var(--gold)10}
+
+/* HISTORIAL ELO */
+.elo-chart-bar{transition:height .4s}
+.partido-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bd)44;font-size:12px}
+.partido-row:hover{background:var(--s2)}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif}
+.card-body{padding:14px 16px}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-gold{background:var(--gold);color:#0d1020}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--ok)18;color:var(--ok);border:1px solid var(--ok)44}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--gold)}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:520px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">🏅</div>
+  <div>
+    <div class="ln">Sport Hub OS — Ranking y Matchmaking</div>
+    <div style="font-size:10px;color:var(--tx3)">Sport Hub Norte · Temporada 2025</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-ghost btn-sm" onclick="switchTab('matchmaking')">⚡ Buscar rival</button>
+    <button class="btn btn-gold" onclick="openAjusteManual()">+ Ajuste manual</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-ranking"     onclick="switchTab('ranking')">🏆 Ranking ELO</div>
+  <div class="tab"    id="tab-matchmaking" onclick="switchTab('matchmaking')">⚡ Matchmaking</div>
+  <div class="tab"    id="tab-historial"   onclick="switchTab('historial')">📈 Historial</div>
+  <div class="tab"    id="tab-config"      onclick="switchTab('config')">⚙ Configuración</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  SISTEMA ELO
+// ══════════════════════════════════════════════════════════
+// K-factor dinámico: más fluctuación para jugadores nuevos
+function kFactor(partidos) {
+  if (partidos < 10)  return 40  // Provisorio
+  if (partidos < 30)  return 30  // Establecido
+  return 20                       // Veterano
+}
+
+// Probabilidad esperada de victoria (fórmula ELO estándar)
+function eloExpected(ratingA, ratingB) {
+  return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400))
+}
+
+// Calcular nuevo ELO después de un partido
+function calcElo(ratingA, ratingB, resultadoA, partidosA) {
+  const expected = eloExpected(ratingA, ratingB)
+  const K = kFactor(partidosA)
+  const delta = Math.round(K * (resultadoA - expected))
+  return { nuevo: ratingA + delta, delta }
+}
+
+// Color / visual por rango ELO (independiente del nombre de categoría por deporte)
+function eloCategoria(elo) {
+  if (elo >= 1900) return { color: '#f0c040', bg: '#f0c04018' }  // 1ª pádel / élite
+  if (elo >= 1750) return { color: '#e8e0ff', bg: '#e8e0ff18' }  // 2ª
+  if (elo >= 1600) return { color: '#e2e8f0', bg: '#e2e8f018' }  // 3ª
+  if (elo >= 1480) return { color: '#cd7f32', bg: '#cd7f3218' }  // 4ª
+  if (elo >= 1360) return { color: '#5b7fff', bg: '#5b7fff18' }  // 5ª
+  if (elo >= 1250) return { color: '#2ecc71', bg: '#2ecc7118' }  // 6ª
+  if (elo >= 1140) return { color: '#06b6d4', bg: '#06b6d418' }  // 7ª
+  if (elo >= 1040) return { color: '#f0a020', bg: '#f0a02018' }  // 8ª
+  if (elo >= 950)  return { color: '#e05050', bg: '#e0505018' }  // 9ª
+  return               { color: '#8b5cf6', bg: '#8b5cf618' }     // 10ª / iniciación
+}
+
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+const DEPORTES_RANKING = ['Pádel','Tenis','Fútbol 5']
+
+const JUGADORES = [
+  // PÁDEL — Hombres
+  {id:1,  nombre:'Carlos M.',     genero:'M', deportes:['Pádel'],            elo:{Pádel:1720}, partidos:{Pádel:47}, victorias:{Pádel:31}, histElo:{Pádel:[1650,1660,1680,1700,1715,1720]}, tendencia:{Pádel:5},  activo:true, phone:'11-4521-3344'},
+  {id:2,  nombre:'Rodrigo F.',    genero:'M', deportes:['Pádel'],            elo:{Pádel:1695}, partidos:{Pádel:38}, victorias:{Pádel:24}, histElo:{Pádel:[1670,1660,1680,1690,1695,1695]}, tendencia:{Pádel:0},  activo:true, phone:'11-3322-6677'},
+  {id:3,  nombre:'Facundo T.',    genero:'M', deportes:['Pádel','Fútbol 5'], elo:{Pádel:1580,'Fútbol 5':1420}, partidos:{Pádel:29,'Fútbol 5':18}, victorias:{Pádel:17,'Fútbol 5':9},  histElo:{Pádel:[1520,1540,1560,1570,1580,1580],'Fútbol 5':[1400,1405,1410,1415,1420,1420]}, tendencia:{Pádel:0,'Fútbol 5':5},  activo:true, phone:'11-9988-4455'},
+  {id:4,  nombre:'Lucas M.',      genero:'M', deportes:['Pádel','Fútbol 5'], elo:{Pádel:1490,'Fútbol 5':1380}, partidos:{Pádel:22,'Fútbol 5':15}, victorias:{Pádel:11,'Fútbol 5':7},  histElo:{Pádel:[1500,1490,1480,1495,1490,1490],'Fútbol 5':[1360,1370,1375,1380,1380,1380]}, tendencia:{Pádel:-10,'Fútbol 5':0}, activo:true, phone:'11-5533-2211'},
+  {id:5,  nombre:'Tomás H.',      genero:'M', deportes:['Pádel'],            elo:{Pádel:1455}, partidos:{Pádel:18}, victorias:{Pádel:9},  histElo:{Pádel:[1400,1420,1430,1440,1450,1455]}, tendencia:{Pádel:15}, activo:true, phone:'11-6677-3344'},
+  {id:6,  nombre:'Emilio R.',     genero:'M', deportes:['Pádel'],            elo:{Pádel:1310}, partidos:{Pádel:14}, victorias:{Pádel:6},  histElo:{Pádel:[1320,1310,1305,1310,1315,1310]}, tendencia:{Pádel:-5}, activo:true, phone:'11-7788-9900'},
+  {id:7,  nombre:'Nicolás F.',    genero:'M', deportes:['Pádel'],            elo:{Pádel:1280}, partidos:{Pádel:9},  victorias:{Pádel:4},  histElo:{Pádel:[1300,1290,1285,1280,1280,1280]}, tendencia:{Pádel:0},  activo:true, phone:'11-8899-0011'},
+  {id:8,  nombre:'Diego H.',      genero:'M', deportes:['Pádel','Fútbol 5'], elo:{Pádel:1220,'Fútbol 5':1340}, partidos:{Pádel:6,'Fútbol 5':12}, victorias:{Pádel:2,'Fútbol 5':5},   histElo:{Pádel:[1250,1240,1235,1225,1220,1220],'Fútbol 5':[1300,1310,1320,1330,1340,1340]}, tendencia:{Pádel:-5,'Fútbol 5':10}, activo:true, phone:'11-3344-5566'},
+  {id:9,  nombre:'Matías R.',     genero:'M', deportes:['Pádel','Fútbol 5'], elo:{Pádel:1180,'Fútbol 5':1360}, partidos:{Pádel:5,'Fútbol 5':14}, victorias:{Pádel:2,'Fútbol 5':6},   histElo:{Pádel:[1200,1195,1190,1185,1180,1180],'Fútbol 5':[1330,1340,1345,1355,1360,1360]}, tendencia:{Pádel:0,'Fútbol 5':5},  activo:true, phone:'11-2233-4455'},
+  // PÁDEL — Mujeres
+  {id:10, nombre:'Sofía L.',      genero:'F', deportes:['Pádel'],            elo:{Pádel:1760}, partidos:{Pádel:52}, victorias:{Pádel:37}, histElo:{Pádel:[1700,1720,1730,1745,1755,1760]}, tendencia:{Pádel:15}, activo:true, phone:'11-8899-1122'},
+  {id:11, nombre:'Valentina R.',  genero:'F', deportes:['Pádel'],            elo:{Pádel:1640}, partidos:{Pádel:34}, victorias:{Pádel:22}, histElo:{Pádel:[1610,1620,1630,1635,1640,1640]}, tendencia:{Pádel:5},  activo:true, phone:'11-4455-7788'},
+  {id:12, nombre:'Camila V.',     genero:'F', deportes:['Pádel'],            elo:{Pádel:1510}, partidos:{Pádel:21}, victorias:{Pádel:12}, histElo:{Pádel:[1490,1500,1505,1510,1510,1510]}, tendencia:{Pádel:0},  activo:true, phone:'11-5544-9900'},
+  {id:13, nombre:'Ana C.',        genero:'F', deportes:['Pádel'],            elo:{Pádel:1380}, partidos:{Pádel:15}, victorias:{Pádel:7},  histElo:{Pádel:[1350,1360,1370,1375,1380,1380]}, tendencia:{Pádel:5},  activo:true, phone:'11-6677-8899'},
+  {id:14, nombre:'Martina G.',    genero:'F', deportes:['Pádel'],            elo:{Pádel:1290}, partidos:{Pádel:11}, victorias:{Pádel:5},  histElo:{Pádel:[1310,1305,1300,1295,1290,1290]}, tendencia:{Pádel:-10},activo:true, phone:'11-3322-0011'},
+  {id:15, nombre:'Isabella D.',   genero:'F', deportes:['Pádel'],            elo:{Pádel:1210}, partidos:{Pádel:7},  victorias:{Pádel:3},  histElo:{Pádel:[1200,1205,1210,1210,1210,1210]}, tendencia:{Pádel:0},  activo:true, phone:'11-2211-3344'},
+  {id:16, nombre:'Laura V.',      genero:'F', deportes:['Pádel','Tenis'],    elo:{Pádel:1820,'Tenis':1680}, partidos:{Pádel:61,'Tenis':28}, victorias:{Pádel:44,'Tenis':18}, histElo:{Pádel:[1780,1790,1800,1810,1818,1820],'Tenis':[1650,1660,1665,1675,1680,1680]}, tendencia:{Pádel:10,'Tenis':5}, activo:true, phone:'11-5533-2211'},
+  {id:17, nombre:'Florencia T.',  genero:'F', deportes:['Pádel'],            elo:{Pádel:1590}, partidos:{Pádel:26}, victorias:{Pádel:15}, histElo:{Pádel:[1560,1570,1580,1585,1590,1590]}, tendencia:{Pádel:5},  activo:true, phone:'11-1122-4455'},
+  // FÚTBOL 5
+  {id:18, nombre:'Pablo R.',      genero:'M', deportes:['Fútbol 5'],         elo:{'Fútbol 5':1510}, partidos:{'Fútbol 5':22}, victorias:{'Fútbol 5':13}, histElo:{'Fútbol 5':[1470,1480,1490,1500,1508,1510]}, tendencia:{'Fútbol 5':8}, activo:true, phone:'11-4466-7788'},
+  {id:19, nombre:'Jorge F.',      genero:'M', deportes:['Fútbol 5'],         elo:{'Fútbol 5':1460}, partidos:{'Fútbol 5':19}, victorias:{'Fútbol 5':10}, histElo:{'Fútbol 5':[1440,1445,1450,1455,1460,1460]}, tendencia:{'Fútbol 5':5}, activo:true, phone:'11-5577-8899'},
+  {id:20, nombre:'Martín S.',     genero:'M', deportes:['Fútbol 5','Pádel'], elo:{'Fútbol 5':1390, Pádel:1160}, partidos:{'Fútbol 5':14, Pádel:4}, victorias:{'Fútbol 5':6, Pádel:1}, histElo:{'Fútbol 5':[1360,1370,1375,1385,1390,1390], Pádel:[1200,1185,1175,1165,1160,1160]}, tendencia:{'Fútbol 5':5, Pádel:-15}, activo:true, phone:'11-6688-9900'},
+  // TENIS
+  {id:21, nombre:'Carlos Méndez', genero:'M', deportes:['Tenis'],            elo:{Tenis:1720}, partidos:{Tenis:35}, victorias:{Tenis:24}, histElo:{Tenis:[1680,1690,1700,1710,1718,1720]}, tendencia:{Tenis:10}, activo:true, phone:'11-7799-0011'},
+  {id:22, nombre:'Ana Torres',    genero:'F', deportes:['Tenis'],            elo:{Tenis:1590}, partidos:{Tenis:22}, victorias:{Tenis:14}, histElo:{Tenis:[1560,1570,1580,1585,1590,1590]}, tendencia:{Tenis:5},  activo:true, phone:'11-8800-1122'},
+]
+
+// Partidos históricos (para calcular y mostrar historial)
+const PARTIDOS_HIST = [
+  {id:1, fecha:'20 Jun 2025', j1:1,  j2:2,  d:'Pádel', res:'2-1', ganador:1, eloDelta:+14, eloRival:-14},
+  {id:2, fecha:'18 Jun 2025', j1:10, j2:11, d:'Pádel', res:'2-0', ganador:10,eloDelta:+12, eloRival:-12},
+  {id:3, fecha:'15 Jun 2025', j1:3,  j2:5,  d:'Pádel', res:'2-1', ganador:5, eloDelta:-8,  eloRival:+8},
+  {id:4, fecha:'14 Jun 2025', j1:16, j2:10, d:'Pádel', res:'2-0', ganador:16,eloDelta:+10, eloRival:-10},
+  {id:5, fecha:'12 Jun 2025', j1:4,  j2:6,  d:'Pádel', res:'1-2', ganador:6, eloDelta:-16, eloRival:+16},
+  {id:6, fecha:'10 Jun 2025', j1:18, j2:19, d:'Fútbol 5', res:'3-1', ganador:18,eloDelta:+15,eloRival:-15},
+  {id:7, fecha:'8 Jun 2025',  j1:21, j2:22, d:'Tenis',  res:'6-4 6-2', ganador:21,eloDelta:+18,eloRival:-18},
+  {id:8, fecha:'7 Jun 2025',  j1:1,  j2:3,  d:'Pádel', res:'2-0', ganador:1, eloDelta:+9,  eloRival:-9},
+  {id:9, fecha:'5 Jun 2025',  j1:10, j2:16, d:'Pádel', res:'1-2', ganador:16,eloDelta:-8,  eloRival:+8},
+  {id:10,fecha:'3 Jun 2025',  j1:2,  j2:5,  d:'Pádel', res:'2-1', ganador:2, eloDelta:+11, eloRival:-11},
+]
+
+// Categorías federativas reales por deporte
+const CATS_POR_DEPORTE = {
+  'Pádel':    ['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª','9ª','10ª'],
+  'Tenis':    ['1ª','2ª','3ª','4ª','5ª','Recreativo'],
+  'Fútbol 5': ['1ª División','2ª División','Amateur','Sub-20','Sub-17'],
+  'Fútbol 7': ['1ª División','2ª División','Amateur','Sub-20','Sub-17'],
+}
+
+// Deportes que tienen categoría de duplas mixtas (hombre + mujer)
+// En pádel y tenis el "mixto" es una CATEGORÍA DE PAREJA, no un filtro de visualización
+
+// Deportes con categoría de dupla mixta (H+M)
+const DEPORTES_CON_MIXTO = ['Pádel', 'Tenis']
+
+// Duplas mixtas registradas
+const DUPLAS_MIXTAS = [
+  {id:'mx1', jugadores:['Carlos M.', 'Sofía L.'],      elo:{Pádel:1740}, partidos:{Pádel:12}, victorias:{Pádel:9},  tendencia:{Pádel:8}},
+  {id:'mx2', jugadores:['Rodrigo F.', 'Valentina R.'], elo:{Pádel:1665}, partidos:{Pádel:8},  victorias:{Pádel:5},  tendencia:{Pádel:5}},
+  {id:'mx3', jugadores:['Lucas M.', 'Camila V.'],      elo:{Pádel:1500}, partidos:{Pádel:6},  victorias:{Pádel:3},  tendencia:{Pádel:0}},
+  {id:'mx4', jugadores:['Facundo T.', 'Ana C.'],       elo:{Pádel:1480}, partidos:{Pádel:5},  victorias:{Pádel:2},  tendencia:{Pádel:-5}},
+  {id:'mx5', jugadores:['Carlos Méndez', 'Laura V.'],  elo:{Tenis:1650}, partidos:{Tenis:10}, victorias:{Tenis:7},  tendencia:{Tenis:10}},
+]
+
+function eloCatFederativa(elo, deporte) {
+  if (deporte === 'Pádel') {
+    // Argentina: 10ª (principiante) → 1ª (élite)
+    if (elo >= 1900) return '1ª'
+    if (elo >= 1750) return '2ª'
+    if (elo >= 1600) return '3ª'
+    if (elo >= 1480) return '4ª'
+    if (elo >= 1360) return '5ª'
+    if (elo >= 1250) return '6ª'
+    if (elo >= 1140) return '7ª'
+    if (elo >= 1040) return '8ª'
+    if (elo >= 950)  return '9ª'
+    return '10ª'
+  }
+  if (deporte === 'Tenis') {
+    if (elo >= 1800) return '1ª'
+    if (elo >= 1650) return '2ª'
+    if (elo >= 1480) return '3ª'
+    if (elo >= 1300) return '4ª'
+    if (elo >= 1100) return '5ª'
+    return 'Recreativo'
+  }
+  if (deporte.startsWith('Fútbol')) {
+    if (elo >= 1700) return '1ª División'
+    if (elo >= 1500) return '2ª División'
+    if (elo >= 1300) return 'Amateur'
+    if (elo >= 1150) return 'Sub-20'
+    return 'Sub-17'
+  }
+  return eloCategoria(elo).cat
+}
+
+let activeTab       = 'ranking'
+let rankDeporte     = 'Pádel'
+let rankGenero      = 'M'   // 'M' | 'F' | 'MX'
+let rankCategoria   = 'todas'
+let matchJugadorSel = null
+
+const fmt = n => n?.toLocaleString() || '—'
+const jug = id => JUGADORES.find(j=>j.id===id)
+
+// Obtener iniciales seguras — funciona tanto para jugadores como para duplas mixtas
+function getIni(j) {
+  if (!j) return '?'
+  if (j.nombre) return j.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')
+  if (j.jugadores && j.jugadores.length) return (j.jugadores[0]?.[0]||'') + (j.jugadores[1]?.[0]||'')
+  return '?'
+}
+
+// Obtener nombre de display seguro
+function getNombre(j) {
+  if (!j) return '?'
+  if (j.nombre) return j.nombre
+  if (j.jugadores) return j.jugadores.join(' & ')
+  return '?'
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  const totalJugadores = JUGADORES.length
+  const deportesActivos = DEPORTES_RANKING.length
+  const topElo = Math.max(...JUGADORES.flatMap(j=>Object.values(j.elo)))
+  const totalPartidos = PARTIDOS_HIST.length
+  const promElo = Math.round(JUGADORES.flatMap(j=>Object.values(j.elo)).reduce((a,b)=>a+b,0) / JUGADORES.flatMap(j=>Object.values(j.elo)).length)
+
+  const kpiHtml = `<div class="kpis">
+    <div class="kpi" style="border-top:3px solid var(--gold)">
+      <div style="font-size:11px;color:var(--tx2)">Jugadores rankeados</div>
+      <div class="kv" style="color:var(--gold)">${totalJugadores}</div>
+      <div class="kl">${deportesActivos} deportes</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--purple)">
+      <div style="font-size:11px;color:var(--tx2)">ELO más alto</div>
+      <div class="kv" style="color:var(--purple)">${topElo}</div>
+      <div class="kl">${JUGADORES.find(j=>Object.values(j.elo).includes(topElo))?.nombre}</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ac)">
+      <div style="font-size:11px;color:var(--tx2)">ELO promedio</div>
+      <div class="kv" style="color:var(--ac)">${promElo}</div>
+      <div class="kl">del club</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ok)">
+      <div style="font-size:11px;color:var(--tx2)">Partidos registrados</div>
+      <div class="kv" style="color:var(--ok)">${totalPartidos}</div>
+      <div class="kl">este mes</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--teal)">
+      <div style="font-size:11px;color:var(--tx2)">Matchmaking activo</div>
+      <div class="kv" style="color:var(--teal)">3</div>
+      <div class="kl">búsquedas hoy</div>
+    </div>
+  </div>`
+
+  const content = document.getElementById('main')
+  switch(activeTab) {
+    case 'ranking':     content.innerHTML = kpiHtml + renderRanking();     break
+    case 'matchmaking': content.innerHTML = kpiHtml + renderMatchmaking(); break
+    case 'historial':   content.innerHTML = kpiHtml + renderHistorial();   break
+    case 'config':      content.innerHTML = kpiHtml + renderConfig();      break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  RANKING
+// ══════════════════════════════════════════════════════════
+function renderRanking() {
+  const catsDeporte = CATS_POR_DEPORTE[rankDeporte] || []
+
+  // Filtrar por deporte, división y categoría
+  const esMixto = rankGenero === 'MX'
+
+  // Para mixto: usar DUPLAS_MIXTAS en lugar de JUGADORES
+  let jugsFiltrados = []
+  if (esMixto) {
+    jugsFiltrados = DUPLAS_MIXTAS
+      .filter(d => d.elo[rankDeporte] !== undefined)
+      .filter(d => rankCategoria === 'todas' || eloCatFederativa(d.elo[rankDeporte]||0, rankDeporte) === rankCategoria)
+      .sort((a,b) => (b.elo[rankDeporte]||0) - (a.elo[rankDeporte]||0))
+  } else {
+    jugsFiltrados = JUGADORES.filter(j => {
+      if (!j.deportes.includes(rankDeporte)) return false
+      if (j.genero !== rankGenero) return false
+      if (rankCategoria !== 'todas') {
+        const catJug = eloCatFederativa(j.elo[rankDeporte]||0, rankDeporte)
+        if (catJug !== rankCategoria) return false
+      }
+      return true
+    })
+    jugsFiltrados.sort((a,b) => (b.elo[rankDeporte]||0) - (a.elo[rankDeporte]||0))
+  }
+
+  let html = ''
+
+  // ── Fila 1: Selector de deporte ──
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">'
+  html += '<span style="font-size:11px;color:var(--tx3);font-weight:600;margin-right:4px">Deporte:</span>'
+  DEPORTES_RANKING.forEach(d => {
+    const sel = d === rankDeporte
+    html += '<button class="btn btn-sm ' + (sel?'btn-gold':'btn-ghost') + '" '
+    html += 'onclick="rankDeporte=\'' + d + '\';rankCategoria=\'todas\';renderMain()">' + d + '</button>'
+  })
+  html += '</div>'
+
+  // ── Fila 2: Filtro de división (Masculino / Femenino / Mixto como categoría de pareja) ──
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">'
+  html += '<span style="font-size:11px;color:var(--tx3);font-weight:600;margin-right:4px">División:</span>'
+
+  const divOpts = [
+    {id:'M',  label:'♂ Masculino', color:'var(--ac)',    tip:'Ranking de jugadores hombres'},
+    {id:'F',  label:'♀ Femenino',  color:'var(--err)',   tip:'Ranking de jugadoras mujeres'},
+  ]
+  // Solo mostrar Mixto para deportes de paleta
+  if (DEPORTES_CON_MIXTO.includes(rankDeporte)) {
+    divOpts.push({id:'MX', label:'⚧ Mixto (dupla)', color:'var(--purple)', tip:'Duplas conformadas por 1 hombre y 1 mujer'})
+  }
+
+  divOpts.forEach(g => {
+    const sel = g.id === rankGenero
+    html += '<button onclick="rankGenero=\'' + g.id + '\';rankCategoria=\'todas\';renderMain()" '
+    html += 'class="btn btn-sm" title="' + g.tip + '" '
+    html += 'style="border:1px solid ' + (sel?g.color:'var(--bd2)') + ';background:' + (sel?g.color+'18':'var(--s2)') + ';color:' + (sel?g.color:'var(--tx2)') + '">'
+    html += g.label + '</button>'
+  })
+  html += '</div>'
+
+  // ── Fila 3: Filtro de categoría (se actualiza según deporte) ──
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center">'
+  html += '<span style="font-size:11px;color:var(--tx3);font-weight:600;margin-right:4px">Categoría:</span>'
+
+  // Chip "Todas"
+  const selTodas = rankCategoria === 'todas'
+  html += '<button onclick="rankCategoria=\'todas\';renderMain()" class="btn btn-sm" '
+  html += 'style="border:1px solid ' + (selTodas?'var(--gold)':'var(--bd2)') + ';background:' + (selTodas?'var(--gold)18':'var(--s2)') + ';color:' + (selTodas?'var(--gold)':'var(--tx2)') + '">Todas</button>'
+
+  // Chips por categoría con conteo de jugadores
+  catsDeporte.forEach(cat => {
+    const count = rankGenero === 'MX'
+      ? DUPLAS_MIXTAS.filter(d => d.elo[rankDeporte] !== undefined && eloCatFederativa(d.elo[rankDeporte]||0, rankDeporte) === cat).length
+      : JUGADORES.filter(j =>
+          j.deportes.includes(rankDeporte) &&
+          j.genero === rankGenero &&
+          eloCatFederativa(j.elo[rankDeporte]||0, rankDeporte) === cat
+        ).length
+    if (!count) return  // No mostrar categoría sin jugadores
+    const sel = rankCategoria === cat
+    html += '<button onclick="rankCategoria=\'' + cat + '\';renderMain()" class="btn btn-sm" '
+    html += 'style="border:1px solid ' + (sel?'var(--gold)':'var(--bd2)') + ';background:' + (sel?'var(--gold)18':'var(--s2)') + ';color:' + (sel?'var(--gold)':'var(--tx2)') + '">'
+    html += cat + ' <span style="font-size:9px;opacity:.7">(' + count + ')</span>'
+    html += '</button>'
+  })
+
+  html += '<span style="margin-left:auto;font-size:11px;color:var(--tx3)">'
+  if (rankGenero === 'MX') {
+    html += jugsFiltrados.length + ' dupla' + (jugsFiltrados.length===1?'':'s') + ' mixta' + (jugsFiltrados.length===1?'':'s')
+  } else {
+    html += jugsFiltrados.length + ' jugador' + (jugsFiltrados.length===1?'':'es')
+  }
+  if (rankCategoria !== 'todas') html += ' · ' + rankCategoria
+  html += '</span>'
+  html += '</div>'
+
+  // ── Tabla de ranking ──
+  if (!jugsFiltrados.length) {
+    html += '<div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:30px;text-align:center;color:var(--tx3);font-size:13px">'
+    html += '<div style="font-size:28px;margin-bottom:8px">🔍</div>'
+    html += 'No hay jugadores con ese filtro. Probá con otra categoría o género.'
+    html += '</div>'
+    return html
+  }
+
+  html += '<div class="card">'
+  html += '<div class="card-head">'
+  html += '<span class="card-title">🏆 Ranking — ' + rankDeporte
+  if (rankCategoria !== 'todas') html += ' · ' + rankCategoria
+  if (rankGenero === 'M') html += ' · ♂ Masculino'
+  else if (rankGenero === 'F') html += ' · ♀ Femenino'
+  else if (rankGenero === 'MX') html += ' · ⚧ Duplas mixtas'
+  html += '</span>'
+  html += '<button class="btn btn-ghost btn-sm" onclick="toast(\'Exportando ranking...\')">↓ Exportar</button>'
+  html += '</div>'
+
+  jugsFiltrados.forEach((j, i) => {
+    const elo     = j.elo[rankDeporte] || 0
+    const cat     = eloCategoria(elo)
+    const catFed  = eloCatFederativa(elo, rankDeporte)
+    const partsD  = j.partidos[rankDeporte] || 0
+    const victD   = j.victorias[rankDeporte] || 0
+    const pct     = partsD ? Math.round(victD/partsD*100) : 0
+    const tend    = j.tendencia[rankDeporte] || 0
+    const ini     = getIni(j)
+    const posColors = ['var(--gold)','#e2e8f0','#cd7f32']
+    const posColor  = i < 3 ? posColors[i] : 'var(--tx3)'
+    const gColor    = j.genero==='M' ? 'var(--ac)' : 'var(--err)'
+    const gIcon     = j.genero==='M' ? '♂' : '♀'
+
+    html += '<div class="rank-row" style="grid-template-columns:44px 44px 1fr auto auto auto auto;gap:10px" onclick="openJugadorPerfil(' + j.id + ')">'
+    html += '<div class="rank-num" style="color:' + posColor + '">' + (i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1) + '</div>'
+    html += '<div class="rank-avatar" style="background:' + cat.bg + ';color:' + cat.color + '">' + ini + '</div>'
+    html += '<div>'
+    html += '<div class="rank-name">' + j.nombre + ' <span style="font-size:10px;color:' + gColor + '">' + gIcon + '</span></div>'
+    html += '<div class="rank-meta">' + partsD + ' partidos · ' + pct + '% victorias · ' + catFed + '</div>'
+    html += '</div>'
+    html += '<div style="text-align:center"><span class="badge" style="background:' + cat.bg + ';color:' + cat.color + '">' + catFed + '</span></div>'
+    html += '<div style="text-align:right"><span class="' + (tend>0?'trend-up':tend<0?'trend-dn':'trend-eq') + '">' + (tend>0?'▲':tend<0?'▼':'—') + ' ' + (Math.abs(tend)||'') + '</span></div>'
+    html += '<div><span class="elo-pill" style="background:' + cat.bg + ';color:' + cat.color + '">' + elo + '</span></div>'
+    html += '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();matchJugadorSel=' + j.id + ';switchTab(\'matchmaking\')">⚡ Match</button>'
+    html += '</div>'
+  })
+
+  html += '</div>'
+
+  // ── Leyenda de categorías del deporte activo ──
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">'
+  html += '<span style="font-size:10px;color:var(--tx3);font-weight:600">Categorías:</span>'
+  const COLORES_CAT = ['#f0c040','#e8e0ff','#e2e8f0','#cd7f32','#5b7fff','#2ecc71','#06b6d4','#f0a020','#e05050','#8b5cf6']
+  catsDeporte.forEach((c, ci) => {
+    const count = rankGenero === 'MX'
+      ? DUPLAS_MIXTAS.filter(d => d.elo[rankDeporte] !== undefined && eloCatFederativa(d.elo[rankDeporte]||0, rankDeporte) === c).length
+      : JUGADORES.filter(j =>
+          j.deportes.includes(rankDeporte) &&
+          j.genero === rankGenero &&
+          eloCatFederativa(j.elo[rankDeporte]||0, rankDeporte) === c
+        ).length
+    if (!count) return
+    html += '<div style="display:flex;align-items:center;gap:4px;font-size:10px">'
+    html += '<div style="width:8px;height:8px;border-radius:50%;background:' + (COLORES_CAT[ci]||'var(--ac)') + '"></div>'
+    html += '<span style="color:var(--tx3)">' + c + ' (' + count + ')</span>'
+    html += '</div>'
+  })
+  html += '</div>'
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  MATCHMAKING
+// ══════════════════════════════════════════════════════════
+function renderMatchmaking() {
+  const jugSel = matchJugadorSel ? JUGADORES.find(j=>j.id===matchJugadorSel) : null
+
+  let html = `<div style="display:grid;grid-template-columns:300px 1fr;gap:14px">`
+
+  // ── Panel izquierdo: selector de jugador ──
+  html += '<div>'
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head"><span class="card-title">¿Quién busca rival?</span></div>'
+  html += '<div class="card-body" style="padding:10px">'
+
+  // Buscador
+  html += '<input class="finp" id="mm-search" placeholder="Buscar jugador..." oninput="renderMatchSearch()" style="margin-bottom:8px">'
+  html += '<div id="mm-jugadores-list" style="display:flex;flex-direction:column;gap:5px;max-height:400px;overflow-y:auto">'
+
+  const searchVal = ''
+  JUGADORES.filter(j => j.activo).forEach(j => {
+    const isSelected = matchJugadorSel === j.id
+    const deportePrim = j.deportes[0]
+    const elo = j.elo[deportePrim] || 0
+    const cat = eloCategoria(elo)
+    const ini = getIni(j)
+    const gColor = j.genero==='M' ? 'var(--ac)' : 'var(--err)'
+
+    html += `<div class="jugador-chip ${isSelected?'sel':''}" onclick="matchJugadorSel=${j.id};renderMain()">
+      <div style="width:30px;height:30px;border-radius:50%;background:${cat.bg};color:${cat.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${ini}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${j.nombre} <span style="font-size:9px;color:${gColor}">${j.genero==='M'?'♂':'♀'}</span></div>
+        <div style="font-size:10px;color:var(--tx3)">${deportePrim} · ${elo} ELO</div>
+      </div>
+      <span class="badge" style="background:${cat.bg};color:${cat.color}">${eloCatFederativa(elo, deportePrim)}</span>
+    </div>`
+  })
+
+  html += '</div></div></div></div>'
+
+  // ── Panel derecho: sugerencias de rival ──
+  html += '<div>'
+  if (!jugSel) {
+    html += '<div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:40px;text-align:center;color:var(--tx3)">'
+    html += '<div style="font-size:32px;margin-bottom:10px">⚡</div>'
+    html += '<div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:5px">Seleccioná un jugador</div>'
+    html += '<div style="font-size:12px">El sistema va a sugerir los rivales más compatibles según su ELO, deporte y nivel.</div>'
+    html += '</div>'
+  } else {
+    html += renderRivalesSugeridos(jugSel)
+  }
+  html += '</div>'
+
+  html += '</div>'
+  return html
+}
+
+function renderRivalesSugeridos(jugSel) {
+  let html = ''
+
+  // Para cada deporte del jugador seleccionado
+  jugSel.deportes.forEach(deporte => {
+    const eloSel = jugSel.elo[deporte] || 0
+    const catSel = eloCategoria(eloSel)
+
+    // Encontrar rivales potenciales: mismo deporte, diferente jugador, ELO cercano
+    const rivales = JUGADORES
+      .filter(j => j.id !== jugSel.id && j.deportes.includes(deporte) && j.activo)
+      .map(j => {
+        const eloRival   = j.elo[deporte] || 0
+        const difElo     = Math.abs(eloSel - eloRival)
+        const compatPct  = Math.max(0, Math.round(100 - difElo/8))
+        // Probabilidad de victoria del jugador seleccionado
+        const probVic    = Math.round(eloExpected(eloSel, eloRival) * 100)
+        return { ...j, eloRival, difElo, compatPct, probVic, deporte }
+      })
+      .sort((a,b) => a.difElo - b.difElo)
+      .slice(0, 6)
+
+    html += `<div class="card" style="margin-bottom:14px">`
+    html += `<div class="card-head">
+      <span class="card-title">⚡ Rivales sugeridos — ${deporte}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:30px;height:30px;border-radius:50%;background:${catSel.bg};color:${catSel.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">
+          ${getIni(jugSel)}
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600">${jugSel.nombre}</div>
+          <div style="font-size:10px;color:var(--tx3)">${eloSel} ELO · ${catSel.cat}</div>
+        </div>
+      </div>
+    </div>`
+
+    rivales.forEach(r => {
+      const catR   = eloCategoria(r.eloRival)
+      const ini    = getIni(r)
+      const gColor = r.genero==='M' ? 'var(--ac)' : 'var(--err)'
+      const compatColor = r.compatPct >= 85 ? 'var(--ok)' : r.compatPct >= 60 ? 'var(--warn)' : 'var(--err)'
+
+      html += `<div class="match-card" onclick="openDesafio(${jugSel.id},${r.id},'${deporte}')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:${catR.bg};color:${catR.color};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${ini}</div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:7px">
+              <span style="font-size:13px;font-weight:600;color:var(--tx)">${r.nombre}</span>
+              <span style="font-size:10px;color:${gColor}">${r.genero==='M'?'♂':'♀'}</span>
+              <span class="badge" style="background:${catR.bg};color:${catR.color}">${catR.cat}</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">${r.eloRival} ELO · diferencia ${r.difElo} pts · Prob. victoria: <strong style="color:${r.probVic>55?'var(--ok)':r.probVic>45?'var(--warn)':'var(--err)'}">${r.probVic}%</strong></div>
+            <div class="compatibility-bar">
+              <div class="compatibility-fill" style="width:${r.compatPct}%;background:${compatColor}"></div>
+            </div>
+            <div style="font-size:10px;color:${compatColor};margin-top:2px">Compatibilidad: ${r.compatPct}%</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openDesafio(${jugSel.id},${r.id},'${deporte}')">
+              Desafiar →
+            </button>
+          </div>
+        </div>
+      </div>`
+    })
+
+    html += '</div>'
+  })
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  HISTORIAL ELO
+// ══════════════════════════════════════════════════════════
+function renderHistorial() {
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
+
+  // Últimos partidos
+  html += '<div class="card" style="margin:0"><div class="card-head"><span class="card-title">📋 Últimos partidos</span></div>'
+  PARTIDOS_HIST.forEach(p => {
+    const j1   = jug(p.j1), j2 = jug(p.j2)
+    const win  = p.ganador === p.j1 ? j1 : j2
+    const lose = p.ganador === p.j1 ? j2 : j1
+    const delta = p.ganador === p.j1 ? p.eloDelta : p.eloRival
+    html += `<div class="partido-row">
+      <div style="font-size:10px;color:var(--tx3);flex-shrink:0;min-width:80px">${p.fecha}</div>
+      <div style="flex:1">
+        <span style="font-weight:600;color:var(--ok)">${win?.nombre}</span>
+        <span style="color:var(--tx3)"> vs </span>
+        <span style="color:var(--tx2)">${lose?.nombre}</span>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tx2);flex-shrink:0">${p.res}</div>
+      <div style="flex-shrink:0;min-width:60px;text-align:right;font-size:11px;font-weight:600;color:var(--gold)">${p.d}</div>
+    </div>`
+  })
+  html += '</div>'
+
+  // Mini gráfico evolución ELO top jugadores
+  html += '<div class="card" style="margin:0"><div class="card-head"><span class="card-title">📈 Evolución ELO — Top jugadores</span>'
+  html += `<select class="finp" id="hist-deporte" onchange="renderMain()" style="width:auto;margin:0;padding:4px 8px;font-size:11px">
+    ${DEPORTES_RANKING.map(d=>`<option>${d}</option>`).join('')}
+  </select>`
+  html += '</div><div class="card-body">'
+
+  const TOP_COLORS = ['var(--gold)','var(--purple)','var(--ac)','var(--ok)','var(--teal)']
+  const topJugs = JUGADORES.filter(j=>j.deportes.includes('Pádel')).sort((a,b)=>(b.elo['Pádel']||0)-(a.elo['Pádel']||0)).slice(0,5)
+
+  const maxElo = Math.max(...topJugs.flatMap(j=>j.histElo['Pádel']||[]))
+  const minElo = Math.min(...topJugs.flatMap(j=>j.histElo['Pádel']||[])) - 20
+  const rng    = maxElo - minElo
+  const W = 300, H = 140, PAD = 16
+
+  html += `<svg width="100%" viewBox="0 0 ${W+PAD*2} ${H+PAD*2}" style="overflow:visible">`
+  // Líneas de guía
+  ;[0,0.25,0.5,0.75,1].forEach(t => {
+    const y = PAD + H*(1-t)
+    const elo = Math.round(minElo + rng*t)
+    html += `<line x1="${PAD}" y1="${y}" x2="${PAD+W}" y2="${y}" stroke="var(--bd)" stroke-width="0.5" stroke-dasharray="3 3"/>`
+    html += `<text x="${PAD-4}" y="${y+3}" font-size="8" fill="var(--tx3)" text-anchor="end" font-family="DM Mono">${elo}</text>`
+  })
+
+  topJugs.forEach((j, ji) => {
+    const hist = j.histElo['Pádel'] || []
+    if (!hist.length) return
+    const pts = hist.map((e,i) => {
+      const x = PAD + (i/(hist.length-1))*W
+      const y = PAD + H*(1-(e-minElo)/rng)
+      return `${x},${y}`
+    })
+    const color = TOP_COLORS[ji]
+    html += `<polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>`
+    // Punto final
+    const [lx,ly] = pts[pts.length-1].split(',')
+    html += `<circle cx="${lx}" cy="${ly}" r="3" fill="${color}"/>`
+    // Label
+    html += `<text x="${parseFloat(lx)+5}" y="${parseFloat(ly)+4}" font-size="9" fill="${color}" font-family="DM Sans" font-weight="600">${getNombre(j).split(' ')[0]}</text>`
+  })
+  html += '</svg>'
+
+  // Leyenda
+  html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">'
+  topJugs.forEach((j,ji) => {
+    html += `<div style="display:flex;align-items:center;gap:4px;font-size:10px">
+      <div style="width:12px;height:3px;border-radius:2px;background:${TOP_COLORS[ji]}"></div>
+      <span style="color:var(--tx3)">${j.nombre}</span>
+    </div>`
+  })
+  html += '</div>'
+  html += '</div></div>'
+
+  html += '</div>'
+
+  // Tabla de movimientos recientes
+  html += '<div class="card" style="margin-top:14px"><div class="card-head"><span class="card-title">🔄 Movimientos de ELO recientes</span></div>'
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'
+  ;['Jugador','Deporte','Resultado','ELO antes','Delta','ELO nuevo','Rival','Fecha'].forEach(h => {
+    html += `<th style="padding:8px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left">${h}</th>`
+  })
+  html += '</tr></thead><tbody>'
+
+  PARTIDOS_HIST.slice(0,8).forEach(p => {
+    const ganJ  = jug(p.ganador)
+    const perJ  = jug(p.ganador===p.j1?p.j2:p.j1)
+    const eloAnte = (ganJ?.elo[p.d]||0) - p.eloDelta
+    ;[
+      {j:ganJ,  delta:p.eloDelta,  rival:perJ,  res:'✓'},
+      {j:perJ,  delta:p.eloRival,  rival:ganJ,  res:'✗'},
+    ].forEach(row => {
+      if (!row.j) return
+      html += `<tr style="border-bottom:1px solid var(--bd)44">
+        <td style="padding:8px 12px;font-weight:600">${row.j.nombre}</td>
+        <td style="padding:8px 12px;color:var(--tx3)">${p.d}</td>
+        <td style="padding:8px 12px;font-size:14px">${row.res}</td>
+        <td style="padding:8px 12px;font-family:'DM Mono',monospace">${(row.j.elo[p.d]||0) - row.delta}</td>
+        <td style="padding:8px 12px;font-family:'DM Mono',monospace;font-weight:700;color:${row.delta>0?'var(--ok)':'var(--err)'}">${row.delta>0?'+':''}${row.delta}</td>
+        <td style="padding:8px 12px;font-family:'DM Mono',monospace;font-weight:700;color:var(--gold)">${row.j.elo[p.d]||0}</td>
+        <td style="padding:8px 12px;color:var(--tx2)">${row.rival?.nombre||'—'}</td>
+        <td style="padding:8px 12px;color:var(--tx3)">${p.fecha}</td>
+      </tr>`
+    })
+  })
+  html += '</tbody></table></div>'
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  CONFIGURACIÓN ELO
+// ══════════════════════════════════════════════════════════
+function renderConfig() {
+  return `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div class="card" style="margin:0 0 14px">
+          <div class="card-head"><span class="card-title">⚙ Parámetros ELO</span></div>
+          <div class="card-body">
+            ${[
+              {label:'ELO inicial para nuevos jugadores', val:'1200', desc:'Puntuación de partida de todo jugador'},
+              {label:'K-factor provisorio (< 10 partidos)', val:'40', desc:'Alta variación para calibrar rápido'},
+              {label:'K-factor establecido (10-29 partidos)', val:'30', desc:'Variación media'},
+              {label:'K-factor veterano (30+ partidos)', val:'20', desc:'Variación baja, ranking estable'},
+            ].map(f=>`<div style="margin-bottom:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+                <label class="flbl" style="margin:0">${f.label}</label>
+                <input type="number" value="${f.val}" style="width:70px;padding:4px 8px;background:var(--s2);border:1px solid var(--bd2);border-radius:6px;color:var(--tx);font-family:'DM Mono',monospace;text-align:center;outline:none;font-size:12px">
+              </div>
+              <div style="font-size:10px;color:var(--tx3)">${f.desc}</div>
+            </div>`).join('')}
+            <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="toast('✓ Configuración guardada')">Guardar cambios</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin:0">
+          <div class="card-head"><span class="card-title">🏆 Categorías y umbrales</span></div>
+          <div class="card-body" style="padding:10px 16px">
+            ${[
+              {cat:'1ª — Elite',    min:'1800', color:'#f0c040'},
+              {cat:'2ª — Avanzado', min:'1600', color:'#e2e8f0'},
+              {cat:'3ª',            min:'1450', color:'#cd7f32'},
+              {cat:'4ª',            min:'1300', color:'#5b7fff'},
+              {cat:'5ª',            min:'1150', color:'#2ecc71'},
+              {cat:'6ª',            min:'1000', color:'#06b6d4'},
+              {cat:'Iniciación',    min:'0',    color:'#8b5cf6'},
+            ].map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd)44">
+              <div style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
+              <span style="flex:1;font-size:12px;font-weight:500;color:var(--tx)">${c.cat}</span>
+              <span style="font-size:11px;color:var(--tx3)">desde</span>
+              <input type="number" value="${c.min}" style="width:60px;padding:3px 6px;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;color:var(--tx);font-family:'DM Mono',monospace;text-align:center;font-size:11px;outline:none">
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin:0 0 14px">
+          <div class="card-head"><span class="card-title">📊 Reglas de matchmaking</span></div>
+          <div class="card-body">
+            ${[
+              {label:'Rango de ELO para match ideal',      val:'100', desc:'Diferencia máxima para mostrar como "compatible"'},
+              {label:'Rango extendido (buena compatibilidad)', val:'200', desc:'Diferencia hasta la cual sigue mostrando opciones'},
+              {label:'Partidos mínimos para ranking firme', val:'10',  desc:'Antes de este número el ELO es provisional'},
+            ].map(f=>`<div style="margin-bottom:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+                <label class="flbl" style="margin:0">${f.label}</label>
+                <input type="number" value="${f.val}" style="width:70px;padding:4px 8px;background:var(--s2);border:1px solid var(--bd2);border-radius:6px;color:var(--tx);font-family:'DM Mono',monospace;text-align:center;outline:none;font-size:12px">
+              </div>
+              <div style="font-size:10px;color:var(--tx3)">${f.desc}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="card" style="margin:0">
+          <div class="card-head"><span class="card-title">🔧 Deportes con ranking activo</span></div>
+          <div class="card-body" style="padding:10px 16px">
+            ${['Pádel','Tenis','Fútbol 5','Básquet','Voley','Squash'].map((d,i) => {
+              const activo = i < 3
+              return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)44">
+                <div style="width:34px;height:19px;border-radius:10px;background:${activo?'var(--ok)':'var(--bd2)'};cursor:pointer;position:relative;flex-shrink:0;transition:background .2s" onclick="this.style.background=this.style.background.includes('ok')?'var(--bd2)':'var(--ok)'">
+                  <div style="position:absolute;top:2px;${activo?'left:17px':'left:2px'};width:15px;height:15px;border-radius:50%;background:#fff;transition:left .2s"></div>
+                </div>
+                <span style="font-size:12px;font-weight:500;flex:1">${d}</span>
+                ${activo?`<span class="badge" style="background:var(--ok)15;color:var(--ok)">Activo</span>`:`<span class="badge" style="background:var(--bd);color:var(--tx3)">Inactivo</span>`}
+              </div>`
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════════
+function openJugadorPerfil(id) {
+  const j = JUGADORES.find(x=>x.id===id)
+  if (!j) return
+
+  const TOP_COLORS = ['var(--gold)','var(--purple)','var(--ac)','var(--ok)','var(--teal)']
+
+  let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">`
+  const ini = getIni(j)
+  const deportePrim = j.deportes[0]
+  const cat = eloCategoria(j.elo[deportePrim]||0)
+  const gColor = j.genero==='M' ? 'var(--ac)' : 'var(--err)'
+  html += `<div style="width:48px;height:48px;border-radius:50%;background:${cat.bg};color:${cat.color};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:'Syne',sans-serif">${ini}</div>`
+  html += `<div><div class="modal-title" style="margin-bottom:2px">${j.nombre} <span style="font-size:14px;color:${gColor}">${j.genero==='M'?'♂':'♀'}</span></div>
+    <div style="font-size:12px;color:var(--tx2)">${j.deportes.join(' · ')} · ${j.phone}</div>
+  </div></div>`
+
+  // Stats por deporte
+  j.deportes.forEach((d, di) => {
+    const elo    = j.elo[d] || 0
+    const parts  = j.partidos[d] || 0
+    const vics   = j.victorias[d] || 0
+    const pct    = parts ? Math.round(vics/parts*100) : 0
+    const cat2   = eloCategoria(elo)
+    const color  = TOP_COLORS[di]
+
+    html += `<div style="background:var(--s2);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:12px;font-weight:700;color:${color}">${d}</span>
+        <span class="badge" style="background:${cat2.bg};color:${cat2.color}">${cat2.cat}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+        ${[
+          {l:'ELO',      v:elo,   c:'var(--gold)'},
+          {l:'Partidos', v:parts, c:'var(--ac)'},
+          {l:'Victorias',v:vics,  c:'var(--ok)'},
+          {l:'% victorias', v:pct+'%', c:pct>=50?'var(--ok)':'var(--warn)'},
+        ].map(s=>`<div>
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:${s.c}">${s.v}</div>
+          <div style="font-size:9px;color:var(--tx3);text-transform:uppercase;margin-top:2px">${s.l}</div>
+        </div>`).join('')}
+      </div>
+    </div>`
+  })
+
+  html += `<div class="modal-actions">
+    <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+    <button class="btn btn-primary" onclick="closeModal();matchJugadorSel=${j.id};switchTab('matchmaking')">⚡ Buscar rival</button>
+    <button class="btn btn-gold" onclick="closeModal();openAjusteManual(${j.id})">✏ Ajuste manual</button>
+  </div>`
+
+  showModal(html)
+}
+
+function openDesafio(j1Id, j2Id, deporte) {
+  const j1 = JUGADORES.find(j=>j.id===j1Id)
+  const j2 = JUGADORES.find(j=>j.id===j2Id)
+  if (!j1||!j2) return
+  const elo1 = j1.elo[deporte]||0
+  const elo2 = j2.elo[deporte]||0
+  const prob1 = Math.round(eloExpected(elo1,elo2)*100)
+  const prob2 = 100-prob1
+  const {nuevo:nuevo1W} = calcElo(elo1,elo2,1,j1.partidos[deporte]||0)
+  const {nuevo:nuevo1L} = calcElo(elo1,elo2,0,j1.partidos[deporte]||0)
+
+  showModal(`
+    <div class="modal-title">⚡ Desafío — ${deporte}</div>
+    <div class="modal-sub">Cargá el resultado para actualizar el ranking automáticamente</div>
+
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:16px">
+      <div style="text-align:center;background:var(--s2);border-radius:10px;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--tx)">${j1.nombre}</div>
+        <div style="font-size:20px;font-weight:800;color:var(--gold);font-family:'DM Mono',monospace;margin:4px 0">${elo1}</div>
+        <div style="font-size:11px;color:var(--tx3)">Prob. victoria: <strong style="color:var(--ok)">${prob1}%</strong></div>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:var(--tx3)">VS</div>
+      <div style="text-align:center;background:var(--s2);border-radius:10px;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--tx)">${j2.nombre}</div>
+        <div style="font-size:20px;font-weight:800;color:var(--gold);font-family:'DM Mono',monospace;margin:4px 0">${elo2}</div>
+        <div style="font-size:11px;color:var(--tx3)">Prob. victoria: <strong style="color:var(--warn)">${prob2}%</strong></div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:var(--tx3);background:var(--s2);border-radius:8px;padding:10px 12px;margin-bottom:14px">
+      Si gana <strong style="color:var(--tx)">${j1.nombre}</strong>: ELO ${elo1} → <strong style="color:var(--ok)">${nuevo1W}</strong> (+${nuevo1W-elo1}) &nbsp;|&nbsp;
+      Si pierde: ELO ${elo1} → <strong style="color:var(--err)">${nuevo1L}</strong> (${nuevo1L-elo1})
+    </div>
+
+    <label class="flbl">Resultado del partido</label>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;margin-bottom:14px">
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">${j1.nombre}</div>
+        <input type="number" id="res1" value="2" min="0" max="99" style="width:100%;padding:12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-size:24px;font-weight:800;font-family:'Syne',sans-serif;text-align:center;outline:none">
+      </div>
+      <div style="font-size:20px;font-weight:700;color:var(--tx3);padding-top:24px">—</div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">${j2.nombre}</div>
+        <input type="number" id="res2" value="1" min="0" max="99" style="width:100%;padding:12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-size:24px;font-weight:800;font-family:'Syne',sans-serif;text-align:center;outline:none">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="guardarResultadoElo(${j1Id},${j2Id},'${deporte}')">Confirmar y actualizar ELO</button>
+    </div>
+  `)
+}
+
+function guardarResultadoElo(j1Id, j2Id, deporte) {
+  const j1  = JUGADORES.find(j=>j.id===j1Id)
+  const j2  = JUGADORES.find(j=>j.id===j2Id)
+  if (!j1||!j2) return
+  const r1 = parseInt(document.getElementById('res1')?.value)||0
+  const r2 = parseInt(document.getElementById('res2')?.value)||0
+  if (r1===r2) { toast('El resultado no puede ser empate','warn'); return }
+
+  const ganador   = r1>r2 ? j1 : j2
+  const perdedor  = r1>r2 ? j2 : j1
+  const resultGan = 1, resultPer = 0
+
+  const {nuevo:nuevoGan, delta:dGan} = calcElo(ganador.elo[deporte]||1200, perdedor.elo[deporte]||1200, resultGan, ganador.partidos[deporte]||0)
+  const {nuevo:nuevoPer, delta:dPer} = calcElo(perdedor.elo[deporte]||1200, ganador.elo[deporte]||1200, resultPer, perdedor.partidos[deporte]||0)
+
+  // Actualizar ELOs
+  ganador.elo[deporte]  = nuevoGan
+  perdedor.elo[deporte] = nuevoPer
+  ganador.partidos[deporte]  = (ganador.partidos[deporte]||0) + 1
+  ganador.victorias[deporte] = (ganador.victorias[deporte]||0) + 1
+  perdedor.partidos[deporte] = (perdedor.partidos[deporte]||0) + 1
+
+  // Actualizar historial de ELO
+  if (!ganador.histElo[deporte]) ganador.histElo[deporte] = []
+  if (!perdedor.histElo[deporte]) perdedor.histElo[deporte] = []
+  ganador.histElo[deporte].push(nuevoGan)
+  perdedor.histElo[deporte].push(nuevoPer)
+  ganador.tendencia[deporte]  = dGan
+  perdedor.tendencia[deporte] = dPer
+
+  // Agregar al historial
+  PARTIDOS_HIST.unshift({
+    id: PARTIDOS_HIST.length+1,
+    fecha: new Date().toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'}),
+    j1:j1Id, j2:j2Id, d:deporte,
+    res: r1+'-'+r2,
+    ganador: ganador.id,
+    eloDelta: dGan, eloRival: dPer,
+  })
+
+  closeModal()
+  renderMain()
+  toast(`✓ ELO actualizado — ${ganador.nombre} ${nuevoGan} (${dGan>0?'+':''}${dGan}) · ${perdedor.nombre} ${nuevoPer} (${dPer})`)
+}
+
+function openAjusteManual(jugId) {
+  const j = jugId ? JUGADORES.find(x=>x.id===jugId) : null
+  showModal(`
+    <div class="modal-title">✏ Ajuste manual de ELO</div>
+    <div class="modal-sub">Para correcciones excepcionales. Queda registrado en el historial.</div>
+    <label class="flbl">Jugador</label>
+    <select class="fsel" id="adj-jug">
+      ${JUGADORES.map(j2=>`<option value="${j2.id}" ${jugId===j2.id?'selected':''}>${j2.nombre}</option>`).join('')}
+    </select>
+    <label class="flbl">Deporte</label>
+    <select class="fsel" id="adj-dep">
+      ${DEPORTES_RANKING.map(d=>`<option>${d}</option>`).join('')}
+    </select>
+    <div class="frow">
+      <div><label class="flbl">Nuevo ELO</label><input type="number" class="finp" id="adj-elo" placeholder="Ej: 1450" min="100" max="3000"></div>
+      <div><label class="flbl">Motivo</label><input class="finp" id="adj-motivo" placeholder="Ej: Corrección por error de carga"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveAjusteManual()">Guardar ajuste</button>
+    </div>
+  `)
+}
+
+function saveAjusteManual() {
+  const jugId  = parseInt(document.getElementById('adj-jug')?.value)
+  const dep    = document.getElementById('adj-dep')?.value
+  const nuevoElo = parseInt(document.getElementById('adj-elo')?.value)
+  if (!nuevoElo || nuevoElo < 100) { toast('Ingresá un ELO válido','warn'); return }
+  const j = JUGADORES.find(x=>x.id===jugId)
+  if (!j) return
+  j.elo[dep] = nuevoElo
+  if (!j.histElo[dep]) j.histElo[dep] = []
+  j.histElo[dep].push(nuevoElo)
+  closeModal(); renderMain()
+  toast(`✓ ELO de ${j.nombre} ajustado a ${nuevoElo} en ${dep}`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html
+  document.getElementById('modal').style.display  = 'flex'
+}
+function closeModal() { document.getElementById('modal').style.display='none' }
+
+function toast(msg,type='success') {
+  const cols={success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t=document.createElement('div');t.className='toast'
+  t.innerHTML='<span style="color:'+(cols[type]||cols.success)+'">●</span> '+msg
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2800)
+}
+function toggleTheme() {
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme',h.getAttribute('data-theme'))
+}
+const st=localStorage.getItem('shos-theme')
+if(st) document.documentElement.setAttribute('data-theme',st)
+
+renderMain()
+</script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sport Hub — Mi perfil</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --gold:#f0c040;--purple:#8b5cf6;--teal:#06b6d4;--pink:#ec4899;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000055
+}
+:root[data-theme="light"]{
+  --bg:#f0f4fc;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#8a9ab8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --gold:#ca8a04;--purple:#7c3aed;--teal:#0891b2;--pink:#db2777;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012
+}
+
+/* ── Mobile-first layout ── */
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
+
+/* STATUS BAR simulada */
+.status-bar{height:44px;background:var(--s1);display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;flex-shrink:0}
+
+/* SCROLL CONTENT */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+.scroll::-webkit-scrollbar{display:none}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--s1);border-top:1px solid var(--bd);display:flex;z-index:50;padding:6px 0 8px}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 0;transition:all .14s}
+.bn-icon{font-size:20px;line-height:1}
+.bn-label{font-size:10px;font-weight:500;color:var(--tx3);transition:color .14s}
+.bn-item.on .bn-label{color:var(--ac)}
+
+/* HEADER del perfil */
+.profile-header{background:var(--s1);padding:20px;position:relative;overflow:hidden}
+.profile-header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:var(--ac);opacity:.05}
+.avatar-ring{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--purple));padding:3px;margin-bottom:10px}
+.avatar-inner{width:100%;height:100%;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ac)}
+.jugador-nombre{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+.jugador-sub{font-size:12px;color:var(--tx2);margin-top:2px}
+
+/* NIVEL CARD */
+.nivel-card{margin:0 16px 14px;background:linear-gradient(135deg,var(--s1),var(--s2));border:1px solid var(--bd);border-radius:16px;padding:16px;overflow:hidden;position:relative}
+.nivel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.nivel-progress-wrap{background:var(--bd);border-radius:4px;height:8px;overflow:hidden;margin:10px 0 6px}
+.nivel-progress{height:100%;border-radius:4px;transition:width .6s ease}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);margin-bottom:14px}
+.stat-box{background:var(--s1);padding:12px 8px;text-align:center}
+.stat-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
+.stat-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+
+/* SECTION */
+.section{padding:0 16px;margin-bottom:18px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.section-link{font-size:12px;color:var(--ac);font-weight:500;cursor:pointer}
+
+/* RESERVA CARD */
+.reserva-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .13s}
+.reserva-card:hover{border-color:var(--bd2);transform:translateX(2px)}
+.reserva-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.reserva-fecha{font-size:13px;font-weight:600}
+.reserva-meta{font-size:11px;color:var(--tx2);margin-top:1px}
+.reserva-estado{font-size:10px;font-weight:700;border-radius:6px;padding:2px 8px}
+
+/* PARTIDO CARD */
+.partido-card{background:var(--s2);border-radius:10px;padding:10px 12px;margin-bottom:7px;font-size:12px}
+.partido-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}
+
+/* RANKING CARD */
+.rank-mini{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:7px;cursor:pointer;transition:all .13s}
+.rank-mini:hover{border-color:var(--bd2)}
+
+/* REWARD MINI */
+.reward-mini{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:all .13s}
+.reward-mini:hover{border-color:var(--gold)}
+.reward-pts-badge{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--gold)18;color:var(--gold)}
+
+/* ACTIVIDAD FEED */
+.feed-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)44}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.feed-time{font-size:10px;color:var(--tx3);white-space:nowrap;margin-top:2px}
+
+/* CANCHA SELECTOR */
+.cancha-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.cancha-slot{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all .14s}
+.cancha-slot:hover{border-color:var(--ac)}
+.cancha-slot.ocupado{opacity:.4;cursor:not-allowed}
+.cancha-slot.libre{border-color:var(--ok)44}
+
+/* CARNET */
+.carnet{background:linear-gradient(135deg,var(--ac),var(--purple));border-radius:18px;padding:20px;color:#fff;position:relative;overflow:hidden;margin-bottom:14px}
+.carnet::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:#fff;opacity:.06}
+.carnet::after{content:'';position:absolute;bottom:-20px;left:-20px;width:90px;height:90px;border-radius:50%;background:#fff;opacity:.04}
+.carnet-club{font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.1em}
+.carnet-nombre{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin:4px 0}
+.carnet-plan{font-size:12px;opacity:.8}
+.carnet-qr{width:64px;height:64px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#333;font-family:'DM Mono',monospace;padding:5px;flex-shrink:0}
+.carnet-num{font-family:'DM Mono',monospace;font-size:12px;opacity:.7;margin-top:10px;letter-spacing:.1em}
+
+/* BOTONES */
+.btn{padding:8px 16px;border-radius:9px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--ac);color:#fff;width:100%;justify-content:center;padding:13px}
+.btn-gold{background:var(--gold);color:#0d1020}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:7px}
+.btn:hover{opacity:.88}
+
+/* PAGE TRANSITIONS */
+.page{display:none;animation:pgIn .2s}
+.page.active{display:block}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:flex-end;justify-content:center;z-index:200;max-width:430px;margin:0 auto}
+.sheet{background:var(--s1);border-radius:20px 20px 0 0;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:sheetIn .25s}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--bd2);margin:0 auto 16px}
+.sheet-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:4px}
+
+/* NOTCH */
+.notch{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;background:var(--s1)}
+.notch-back{font-size:22px;cursor:pointer;color:var(--ac)}
+.notch-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+
+/* TOAST */
+.toast-app{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:9px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);white-space:nowrap;animation:tsa .2s}
+@keyframes tsa{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%)}}
+</style>
+</head>
+<body>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span id="clock">20:14</span>
+  <span>Sport Hub</span>
+  <span>📶 🔋</span>
+</div>
+
+<!-- SCROLL CONTENT -->
+<div class="scroll" id="app-scroll">
+
+  <!-- ── HOME ── -->
+  <div class="page active" id="page-home">
+
+    <!-- Header perfil -->
+    <div class="profile-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div class="avatar-ring">
+            <div class="avatar-inner" id="home-ini">SL</div>
+          </div>
+          <div class="jugador-nombre" id="home-nombre">Sofía López</div>
+          <div class="jugador-sub">Sport Hub Norte · Pádel</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('QR listo para escanear 📲')">🆔 Carnet</button>
+          <div style="width:36px;height:20px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative" onclick="toggleTheme()">
+            <div style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s" id="theme-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nivel / puntos -->
+    <div class="nivel-card" id="nivel-card">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px" id="nivel-bar-top"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em">Nivel actual</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-top:2px" id="nivel-nombre">🥈 Plata</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:800" id="nivel-pts" style="color:var(--gold)">7.320</div>
+          <div style="font-size:10px;color:var(--tx3)">puntos</div>
+        </div>
+      </div>
+      <div class="nivel-progress-wrap">
+        <div class="nivel-progress" id="nivel-prog" style="width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx3)">
+        <span id="nivel-prox-lbl">1.680 pts para Oro 🥇</span>
+        <span id="nivel-pct-lbl">81%</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" style="color:var(--ac)">12</div><div class="stat-lbl">Partidos</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--ok)">9</div><div class="stat-lbl">Victorias</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--gold)">#2</div><div class="stat-lbl">Ranking</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--purple)">1760</div><div class="stat-lbl">ELO</div></div>
+    </div>
+
+    <!-- Próxima reserva -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">📅 Próxima reserva</span>
+        <span class="section-link" onclick="goPage('reservas')">Ver todas →</span>
+      </div>
+      <div class="reserva-card" onclick="openSheetReserva()">
+        <div class="reserva-icon" style="background:var(--ac)15;color:var(--ac)">🎾</div>
+        <div style="flex:1">
+          <div class="reserva-fecha">Viernes 21 Jun · 20:00hs</div>
+          <div class="reserva-meta">Cancha 2 · Sport Hub Norte · Con Carlos M.</div>
+        </div>
+        <span class="reserva-estado" style="background:var(--ok)15;color:var(--ok)">Confirmada</span>
+      </div>
+    </div>
+
+    <!-- Actividad reciente -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">⚡ Actividad reciente</span>
+        <span class="section-link" onclick="goPage('historial')">Ver todo →</span>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:4px 12px">
+        <div class="feed-item">
+          <div class="feed-dot" style="background:var(--ok)"></div>
+          <div style="flex:1"><div style="font-size:12px">Ganaste partido vs Valentina R. <span style="color:var(--ok);font-weight:600">+150 pts</span></div></div>
+          <div class="feed-time">Hoy</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-dot" style="background:var(--ac)"></div>
+          <div style="flex:1"><div style="font-size:12px">Reserva confirmada — Vie 21 Jun 20hs <span style="color:var(--ac);font-weight:600">+50 pts</span></div></div>
+          <div class="feed-time">Ayer</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-dot" style="background:var(--gold)"></div>
+          <div style="flex:1"><div style="font-size:12px">Avanzaste a Semifinales Copa Pádel <span style="color:var(--gold);font-weight:600">+50 pts</span></div></div>
+          <div class="feed-time">20 Jun</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-dot" style="background:var(--purple)"></div>
+          <div style="flex:1"><div style="font-size:12px">Asististe a clase Pádel Intermedio <span style="color:var(--purple);font-weight:600">+80 pts</span></div></div>
+          <div class="feed-time">18 Jun</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rewards disponibles -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">🎁 Podés canjear</span>
+        <span class="section-link" onclick="goPage('rewards')">Ver todos →</span>
+      </div>
+      <div class="reward-mini" onclick="openSheetReward(4)">
+        <span style="font-size:22px">🎾</span>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600">1 hora de cancha gratis</div><div style="font-size:10px;color:var(--tx3)">Lunes a jueves</div></div>
+        <span class="reward-pts-badge">1.200 pts</span>
+      </div>
+      <div class="reward-mini" onclick="openSheetReward(5)">
+        <span style="font-size:22px">🎓</span>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600">1 clase gratis</div><div style="font-size:10px;color:var(--tx3)">Cualquier clase del mes</div></div>
+        <span class="reward-pts-badge">1.500 pts</span>
+      </div>
+      <div class="reward-mini" onclick="openSheetReward(7)">
+        <span style="font-size:22px">⚽</span>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600">Pelota de pádel</div><div style="font-size:10px;color:var(--tx3)">Head o Dunlop a elección</div></div>
+        <span class="reward-pts-badge">800 pts</span>
+      </div>
+    </div>
+
+  </div><!-- /page-home -->
+
+  <!-- ── RESERVAS ── -->
+  <div class="page" id="page-reservas">
+    <div class="notch">
+      <span class="notch-back" onclick="goPage('home')">‹</span>
+      <span class="notch-title">Mis reservas</span>
+      <span></span>
+    </div>
+
+    <!-- Nueva reserva rápida -->
+    <div class="section" style="margin-top:8px">
+      <button class="btn btn-primary" onclick="openSheetNuevaReserva()">+ Nueva reserva</button>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="section-title">Próximas</span></div>
+      <div class="reserva-card" onclick="openSheetReserva()">
+        <div class="reserva-icon" style="background:var(--ac)15;color:var(--ac)">🎾</div>
+        <div style="flex:1">
+          <div class="reserva-fecha">Vie 21 Jun · 20:00hs</div>
+          <div class="reserva-meta">Cancha 2 · Con Carlos M.</div>
+        </div>
+        <span class="reserva-estado" style="background:var(--ok)15;color:var(--ok)">Confirmada</span>
+      </div>
+      <div class="reserva-card">
+        <div class="reserva-icon" style="background:var(--gold)15;color:var(--gold)">🏆</div>
+        <div style="flex:1">
+          <div class="reserva-fecha">Sáb 22 Jun · 10:00hs</div>
+          <div class="reserva-meta">Cancha Central · Copa Pádel — Semifinal</div>
+        </div>
+        <span class="reserva-estado" style="background:var(--gold)15;color:var(--gold)">Torneo</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="section-title">Historial</span></div>
+      ${['Lun 17 Jun · 19hs · Cancha 1','Mié 12 Jun · 20hs · Cancha 3','Vie 7 Jun · 20hs · Cancha 2'].map(r=>`
+        <div class="reserva-card" style="opacity:.6">
+          <div class="reserva-icon" style="background:var(--bd);color:var(--tx3)">🎾</div>
+          <div style="flex:1"><div class="reserva-fecha" style="color:var(--tx2)">${r}</div></div>
+          <span class="reserva-estado" style="background:var(--s2);color:var(--tx3)">Jugada</span>
+        </div>`).join('')}
+    </div>
+  </div><!-- /page-reservas -->
+
+  <!-- ── RANKING ── -->
+  <div class="page" id="page-ranking">
+    <div class="notch">
+      <span class="notch-back" onclick="goPage('home')">‹</span>
+      <span class="notch-title">Mi ranking</span>
+      <span></span>
+    </div>
+
+    <!-- Mi posición destacada -->
+    <div style="margin:0 16px 14px;background:linear-gradient(135deg,var(--ac),var(--purple));border-radius:16px;padding:20px;color:#fff;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:90px;height:90px;border-radius:50%;background:#fff;opacity:.07"></div>
+      <div style="font-size:14px;opacity:.8;margin-bottom:4px">Tu posición — Pádel ♀</div>
+      <div style="font-family:'Syne',sans-serif;font-size:52px;font-weight:800">#2</div>
+      <div style="font-size:13px;opacity:.8">ELO 1760 · Categoría 2ª</div>
+      <div style="margin-top:10px;background:#fff2;border-radius:8px;padding:6px 12px;font-size:12px">
+        Leader: Laura V. · 1820 ELO · <span style="color:var(--gold)">60 pts de diferencia</span>
+      </div>
+    </div>
+
+    <!-- Tabs M/F -->
+    <div style="display:flex;gap:6px;padding:0 16px;margin-bottom:12px">
+      ${[['F','♀ Femenino','var(--err)'],['M','♂ Masculino','var(--ac)'],['MX','⚧ Mixto','var(--purple)']].map(([id,lbl,c],i)=>`
+        <button onclick="filterRank('${id}',this)" class="btn btn-sm ${i===0?'btn-primary':''}" style="${i===0?'background:'+c+';':'background:var(--s2);border:1px solid var(--bd2);color:var(--tx2);'}">${lbl}</button>`).join('')}
+    </div>
+
+    <!-- Lista top -->
+    <div class="section">
+      ${[
+        {pos:1,nombre:'Laura V.',    elo:1820,cat:'2ª',medal:'🥇',yo:false},
+        {pos:2,nombre:'Sofía L.',    elo:1760,cat:'2ª',medal:'🥈',yo:true},
+        {pos:3,nombre:'Valentina R.',elo:1640,cat:'3ª',medal:'🥉',yo:false},
+        {pos:4,nombre:'Florencia T.',elo:1590,cat:'3ª',medal:null,yo:false},
+        {pos:5,nombre:'Camila V.',   elo:1510,cat:'4ª',medal:null,yo:false},
+        {pos:6,nombre:'Ana C.',      elo:1380,cat:'4ª',medal:null,yo:false},
+      ].map(r=>`
+        <div class="rank-mini" style="${r.yo?'border-color:var(--ac);background:var(--ac)08':''}">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;width:30px;text-align:center;color:var(--tx3)">${r.medal||r.pos}</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${r.yo?'var(--ac)':'var(--tx2)'}">
+            ${r.nombre.split(' ').map(n=>n[0]).join('')}
+          </div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:${r.yo?700:500};color:${r.yo?'var(--ac)':'var(--tx)'}">${r.nombre}${r.yo?' (vos)':''}</div>
+            <div style="font-size:10px;color:var(--tx3)">Cat. ${r.cat}</div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--gold)">${r.elo}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Últimos partidos -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Últimos partidos</span></div>
+      ${[
+        {rival:'Valentina R.',res:'2-1',result:'Victoria',delta:'+12',color:'var(--ok)',fecha:'20 Jun'},
+        {rival:'Laura V.',   res:'1-2',result:'Derrota', delta:'-8', color:'var(--err)',fecha:'14 Jun'},
+        {rival:'Camila V.',  res:'2-0',result:'Victoria',delta:'+9', color:'var(--ok)',fecha:'8 Jun'},
+      ].map(p=>`
+        <div class="partido-card">
+          <div class="partido-vs">
+            <div>
+              <div style="font-size:12px;font-weight:600">Sofía L.</div>
+              <div style="font-size:10px;color:var(--tx3)">vos</div>
+            </div>
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:800">${p.res}</div>
+              <div style="font-size:9px;color:var(--tx3);text-align:center">${p.fecha}</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600">${p.rival}</div>
+              <div style="font-size:10px;color:var(--tx3)">rival</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:7px;border-top:1px solid var(--bd)44">
+            <span style="font-size:11px;font-weight:600;color:${p.color}">${p.result}</span>
+            <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${p.color}">${p.delta} ELO</span>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Matchmaking rápido -->
+    <div class="section">
+      <button class="btn btn-primary" onclick="openSheetMatchmaking()" style="background:var(--purple)">⚡ Buscar rival compatible</button>
+    </div>
+  </div><!-- /page-ranking -->
+
+  <!-- ── REWARDS ── -->
+  <div class="page" id="page-rewards">
+    <div class="notch">
+      <span class="notch-back" onclick="goPage('home')">‹</span>
+      <span class="notch-title">Mis rewards</span>
+      <span></span>
+    </div>
+
+    <!-- Saldo -->
+    <div style="margin:10px 16px 14px;background:linear-gradient(135deg,var(--gold)22,var(--warn)11);border:1px solid var(--gold)33;border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em">Saldo disponible</div>
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--gold)">7.320 pts</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:2px">Nivel 🥈 Plata · Próximo: 1.680 para Oro</div>
+      </div>
+      <div style="font-size:42px">⭐</div>
+    </div>
+
+    <!-- Mis rewards canjeados -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Canjeados recientemente</span></div>
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        ${[
+          {icon:'🎾',nombre:'1 hora cancha gratis',fecha:'15 Jun',estado:'Usado',color:'var(--tx3)'},
+          {icon:'🏷',nombre:'10% descuento tienda',fecha:'2 Jun',estado:'Disponible',color:'var(--ok)'},
+        ].map(r=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd)44">
+            <span style="font-size:20px">${r.icon}</span>
+            <div style="flex:1"><div style="font-size:12px;font-weight:600">${r.nombre}</div><div style="font-size:10px;color:var(--tx3)">${r.fecha}</div></div>
+            <span style="font-size:10px;font-weight:700;color:${r.color}">${r.estado}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Disponibles para canjear -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Disponibles para vos</span></div>
+      ${[
+        {id:1, icon:'🏷',nombre:'10% en tienda',      pts:500,  color:'var(--ac)'},
+        {id:4, icon:'🎾',nombre:'1 hora de cancha',   pts:1200, color:'var(--ok)'},
+        {id:5, icon:'🎓',nombre:'1 clase gratis',     pts:1500, color:'var(--ok)'},
+        {id:7, icon:'⚽',nombre:'Pelota de pádel',    pts:800,  color:'var(--warn)'},
+        {id:8, icon:'🎾',nombre:'Overgrip pack x3',  pts:400,  color:'var(--warn)'},
+        {id:9, icon:'🥤',nombre:'Botella Sport Hub', pts:600,  color:'var(--warn)'},
+        {id:11,icon:'🏆',nombre:'Clase privada',      pts:2500, color:'var(--gold)'},
+        {id:13,icon:'⭐',nombre:'Membresía 1 mes',   pts:5000, color:'var(--gold)'},
+      ].map(r=>`
+        <div class="reward-mini" onclick="openSheetReward(${r.id})">
+          <span style="font-size:22px">${r.icon}</span>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600">${r.nombre}</div></div>
+          <span class="reward-pts-badge" style="background:${r.color}15;color:${r.color};border:1px solid ${r.color}33">${r.pts.toLocaleString()} pts</span>
+        </div>`).join('')}
+    </div>
+  </div><!-- /page-rewards -->
+
+  <!-- ── PERFIL ── -->
+  <div class="page" id="page-perfil">
+    <div class="notch">
+      <span class="notch-back" onclick="goPage('home')">‹</span>
+      <span class="notch-title">Mi perfil</span>
+      <span style="font-size:12px;color:var(--ac);cursor:pointer" onclick="toast('Editando perfil...')">Editar</span>
+    </div>
+
+    <!-- Carnet digital -->
+    <div class="section" style="margin-top:8px">
+      <div class="carnet">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <div class="carnet-club">⚡ Sport Hub Norte</div>
+            <div class="carnet-nombre">Sofía López</div>
+            <div class="carnet-plan">Membresía Sport · Pádel</div>
+            <div class="carnet-num">N° 0042 · Vence: Dic 2025</div>
+          </div>
+          <div class="carnet-qr" onclick="toast('Mostrando QR para escaneo 📲')">
+            QR<br>████<br>█  █<br>████
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <span style="font-size:10px;background:#fff2;padding:2px 10px;border-radius:6px">🥈 Plata</span>
+          <span style="font-size:10px;background:#fff2;padding:2px 10px;border-radius:6px">ELO 1760</span>
+          <span style="font-size:10px;background:#fff2;padding:2px 10px;border-radius:6px">#2 Ranking ♀</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos personales -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Datos personales</span></div>
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        ${[
+          {lbl:'Nombre',   val:'Sofía López'},
+          {lbl:'Email',    val:'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8bf8e4ede2eacbece6eae2e7a5e8e4e6">[email&#160;protected]</a>'},
+          {lbl:'Teléfono', val:'11-8899-1122'},
+          {lbl:'Categoría',val:'2ª Pádel'},
+          {lbl:'Socio desde',val:'Enero 2023'},
+        ].map(d=>`
+          <div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bd)44">
+            <span style="font-size:11px;color:var(--tx3);width:90px;flex-shrink:0">${d.lbl}</span>
+            <span style="font-size:13px;font-weight:500">${d.val}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Beneficios del nivel -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Beneficios · Nivel Plata 🥈</span></div>
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:4px 12px">
+        ${['10% descuento tienda','Reserva anticipada 24hs','1 clase de prueba gratis/mes'].map(b=>`
+          <div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)44;font-size:12px">
+            <span style="color:var(--ok);font-weight:700">✓</span><span>${b}</span>
+          </div>`).join('')}
+        <div style="padding:8px 0;font-size:11px;color:var(--tx3)">Próximo nivel: Oro 🥇 — 15% tienda + reserva 48hs + 1 clase gratis/mes</div>
+      </div>
+    </div>
+
+    <!-- Membresía -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Membresía activa</span></div>
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--ac)">Plan Sport</div>
+            <div style="font-size:11px;color:var(--tx2)">$8.900/mes · Auto-renovación activa</div>
+          </div>
+          <span style="background:var(--ok)15;color:var(--ok);font-size:10px;font-weight:700;border-radius:6px;padding:3px 10px">Al día</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Abriendo gestión de plan...')">Cambiar plan</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('Historial de pagos...')">Ver pagos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cerrar sesión -->
+    <div class="section">
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;color:var(--err);border-color:var(--err)22" onclick="toast('Cerrando sesión...')">Cerrar sesión</button>
+    </div>
+  </div><!-- /page-perfil -->
+
+</div><!-- /scroll -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="bn-item on" id="bn-home" onclick="goPage('home')">
+    <span class="bn-icon">🏠</span><span class="bn-label" style="color:var(--ac)">Inicio</span>
+  </div>
+  <div class="bn-item" id="bn-reservas" onclick="goPage('reservas')">
+    <span class="bn-icon">📅</span><span class="bn-label">Reservas</span>
+  </div>
+  <div class="bn-item" id="bn-ranking" onclick="goPage('ranking')">
+    <span class="bn-icon">🏅</span><span class="bn-label">Ranking</span>
+  </div>
+  <div class="bn-item" id="bn-rewards" onclick="goPage('rewards')">
+    <span class="bn-icon">🎁</span><span class="bn-label">Rewards</span>
+  </div>
+  <div class="bn-item" id="bn-perfil" onclick="goPage('perfil')">
+    <span class="bn-icon">👤</span><span class="bn-label">Perfil</span>
+  </div>
+</div>
+
+<!-- OVERLAYS / SHEETS -->
+<div class="overlay" id="sheet-overlay" style="display:none" onclick="if(event.target.id==='sheet-overlay')closeSheet()">
+  <div class="sheet" id="sheet-body" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div id="sheet-content"></div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══ NAVEGACIÓN ════════════════════════════════════════════
+let activePage = 'home'
+
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.bn-item').forEach(b=>{ b.classList.remove('on'); b.querySelector('.bn-label').style.color='' })
+  document.getElementById('page-'+id)?.classList.add('active')
+  const bn = document.getElementById('bn-'+id)
+  if (bn) { bn.classList.add('on'); bn.querySelector('.bn-label').style.color='var(--ac)' }
+  document.getElementById('app-scroll').scrollTop = 0
+  activePage = id
+}
+
+// ══ SHEETS ════════════════════════════════════════════════
+function showSheet(html) {
+  document.getElementById('sheet-content').innerHTML = html
+  document.getElementById('sheet-overlay').style.display = 'flex'
+}
+function closeSheet() {
+  document.getElementById('sheet-overlay').style.display = 'none'
+}
+
+function openSheetReserva() {
+  showSheet(`
+    <div class="sheet-title">📅 Reserva confirmada</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:16px">Viernes 21 de Junio · 20:00hs</div>
+    <div style="background:var(--s2);border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${[['Cancha','Cancha 2'],['Duración','60 min'],['Con','Carlos M.'],['Estado','Confirmada']].map(([l,v])=>`
+          <div><div style="font-size:10px;color:var(--tx3)">${l}</div><div style="font-size:13px;font-weight:600;margin-top:2px">${v}</div></div>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeSheet();toast('Reserva cancelada','warn')">Cancelar reserva</button>
+      <button class="btn" style="flex:1;justify-content:center;background:var(--ok)18;color:var(--ok);border:1px solid var(--ok)33" onclick="closeSheet();toast('Recordatorio activado ✓')">🔔 Recordatorio</button>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:6px" onclick="closeSheet();toast('Compartiendo por WhatsApp 📱')">📱 Compartir</button>
+  `)
+}
+
+function openSheetNuevaReserva() {
+  const canchas = [
+    {n:'Cancha 1',slots:['18:00','19:00','21:00'],libre:true},
+    {n:'Cancha 2',slots:['18:00','20:00'],libre:true},
+    {n:'Cancha 3',slots:[],libre:false},
+    {n:'Cancha Central',slots:['19:00','20:00'],libre:true},
+  ]
+  showSheet(`
+    <div class="sheet-title">+ Nueva reserva</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Elegí cancha y horario</div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Fecha</div>
+      <input type="date" value="${new Date().toISOString().slice(0,10)}" style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:9px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none">
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Disponibilidad</div>
+    <div class="cancha-grid">
+      ${canchas.map(c=>`
+        <div class="cancha-slot ${c.libre?'libre':'ocupado'}" onclick="${c.libre?'selectCancha(\''+c.n+'\')':''}">
+          <div style="font-size:13px;font-weight:600;color:${c.libre?'var(--tx)':'var(--tx3)'}">${c.n}</div>
+          ${c.libre
+            ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;justify-content:center">
+                ${c.slots.map(s=>`<span style="font-size:10px;background:var(--ok)15;color:var(--ok);border-radius:5px;padding:2px 6px">${s}hs</span>`).join('')}
+               </div>`
+            : `<div style="font-size:11px;color:var(--err);margin-top:4px">Sin turnos</div>`}
+        </div>`).join('')}
+    </div>
+  `)
+}
+
+function selectCancha(nombre) {
+  closeSheet()
+  toast('Reserva confirmada — '+nombre+' ✓')
+}
+
+function openSheetReward(id) {
+  const REWARDS_INFO = {
+    1:  {icon:'🏷', nombre:'10% en tienda',       pts:500,  desc:'Cupón válido 30 días'},
+    4:  {icon:'🎾', nombre:'1 hora de cancha',     pts:1200, desc:'Lunes a jueves, sujeto a disponibilidad'},
+    5:  {icon:'🎓', nombre:'1 clase gratis',       pts:1500, desc:'Cualquier clase del mes vigente'},
+    7:  {icon:'⚽', nombre:'Pelota de pádel',      pts:800,  desc:'Head o Dunlop a elección, en mostrador'},
+    8:  {icon:'🎾', nombre:'Overgrip pack x3',     pts:400,  desc:'Retirás en la recepción del club'},
+    9:  {icon:'🥤', nombre:'Botella Sport Hub',    pts:600,  desc:'Botella térmica 750ml logo del club'},
+    11: {icon:'🏆', nombre:'Clase privada',        pts:2500, desc:'1 hora con el mejor jugador del club'},
+    13: {icon:'⭐', nombre:'Membresía 1 mes',      pts:5000, desc:'Próxima renovación sin cargo'},
+  }
+  const r = REWARDS_INFO[id]
+  if (!r) return
+  const ptsActuales = 7320
+  const puedeCanjear = ptsActuales >= r.pts
+
+  showSheet(`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:48px;margin-bottom:8px">${r.icon}</div>
+      <div class="sheet-title">${r.nombre}</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:4px">${r.desc}</div>
+    </div>
+    <div style="background:var(--s2);border-radius:10px;padding:12px;text-align:center;margin-bottom:14px">
+      <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:800;color:var(--gold)">${r.pts.toLocaleString()} pts</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:3px">
+        Tu saldo: <strong style="color:${puedeCanjear?'var(--ok)':'var(--err)'}">${ptsActuales.toLocaleString()} pts</strong>
+        ${puedeCanjear?' · ✓ Suficientes':' · ✗ Faltan '+(r.pts-ptsActuales).toLocaleString()+' pts'}
+      </div>
+    </div>
+    <button class="btn btn-primary" style="background:${puedeCanjear?'var(--gold)':'var(--bd2)'};color:${puedeCanjear?'#0d1020':'var(--tx3)'}" onclick="${puedeCanjear?'confirmarCanjeApp('+id+')':'toast(\'Puntos insuficientes\',\'warn\')'}">
+      ${puedeCanjear?'✓ Confirmar canje':'Puntos insuficientes'}
+    </button>
+    <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="closeSheet()">Cancelar</button>
+  `)
+}
+
+function confirmarCanjeApp(id) {
+  closeSheet()
+  toast('🎁 Canje confirmado — ¡Retirá en el club!')
+}
+
+function openSheetMatchmaking() {
+  showSheet(`
+    <div class="sheet-title">⚡ Buscar rival compatible</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:16px">Tu ELO: 1760 · Categoría 2ª Pádel</div>
+    ${[
+      {nombre:'Valentina R.', elo:1640, compat:92, prob:63, cat:'3ª'},
+      {nombre:'Florencia T.', elo:1590, compat:84, prob:68, cat:'3ª'},
+      {nombre:'Camila V.',    elo:1510, compat:71, prob:74, cat:'4ª'},
+    ].map(r=>`
+      <div style="background:var(--s2);border-radius:11px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:38px;height:38px;border-radius:50%;background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--tx2)">${r.nombre.split(' ').map(n=>n[0]).join('')}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600">${r.nombre}</div>
+            <div style="font-size:10px;color:var(--tx3)">ELO ${r.elo} · Cat. ${r.cat} · Prob. victoria: <strong style="color:var(--ok)">${r.prob}%</strong></div>
+            <div style="background:var(--bd);border-radius:3px;height:4px;overflow:hidden;margin-top:5px">
+              <div style="width:${r.compat}%;height:100%;background:var(--ok);border-radius:3px"></div>
+            </div>
+          </div>
+          <button class="btn btn-sm" style="background:var(--ac)18;color:var(--ac);border:1px solid var(--ac)33" onclick="closeSheet();toast('Desafío enviado a ${r.nombre} 📱')">Desafiar</button>
+        </div>
+      </div>`).join('')}
+  `)
+}
+
+function filterRank(genero, btn) {
+  document.querySelectorAll('[onclick*=filterRank]').forEach(b=>{
+    b.style.background='var(--s2)'; b.style.color='var(--tx2)'; b.style.border='1px solid var(--bd2)'
+  })
+  const colors = {F:'var(--err)',M:'var(--ac)',MX:'var(--purple)'}
+  btn.style.background = colors[genero]
+  btn.style.color = '#fff'
+  btn.style.border = 'none'
+  toast('Ranking '+{F:'femenino',M:'masculino',MX:'mixto'}[genero])
+}
+
+// ══ RELOJ ════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date()
+  const h = String(now.getHours()).padStart(2,'0')
+  const m = String(now.getMinutes()).padStart(2,'0')
+  document.getElementById('clock').textContent = h+':'+m
+}
+updateClock()
+setInterval(updateClock, 10000)
+
+// ══ TEMA ═════════════════════════════════════════════════
+function toggleTheme() {
+  const h = document.documentElement
+  const t = h.getAttribute('data-theme')==='dark' ? 'light' : 'dark'
+  h.setAttribute('data-theme', t)
+  const dot = document.getElementById('theme-dot')
+  if (dot) dot.style.transform = t==='light' ? 'translateX(16px)' : ''
+  localStorage.setItem('shos-theme', t)
+}
+const st = localStorage.getItem('shos-theme')
+if (st) {
+  document.documentElement.setAttribute('data-theme', st)
+  const dot = document.getElementById('theme-dot')
+  if (dot && st==='light') dot.style.transform='translateX(16px)'
+}
+
+// ══ NIVEL INIT ════════════════════════════════════════════
+function initNivel() {
+  const NIVELES = [
+    {nombre:'🥉 Bronce', color:'#cd7f32', min:0,     max:999},
+    {nombre:'🥈 Plata',  color:'#a8b8c8', min:1000,  max:2999},
+    {nombre:'🥇 Oro',    color:'#f0c040', min:3000,  max:5999},
+    {nombre:'💎 Platino',color:'#8b5cf6', min:6000,  max:9999},
+    {nombre:'👑 Elite',  color:'#f0c040', min:10000, max:999999},
+  ]
+  const pts = 7320
+  const nivel = NIVELES.slice().reverse().find(n=>pts>=n.min) || NIVELES[0]
+  const next  = NIVELES.find(n=>n.min>pts)
+  const pct   = next ? Math.round((pts-nivel.min)/(next.min-nivel.min)*100) : 100
+
+  document.getElementById('nivel-card').style.borderColor = nivel.color+'44'
+  document.getElementById('nivel-bar-top').style.background = nivel.color
+  document.getElementById('nivel-nombre').textContent = nivel.nombre
+  document.getElementById('nivel-nombre').style.color = nivel.color
+  document.getElementById('nivel-pts').style.color = nivel.color
+  document.getElementById('nivel-prog').style.background = nivel.color
+  setTimeout(()=>{ document.getElementById('nivel-prog').style.width = pct+'%' }, 200)
+  if (next) {
+    document.getElementById('nivel-prox-lbl').textContent = (next.min-pts).toLocaleString()+' pts para '+NIVELES.find(n=>n.min===next.min)?.nombre
+  }
+  document.getElementById('nivel-pct-lbl').textContent = pct+'%'
+}
+initNivel()
+
+// ══ TOAST ════════════════════════════════════════════════
+function toast(msg, type='ok') {
+  const cols = {ok:'var(--ok)',warn:'var(--warn)',err:'var(--err)'}
+  const el = document.createElement('div')
+  el.className = 'toast-app'
+  el.innerHTML = '<span style="color:'+( cols[type]||cols.ok)+'">●</span> '+msg
+  document.body.appendChild(el)
+  setTimeout(()=>el.remove(), 2500)
+}
+
+// Historial page alias
+function goPage(id) {
+  if (id==='historial') id = 'rewards'
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.bn-item').forEach(b=>{ b.classList.remove('on'); b.querySelector('.bn-label').style.color='' })
+  document.getElementById('page-'+id)?.classList.add('active')
+  const bn = 

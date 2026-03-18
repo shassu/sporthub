@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Clases y Academia</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;--info:#38bdf8;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000066;
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--info:#0284c7;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+/* ── TOPBAR ── */
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;font-family:'Syne',sans-serif}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;gap:2px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--ac)}
+
+/* ── MAIN ── */
+.main{padding:22px 26px;max-width:1400px;margin:0 auto}
+
+/* ── KPI STRIP ── */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-top:5px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+.kt{font-size:11px;margin-top:3px}
+
+/* ── HORARIO SEMANAL ── */
+.schedule-grid{display:grid;grid-template-columns:70px repeat(7,1fr);gap:0;background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.sg-header{padding:8px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--tx2);border-bottom:1px solid var(--bd);border-right:1px solid var(--bd)}
+.sg-header:last-child{border-right:none}
+.sg-time{padding:6px 8px;font-size:10px;font-family:'DM Mono',monospace;color:var(--tx3);border-bottom:1px solid var(--bd)55;border-right:1px solid var(--bd);display:flex;align-items:center;justify-content:flex-end}
+.sg-cell{border-bottom:1px solid var(--bd)44;border-right:1px solid var(--bd)44;min-height:44px;padding:3px;position:relative;cursor:pointer;transition:background .12s}
+.sg-cell:hover{background:var(--s2)}
+.sg-cell:last-child{border-right:none}
+.class-block{border-radius:6px;padding:4px 6px;font-size:10px;font-weight:600;cursor:pointer;height:100%;min-height:38px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .13s,box-shadow .13s}
+.class-block:hover{transform:translateY(-1px);box-shadow:var(--sh2)}
+.cb-name{font-size:10px;font-weight:700;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cb-prof{font-size:9px;opacity:.8;margin-top:1px}
+.cb-cupo{font-size:9px;opacity:.7}
+
+/* ── CARDS DE CLASES ── */
+.classes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.class-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .14s,transform .14s;cursor:pointer}
+.class-card:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.cc-top{padding:16px;position:relative}
+.cc-sport-badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;border-radius:20px;padding:3px 10px}
+.cc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.cc-meta{font-size:11px;color:var(--tx2)}
+.cc-bar-wrap{height:5px;background:var(--bd2);border-radius:3px;margin:10px 0 0;overflow:hidden}
+.cc-bar{height:100%;border-radius:3px;transition:width .4s}
+.cc-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--bd)}
+.cc-stat{padding:9px 12px;text-align:center;border-right:1px solid var(--bd)}
+.cc-stat:last-child{border-right:none}
+.cc-stat-val{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--tx)}
+.cc-stat-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+
+/* ── TABLA ALUMNOS ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl th.r{text-align:right}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--bd)55;vertical-align:middle}
+.tbl tr:hover td{background:var(--s2)}
+.tbl tr:last-child td{border-bottom:none}
+
+/* ── CARD / PANEL ── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:7px}
+.card-body{padding:14px 16px}
+
+/* ── PROFESORES ── */
+.prof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.prof-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .14s}
+.prof-card:hover{border-color:var(--ac);transform:translateY(-2px)}
+.prof-avatar{width:56px;height:56px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;font-family:'Syne',sans-serif}
+.prof-name{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.prof-sports{font-size:11px;color:var(--tx2)}
+.prof-stats{display:flex;justify-content:center;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
+.prof-stat-val{font-size:14px;font-weight:700;font-family:'Syne',sans-serif;color:var(--tx)}
+.prof-stat-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase}
+
+/* ── ASISTENCIA ── */
+.asist-row{display:flex;gap:3px;margin-top:4px}
+.asist-dot{width:10px;height:10px;border-radius:50%}
+
+/* ── INSCRIPCIÓN MODAL ── */
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:520px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:18px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--ac)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* ── BTNS ── */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--ok)18;color:var(--ok);border:1px solid var(--ok)44}
+.btn-err{background:var(--err)18;color:var(--err);border:1px solid var(--err)44}
+.btn-warn{background:var(--warn)18;color:var(--warn);border:1px solid var(--warn)44}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+
+/* ── TOGGLE ── */
+.tog{width:34px;height:19px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tog.on{background:var(--ok)}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog.on::after{transform:translateX(15px)}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px}
+
+/* ── PLAN CARD ── */
+.plan-card{background:var(--s1);border:2px solid var(--bd);border-radius:14px;padding:18px;cursor:pointer;transition:all .15s;position:relative}
+.plan-card:hover{border-color:var(--bd2)}
+.plan-card.sel{border-color:var(--ac)}
+.plan-price{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--tx);line-height:1}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">S</div>
+  <div>
+    <div class="ln">Sport Hub OS — Clases y Academia</div>
+    <div style="font-size:10px;color:var(--tx3)">Sport Hub Norte</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-ghost btn-sm" onclick="openNewClass()">+ Nueva clase</button>
+    <button class="btn btn-primary" onclick="openInscripcion()">+ Inscribir alumno</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-horario"     onclick="switchTab('horario')">📅 Horario semanal</div>
+  <div class="tab"    id="tab-clases"      onclick="switchTab('clases')">🎓 Clases</div>
+  <div class="tab"    id="tab-alumnos"     onclick="switchTab('alumnos')">👤 Alumnos</div>
+  <div class="tab"    id="tab-profesores"  onclick="switchTab('profesores')">🏆 Profesores</div>
+  <div class="tab"    id="tab-asistencia"  onclick="switchTab('asistencia')">✅ Asistencia</div>
+  <div class="tab"    id="tab-cuotas"      onclick="switchTab('cuotas')">💳 Cuotas</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<!-- MODAL -->
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+const fmt = n => n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n.toLocaleString()
+
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+const DEPORTES_COLORS = {
+  padel:'#5b7fff', futbol:'#22c55e', crossfit:'#ef4444',
+  tenis:'#f59e0b', yoga:'#06b6d4',   natacion:'#38bdf8',
+  basquet:'#f97316', voley:'#a855f7',
+}
+
+const PROFESORES = [
+  {id:1, nombre:'Rodrigo Campos', sports:['pádel','tenis'],    clases:4, alumnos:38, rating:4.8, color:'#5b7fff', initials:'RC', activo:true,  email:'rodrigo@club.com', phone:'11-4455-6677'},
+  {id:2, nombre:'Laura Méndez',   sports:['crossfit','yoga'],  clases:6, alumnos:52, rating:4.9, color:'#ef4444', initials:'LM', activo:true,  email:'laura@club.com',   phone:'11-5566-7788'},
+  {id:3, nombre:'Carlos Ruiz',    sports:['fútbol'],           clases:3, alumnos:24, rating:4.6, color:'#22c55e', initials:'CR', activo:true,  email:'carlos@club.com',  phone:'11-6677-8899'},
+  {id:4, nombre:'Ana Torres',     sports:['natación','yoga'],  clases:4, alumnos:31, rating:4.7, color:'#38bdf8', initials:'AT', activo:true,  email:'ana@club.com',     phone:'11-7788-9900'},
+  {id:5, nombre:'Martín Silva',   sports:['pádel'],            clases:2, alumnos:16, rating:4.5, color:'#8b5cf6', initials:'MS', activo:false, email:'martin@club.com',  phone:'11-8899-0011'},
+]
+
+const CLASES = [
+  {id:1,  nombre:'Pádel Principiantes',   sport:'pádel',    profesorId:1, dias:['Lun','Mié','Vie'], hora:'09:00', durMin:60, cupo:8,  inscriptos:7,  precio:8500,  nivel:'Principiante', descripcion:'Técnica básica y juego introductorio'},
+  {id:2,  nombre:'Pádel Intermedios',     sport:'pádel',    profesorId:1, dias:['Mar','Jue'],       hora:'10:00', durMin:90, cupo:8,  inscriptos:8,  precio:10000, nivel:'Intermedio',   descripcion:'Táctica y golpes avanzados'},
+  {id:3,  nombre:'Crossfit RX',           sport:'crossfit', profesorId:2, dias:['Lun','Mié','Vie'], hora:'07:00', durMin:60, cupo:15, inscriptos:14, precio:12000, nivel:'Avanzado',     descripcion:'WOD de alta intensidad'},
+  {id:4,  nombre:'Crossfit Scaled',       sport:'crossfit', profesorId:2, dias:['Mar','Jue','Sáb'], hora:'08:00', durMin:60, cupo:15, inscriptos:11, precio:10000, nivel:'Intermedio',   descripcion:'Versión adaptada del WOD'},
+  {id:5,  nombre:'Crossfit Beginner',     sport:'crossfit', profesorId:2, dias:['Lun','Mié'],       hora:'18:00', durMin:60, cupo:12, inscriptos:9,  precio:9000,  nivel:'Principiante', descripcion:'Movimientos básicos y movilidad'},
+  {id:6,  nombre:'Fútbol Infantil 6-9',   sport:'fútbol',   profesorId:3, dias:['Sáb'],             hora:'09:00', durMin:90, cupo:12, inscriptos:10, precio:7500,  nivel:'Infantil',     descripcion:'Juego y fundamentos para niños'},
+  {id:7,  nombre:'Fútbol Juvenil 10-14',  sport:'fútbol',   profesorId:3, dias:['Sáb'],             hora:'11:00', durMin:90, cupo:12, inscriptos:12, precio:8000,  nivel:'Juvenil',      descripcion:'Táctica y técnica para jóvenes'},
+  {id:8,  nombre:'Yoga Vinyasa',          sport:'yoga',     profesorId:4, dias:['Mar','Jue','Sáb'], hora:'08:00', durMin:75, cupo:10, inscriptos:8,  precio:9000,  nivel:'Todos',        descripcion:'Flujo dinámico y respiración'},
+  {id:9,  nombre:'Natación Adultos',      sport:'natación', profesorId:4, dias:['Lun','Mié','Vie'], hora:'07:30', durMin:60, cupo:8,  inscriptos:6,  precio:11000, nivel:'Todos',        descripcion:'Técnica de estilos y resistencia'},
+  {id:10, nombre:'Pádel Avanzados',       sport:'pádel',    profesorId:1, dias:['Sáb'],             hora:'10:00', durMin:90, cupo:8,  inscriptos:5,  precio:12000, nivel:'Avanzado',     descripcion:'Táctica de competición'},
+]
+
+const ALUMNOS = [
+  {id:1,  nombre:'Sofía López',    claseId:1,  plan:'mensual', pagado:true,  asistencia:[1,1,1,0,1,1,1,0,1,1,1,1], deuda:0,     inscDesde:'Mar 2025'},
+  {id:2,  nombre:'Lucas Martínez', claseId:3,  plan:'mensual', pagado:true,  asistencia:[1,1,0,1,1,1,1,1,1,0,1,1], deuda:0,     inscDesde:'Ene 2025'},
+  {id:3,  nombre:'Valentina Ruiz', claseId:1,  plan:'mensual', pagado:false, asistencia:[1,0,1,1,1,0,0,1,1,1,1,0], deuda:8500,  inscDesde:'Feb 2025'},
+  {id:4,  nombre:'Agustín Paz',    claseId:4,  plan:'mensual', pagado:true,  asistencia:[0,1,1,1,0,1,1,1,1,1,0,1], deuda:0,     inscDesde:'Abr 2025'},
+  {id:5,  nombre:'Camila Vega',    claseId:8,  plan:'mensual', pagado:true,  asistencia:[1,1,1,1,1,1,0,1,1,1,1,1], deuda:0,     inscDesde:'Ene 2025'},
+  {id:6,  nombre:'Tomás Herrera',  claseId:3,  plan:'por clase',pagado:true, asistencia:[1,1,1,0,1,1,1,1,0,1,1,1], deuda:0,     inscDesde:'Mar 2025'},
+  {id:7,  nombre:'Martina Gómez',  claseId:6,  plan:'mensual', pagado:false, asistencia:[1,1,0,1,0,1,1,1,0,0,1,1], deuda:7500,  inscDesde:'Feb 2025'},
+  {id:8,  nombre:'Facundo Torres', claseId:2,  plan:'mensual', pagado:true,  asistencia:[1,1,1,1,1,1,1,1,1,1,1,1], deuda:0,     inscDesde:'Ene 2025'},
+  {id:9,  nombre:'Isabella Díaz',  claseId:9,  plan:'mensual', pagado:true,  asistencia:[0,1,1,1,1,0,1,1,1,1,0,1], deuda:0,     inscDesde:'May 2025'},
+  {id:10, nombre:'Nicolás Ferro',  claseId:5,  plan:'mensual', pagado:false, asistencia:[1,1,1,0,0,1,1,0,1,1,1,0], deuda:9000,  inscDesde:'Abr 2025'},
+  {id:11, nombre:'Ana Castillo',   claseId:8,  plan:'mensual', pagado:true,  asistencia:[1,1,1,1,0,1,1,1,1,1,1,1], deuda:0,     inscDesde:'Feb 2025'},
+  {id:12, nombre:'Emilio Ríos',    claseId:4,  plan:'por clase',pagado:true, asistencia:[1,0,1,1,1,1,0,1,1,0,1,1], deuda:0,     inscDesde:'Mar 2025'},
+]
+
+let activeTab = 'horario'
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  const totalAlumnos  = ALUMNOS.length
+  const totalClases   = CLASES.length
+  const deudaTotal    = ALUMNOS.reduce((a,al)=>a+al.deuda,0)
+  const mrrEstimado   = ALUMNOS.filter(a=>a.plan==='mensual').reduce((a,al)=>{
+    const cl = CLASES.find(c=>c.id===al.claseId)
+    return a + (cl?.precio||0)
+  },0)
+  const ocupProm = Math.round(CLASES.reduce((a,c)=>a+c.inscriptos/c.cupo,0)/CLASES.length*100)
+
+  const kpiHtml = `<div class="kpis">
+    <div class="kpi" style="border-top:3px solid var(--ac)">
+      <div style="font-size:11px;color:var(--tx2)">Alumnos activos</div>
+      <div class="kv" style="color:var(--ac)">${totalAlumnos}</div>
+      <div class="kl">en ${totalClases} clases</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ok)">
+      <div style="font-size:11px;color:var(--tx2)">MRR estimado</div>
+      <div class="kv" style="color:var(--ok)">${fmt(mrrEstimado)}</div>
+      <div class="kl">cuotas mensuales</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--info)">
+      <div style="font-size:11px;color:var(--tx2)">Ocupación promedio</div>
+      <div class="kv" style="color:var(--info)">${ocupProm}%</div>
+      <div class="kl">de los cupos</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--warn)">
+      <div style="font-size:11px;color:var(--tx2)">Clases hoy</div>
+      <div class="kv" style="color:var(--warn)">6</div>
+      <div class="kl">próxima en 2hs</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid ${deudaTotal>0?'var(--err)':'var(--ok)'}">
+      <div style="font-size:11px;color:var(--tx2)">Deuda de cuotas</div>
+      <div class="kv" style="color:${deudaTotal>0?'var(--err)':'var(--ok)'}">${fmt(deudaTotal)}</div>
+      <div class="kl">${ALUMNOS.filter(a=>a.deuda>0).length} alumnos</div>
+    </div>
+  </div>`
+
+  switch(activeTab) {
+    case 'horario':     document.getElementById('main').innerHTML = kpiHtml + renderHorario();    break
+    case 'clases':      document.getElementById('main').innerHTML = kpiHtml + renderClases();     break
+    case 'alumnos':     document.getElementById('main').innerHTML = kpiHtml + renderAlumnos();    break
+    case 'profesores':  document.getElementById('main').innerHTML = kpiHtml + renderProfesores(); break
+    case 'asistencia':  document.getElementById('main').innerHTML = kpiHtml + renderAsistencia(); break
+    case 'cuotas':      document.getElementById('main').innerHTML = kpiHtml + renderCuotas();     break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  HORARIO SEMANAL
+// ══════════════════════════════════════════════════════════
+function renderHorario() {
+  const DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
+  const HORAS = ['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00']
+
+  // Construir mapa clase → slots
+  const slotMap = {}
+  CLASES.forEach(cl => {
+    cl.dias.forEach(dia => {
+      const key = dia + '_' + cl.hora
+      slotMap[key] = cl
+    })
+  })
+
+  const prof = id => PROFESORES.find(p=>p.id===id)
+  const sportColor = s => {
+    const map = {pádel:'#5b7fff',crossfit:'#ef4444',fútbol:'#22c55e',yoga:'#06b6d4',natación:'#38bdf8',tenis:'#f59e0b'}
+    return map[s]||'#8b5cf6'
+  }
+
+  let html = '<div style="overflow-x:auto;margin-bottom:14px">'
+  html += '<div class="schedule-grid" style="min-width:700px">'
+  // Headers
+  html += '<div class="sg-header" style="background:var(--s2)">Hora</div>'
+  DIAS.forEach(d => html += `<div class="sg-header" style="background:var(--s2)">${d}</div>`)
+
+  // Filas de hora
+  HORAS.forEach(hora => {
+    html += `<div class="sg-time">${hora}</div>`
+    DIAS.forEach(dia => {
+      const key = dia + '_' + hora
+      const cl  = slotMap[key]
+      if (cl) {
+        const c   = sportColor(cl.sport)
+        const ocp = cl.inscriptos >= cl.cupo
+        html += `<div class="sg-cell" onclick="openClaseDetail(${cl.id})">
+          <div class="class-block" style="background:${c}22;border:1px solid ${c}44;color:${c}">
+            <div class="cb-name" style="color:var(--tx)">${cl.nombre}</div>
+            <div class="cb-prof" style="color:var(--tx2)">${prof(cl.profesorId)?.nombre.split(' ')[0]}</div>
+            <div class="cb-cupo" style="${ocp?'color:var(--err)':'color:var(--tx3)'}">${cl.inscriptos}/${cl.cupo}</div>
+          </div>
+        </div>`
+      } else {
+        html += `<div class="sg-cell" onclick="openAddClassSlot('${dia}','${hora}')" style="opacity:.4;font-size:9px;text-align:center;padding-top:14px;color:var(--tx3)">+</div>`
+      }
+    })
+  })
+  html += '</div></div>'
+
+  // Leyenda
+  const sports = [...new Set(CLASES.map(c=>c.sport))]
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+  sports.forEach(s => {
+    const c = sportColor(s)
+    html += `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)">
+      <div style="width:10px;height:10px;border-radius:3px;background:${c}"></div>${s}
+    </div>`
+  })
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  CLASES
+// ══════════════════════════════════════════════════════════
+function renderClases() {
+  const sportColor = s => {
+    const map = {pádel:'#5b7fff',crossfit:'#ef4444',fútbol:'#22c55e',yoga:'#06b6d4',natación:'#38bdf8',tenis:'#f59e0b'}
+    return map[s]||'#8b5cf6'
+  }
+  const nivelColor = n => ({Principiante:'var(--ok)',Intermedio:'var(--warn)',Avanzado:'var(--err)',Infantil:'var(--info)',Juvenil:'var(--ac)',Todos:'var(--tx2)'})[n]||'var(--tx2)'
+  const prof = id => PROFESORES.find(p=>p.id===id)
+
+  let html = '<div class="classes-grid">'
+  CLASES.forEach(cl => {
+    const c    = sportColor(cl.sport)
+    const pct  = Math.round(cl.inscriptos/cl.cupo*100)
+    const ocp  = cl.inscriptos >= cl.cupo
+    const alum = ALUMNOS.filter(a=>a.claseId===cl.id)
+    const deudaAlum = alum.filter(a=>a.deuda>0).length
+    html += `<div class="class-card" onclick="openClaseDetail(${cl.id})">
+      <div class="cc-top">
+        <div class="cc-sport-badge" style="background:${c}22;color:${c}">${cl.sport}</div>
+        <div class="cc-name">${cl.nombre}</div>
+        <div class="cc-meta">${cl.dias.join(', ')} · ${cl.hora}hs · ${cl.durMin}min</div>
+        <div class="cc-meta" style="margin-top:2px">👤 ${prof(cl.profesorId)?.nombre}</div>
+        <div style="display:flex;gap:5px;margin-top:8px">
+          <span class="badge" style="background:${nivelColor(cl.nivel)}18;color:${nivelColor(cl.nivel)}">${cl.nivel}</span>
+          ${ocp?'<span class="badge" style="background:var(--err)18;color:var(--err)">Completo</span>':''}
+          ${deudaAlum>0?`<span class="badge" style="background:var(--warn)18;color:var(--warn)">${deudaAlum} con deuda</span>`:''}
+        </div>
+        <div class="cc-bar-wrap">
+          <div class="cc-bar" style="width:${pct}%;background:${ocp?'var(--err)':pct>75?'var(--warn)':'var(--ok)'}"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-top:3px">
+          <span>${cl.inscriptos}/${cl.cupo} alumnos</span>
+          <span>${pct}% ocupado</span>
+        </div>
+      </div>
+      <div class="cc-stats">
+        <div class="cc-stat">
+          <div class="cc-stat-val">${fmt(cl.precio)}</div>
+          <div class="cc-stat-lbl">Cuota</div>
+        </div>
+        <div class="cc-stat">
+          <div class="cc-stat-val" style="color:var(--ok)">${fmt(cl.inscriptos*cl.precio)}</div>
+          <div class="cc-stat-lbl">Revenue mes</div>
+        </div>
+        <div class="cc-stat">
+          <div class="cc-stat-val">${cl.durMin}m</div>
+          <div class="cc-stat-lbl">Duración</div>
+        </div>
+      </div>
+    </div>`
+  })
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  ALUMNOS
+// ══════════════════════════════════════════════════════════
+function renderAlumnos() {
+  const clase = id => CLASES.find(c=>c.id===id)
+  const asistPct = a => Math.round(a.asistencia.reduce((s,v)=>s+v,0)/a.asistencia.length*100)
+
+  let html = `<div class="card">
+    <div class="card-head">
+      <span class="card-title">Todos los alumnos (${ALUMNOS.length})</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="toast('Exportando lista...')">↓ Exportar</button>
+        <button class="btn btn-primary btn-sm" onclick="openInscripcion()">+ Inscribir</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr>
+          <th>Alumno</th><th>Clase</th><th>Plan</th>
+          <th class="r">Cuota</th><th>Asistencia</th><th>Estado</th><th>Inscripto</th><th></th>
+        </tr></thead>
+        <tbody>`
+
+  ALUMNOS.forEach(al => {
+    const cl   = clase(al.claseId)
+    const pct  = asistPct(al)
+    html += `<tr>
+      <td><strong>${al.nombre}</strong></td>
+      <td style="color:var(--tx2)">${cl?.nombre||'—'}</td>
+      <td><span class="badge" style="background:var(--ac)15;color:var(--ac)">${al.plan}</span></td>
+      <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:${al.deuda>0?'var(--err)':'var(--ok)'}">
+        ${al.deuda>0?'⚠ Debe '+fmt(al.deuda):'✓ Al día'}
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="asist-row">
+            ${al.asistencia.slice(-8).map(v=>`<div class="asist-dot" style="background:${v?'var(--ok)':'var(--bd2)'}"></div>`).join('')}
+          </div>
+          <span style="font-size:11px;color:${pct>=75?'var(--ok)':pct>=50?'var(--warn)':'var(--err)'}">${pct}%</span>
+        </div>
+      </td>
+      <td>
+        <span class="badge" style="background:${al.pagado?'var(--ok)15':'var(--err)15'};color:${al.pagado?'var(--ok)':'var(--err)'}">
+          ${al.pagado?'Pagado':'Sin pagar'}
+        </span>
+      </td>
+      <td style="color:var(--tx3)">${al.inscDesde}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openAlumnoDetail(${al.id})">Ver</button>
+      </td>
+    </tr>`
+  })
+
+  html += `</tbody></table></div></div>`
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  PROFESORES
+// ══════════════════════════════════════════════════════════
+function renderProfesores() {
+  const clasesPorProf = id => CLASES.filter(c=>c.profesorId===id).length
+  const alumnosPorProf = id => ALUMNOS.filter(a=>{
+    const cl = CLASES.find(c=>c.id===a.claseId)
+    return cl?.profesorId===id
+  }).length
+  const revPorProf = id => CLASES.filter(c=>c.profesorId===id).reduce((a,c)=>a+c.inscriptos*c.precio,0)
+
+  let html = '<div class="prof-grid">'
+  PROFESORES.forEach(p => {
+    const alum = alumnosPorProf(p.id)
+    const rev  = revPorProf(p.id)
+    html += `<div class="prof-card" onclick="openProfDetail(${p.id})">
+      <div class="prof-avatar" style="background:${p.color}22;color:${p.color}">${p.initials}</div>
+      <div class="prof-name">${p.nombre}</div>
+      <div class="prof-sports">${p.sports.join(' · ')}</div>
+      <div style="display:flex;justify-content:center;gap:5px;margin-top:6px">
+        <span class="badge" style="background:${p.activo?'var(--ok)15':'var(--bd)'};color:${p.activo?'var(--ok)':'var(--tx3)'}">
+          ${p.activo?'Activo':'Inactivo'}
+        </span>
+        <span class="badge" style="background:var(--warn)15;color:var(--warn)">⭐ ${p.rating}</span>
+      </div>
+      <div class="prof-stats">
+        <div>
+          <div class="prof-stat-val">${clasesPorProf(p.id)}</div>
+          <div class="prof-stat-lbl">Clases</div>
+        </div>
+        <div>
+          <div class="prof-stat-val">${alum}</div>
+          <div class="prof-stat-lbl">Alumnos</div>
+        </div>
+        <div>
+          <div class="prof-stat-val" style="color:var(--ok);font-size:12px">${fmt(rev)}</div>
+          <div class="prof-stat-lbl">Revenue</div>
+        </div>
+      </div>
+    </div>`
+  })
+  html += '</div>'
+
+  // Tabla comparativa
+  html += `<div class="card" style="margin-top:14px">
+    <div class="card-head"><span class="card-title">Comparativa de profesores</span></div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Profesor</th><th>Deportes</th>
+        <th class="r">Clases</th><th class="r">Alumnos</th>
+        <th class="r">Rating</th><th class="r">Revenue mes</th><th>Estado</th>
+      </tr></thead>
+      <tbody>
+        ${PROFESORES.map(p=>`<tr onclick="openProfDetail(${p.id})" style="cursor:pointer">
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;border-radius:50%;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${p.color}">${p.initials}</div>
+              <strong>${p.nombre}</strong>
+            </div>
+          </td>
+          <td style="color:var(--tx2)">${p.sports.join(', ')}</td>
+          <td class="r">${clasesPorProf(p.id)}</td>
+          <td class="r">${alumnosPorProf(p.id)}</td>
+          <td class="r" style="color:var(--warn)">⭐ ${p.rating}</td>
+          <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--ok)">${fmt(revPorProf(p.id))}</td>
+          <td><span class="badge" style="background:${p.activo?'var(--ok)15':'var(--bd)'};color:${p.activo?'var(--ok)':'var(--tx3)'}">${p.activo?'Activo':'Inactivo'}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  ASISTENCIA
+// ══════════════════════════════════════════════════════════
+// Estado de asistencia del día — persiste mientras no se recarga
+// { claseId_alumId: true/false }
+const asistState = {}
+
+// Vista activa del panel de asistencia: 'admin' | 'profesor'
+let asistView = 'admin'
+let asistProfId = null  // profesor seleccionado en vista profesor
+
+function renderAsistencia() {
+  const hoy      = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][new Date().getDay()] || 'Lun'
+  const clasesHoy = CLASES.filter(c => c.dias.some(d => d===hoy || d==='Lun'))
+  const prof     = id => PROFESORES.find(p=>p.id===id)
+
+  // Inicializar estado del día con todos presentes por defecto
+  clasesHoy.forEach(cl => {
+    ALUMNOS.filter(a=>a.claseId===cl.id).forEach(a => {
+      const key = cl.id+'_'+a.id
+      if (asistState[key] === undefined) asistState[key] = true
+    })
+  })
+
+  let html = ''
+
+  // ── Selector de vista ──────────────────────────────────
+  html += '<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">'
+  html += '<div style="font-size:12px;color:var(--tx2)">Ver como:</div>'
+  html += '<div style="display:flex;gap:5px">'
+  html += '<button class="btn btn-sm ' + (asistView==='admin'?'btn-primary':'btn-ghost') + '" onclick="asistView=\'admin\';asistProfId=null;renderMain()">🏟 Admin</button>'
+  PROFESORES.filter(p=>p.activo).forEach(p => {
+    const tieneClasesHoy = CLASES.filter(c=>c.profesorId===p.id).some(c=>c.dias.some(d=>d===hoy||d==='Lun'))
+    if (!tieneClasesHoy) return
+    const sel = asistView==='profesor' && asistProfId===p.id
+    html += '<button class="btn btn-sm ' + (sel?'btn-primary':'btn-ghost') + '" '
+    html += 'onclick="asistView=\'profesor\';asistProfId=' + p.id + ';renderMain()">'
+    html += '<span style="width:16px;height:16px;border-radius:50%;background:' + p.color + '33;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:' + p.color + '">' + p.initials + '</span>'
+    html += ' ' + p.nombre.split(' ')[0] + '</button>'
+  })
+  html += '</div>'
+
+  // Fecha del día
+  const fechaStr = new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'})
+  html += '<span style="margin-left:auto;font-size:11px;color:var(--tx3)">' + fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1) + '</span>'
+  html += '</div>'
+
+  if (asistView === 'profesor' && asistProfId) {
+    html += renderAsistenciaProfesor(asistProfId, clasesHoy)
+  } else {
+    html += renderAsistenciaAdmin(clasesHoy)
+  }
+
+  return html
+}
+
+// ── Vista del PROFESOR — una clase a la vez, optimizada para móvil ──────────
+function renderAsistenciaProfesor(profId, clasesHoy) {
+  const p        = PROFESORES.find(x=>x.id===profId)
+  const misClases = clasesHoy.filter(c=>c.profesorId===profId)
+
+  if (!misClases.length) {
+    return '<div style="text-align:center;padding:40px;color:var(--tx3);font-size:13px">No tenés clases hoy.</div>'
+  }
+
+  let html = ''
+
+  misClases.forEach(cl => {
+    const alums    = ALUMNOS.filter(a=>a.claseId===cl.id)
+    const presentes = alums.filter(a => asistState[cl.id+'_'+a.id] !== false).length
+    const guardado  = cl._asistGuardada || false
+
+    html += '<div class="card" style="margin-bottom:14px">'
+
+    // Header de la clase
+    html += '<div style="padding:14px 16px;border-bottom:1px solid var(--bd);background:' + (guardado?'var(--ok)0a':'var(--s2)') + '">'
+    html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">'
+    html += '<div>'
+    html += '<div style="font-family:\'Syne\',sans-serif;font-size:15px;font-weight:700;color:var(--tx)">' + cl.nombre + '</div>'
+    html += '<div style="font-size:12px;color:var(--tx2);margin-top:2px">' + cl.hora + 'hs · ' + cl.durMin + 'min · ' + alums.length + ' alumnos</div>'
+    html += '</div>'
+    if (guardado) {
+      html += '<span style="font-size:11px;font-weight:700;color:var(--ok);background:var(--ok)15;border-radius:7px;padding:4px 10px;flex-shrink:0">✓ Guardada</span>'
+    }
+    html += '</div>'
+
+    // Barra de presentes
+    const pct = alums.length ? Math.round(presentes/alums.length*100) : 0
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-top:10px">'
+    html += '<div style="flex:1;background:var(--bd);border-radius:3px;height:5px;overflow:hidden">'
+    html += '<div style="width:' + pct + '%;height:100%;background:var(--ok);border-radius:3px;transition:width .3s"></div>'
+    html += '</div>'
+    html += '<span style="font-size:11px;font-weight:600;color:var(--ok);flex-shrink:0">' + presentes + '/' + alums.length + ' presentes</span>'
+    html += '</div>'
+    html += '</div>'  // end header
+
+    // Lista de alumnos — botones grandes para móvil
+    html += '<div style="padding:12px">'
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">'
+
+    alums.forEach(a => {
+      const key      = cl.id+'_'+a.id
+      const presente = asistState[key] !== false
+      const initials = a.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')
+      html += '<div id="prof-asist-' + key + '" onclick="toggleAsistProf(' + cl.id + ',' + a.id + ')"'
+      html += ' style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:10px;'
+      html += 'border:2px solid ' + (presente?'var(--ok)':'var(--err)33') + ';'
+      html += 'background:' + (presente?'var(--ok)0c':'var(--s2)') + ';cursor:pointer;transition:all .15s;user-select:none">'
+      // Avatar
+      html += '<div style="width:40px;height:40px;border-radius:50%;'
+      html += 'background:' + (presente?'var(--ok)':'var(--err)') + '22;'
+      html += 'display:flex;align-items:center;justify-content:center;'
+      html += 'font-size:13px;font-weight:700;color:' + (presente?'var(--ok)':'var(--err)') + '">'
+      html += initials + '</div>'
+      // Nombre
+      html += '<div style="font-size:11px;font-weight:500;text-align:center;line-height:1.3;color:var(--tx)">'
+      html += a.nombre.split(' ').slice(0,2).join('<br>') + '</div>'
+      // Estado
+      html += '<div style="font-size:12px;font-weight:700;color:' + (presente?'var(--ok)':'var(--err)') + '">'
+      html += (presente ? '✓ Presente' : '✗ Ausente') + '</div>'
+      html += '</div>'
+    })
+
+    html += '</div>'  // end grid alumnos
+
+    // Botones de acción
+    html += '<div style="display:flex;gap:8px;margin-top:12px">'
+    html += '<button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" '
+    html += 'onclick="marcarTodos(' + cl.id + ',true)">✓ Todos presentes</button>'
+    html += '<button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" '
+    html += 'onclick="marcarTodos(' + cl.id + ',false)">✗ Todos ausentes</button>'
+    html += '<button class="btn btn-primary" style="flex:2;justify-content:center" '
+    html += 'onclick="guardarAsistencia(' + cl.id + ')">💾 Guardar asistencia</button>'
+    html += '</div>'
+    html += '</div>'  // end padding
+    html += '</div>'  // end card
+  })
+
+  return html
+}
+
+// ── Vista del ADMIN — resumen compacto de todas las clases ─────────────────
+function renderAsistenciaAdmin(clasesHoy) {
+  const prof = id => PROFESORES.find(p=>p.id===id)
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
+
+  // Panel izquierdo — clases del día
+  html += '<div>'
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head"><span class="card-title">📋 Clases de hoy — resumen</span></div>'
+
+  if (!clasesHoy.length) {
+    html += '<div style="padding:20px;text-align:center;color:var(--tx3);font-size:12px">No hay clases programadas para hoy.</div>'
+  }
+
+  clasesHoy.forEach(cl => {
+    const alums     = ALUMNOS.filter(a=>a.claseId===cl.id)
+    const presentes = alums.filter(a=>asistState[cl.id+'_'+a.id]!==false).length
+    const guardado  = cl._asistGuardada||false
+    const pct       = alums.length ? Math.round(presentes/alums.length*100) : 0
+
+    html += '<div style="padding:12px 16px;border-bottom:1px solid var(--bd)44">'
+    html += '<div style="display:flex;align-items:center;gap:10px">'
+
+    // Info de la clase
+    html += '<div style="flex:1;min-width:0">'
+    html += '<div style="font-size:12px;font-weight:600;color:var(--tx)">' + cl.nombre + '</div>'
+    html += '<div style="font-size:11px;color:var(--tx2);margin-top:1px">' + cl.hora + 'hs · ' + prof(cl.profesorId)?.nombre + '</div>'
+    html += '</div>'
+
+    // Estado
+    if (guardado) {
+      html += '<span style="font-size:10px;font-weight:700;color:var(--ok);background:var(--ok)12;border-radius:6px;padding:2px 8px">✓ ' + presentes + '/' + alums.length + '</span>'
+    } else {
+      html += '<span style="font-size:10px;color:var(--tx3)">Pendiente</span>'
+    }
+
+    // Botón para ir a la vista del profesor
+    html += '<button class="btn btn-ghost btn-sm" onclick="asistView=\'profesor\';asistProfId=' + cl.profesorId + ';renderMain()">Tomar →</button>'
+    html += '</div>'
+
+    // Mini barra
+    if (guardado) {
+      html += '<div style="margin-top:6px;background:var(--bd);border-radius:3px;height:3px;overflow:hidden">'
+      html += '<div style="width:' + pct + '%;height:100%;background:var(--ok);border-radius:3px"></div>'
+      html += '</div>'
+    }
+    html += '</div>'
+  })
+  html += '</div>'  // end card
+  html += '</div>'  // end panel izquierdo
+
+  // Panel derecho — historial
+  html += '<div>'
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head"><span class="card-title">📊 Historial — últimas 2 semanas</span></div>'
+  html += '<table class="tbl"><thead><tr>'
+  html += '<th>Alumno</th><th>Clase</th><th class="r">%</th><th>Últimas 8</th>'
+  html += '</tr></thead><tbody>'
+
+  ALUMNOS.slice(0,10).forEach(a => {
+    const cl  = CLASES.find(c=>c.id===a.claseId)
+    const pct = a.asistencia.length ? Math.round(a.asistencia.reduce((s,v)=>s+v,0)/a.asistencia.length*100) : 0
+    html += '<tr>'
+    html += '<td><strong>' + a.nombre + '</strong></td>'
+    html += '<td style="font-size:11px;color:var(--tx2)">' + (cl?.nombre||'—') + '</td>'
+    html += '<td class="r" style="font-weight:600;color:' + (pct>=75?'var(--ok)':pct>=50?'var(--warn)':'var(--err)') + '">' + pct + '%</td>'
+    html += '<td><div class="asist-row">'
+    html += a.asistencia.slice(-8).map(v=>'<div class="asist-dot" style="background:' + (v?'var(--ok)':'var(--err)') + '"></div>').join('')
+    html += '</div></td>'
+    html += '</tr>'
+  })
+
+  html += '</tbody></table>'
+  html += '</div>'  // end card
+  html += '</div>'  // end panel derecho
+
+  html += '</div>'  // end grid
+  return html
+}
+
+// ── Acciones de asistencia ────────────────────────────────
+function toggleAsistProf(claseId, alumId) {
+  const key = claseId+'_'+alumId
+  asistState[key] = !asistState[key]
+
+  // Actualizar UI del botón sin re-renderizar todo
+  const el = document.getElementById('prof-asist-'+key)
+  if (!el) { renderMain(); return }
+
+  const presente = asistState[key]
+  el.style.borderColor = presente ? 'var(--ok)' : 'var(--err)33'
+  el.style.background  = presente ? 'var(--ok)0c' : 'var(--s2)'
+
+  const avatar = el.querySelector('div:first-child')
+  if (avatar) {
+    avatar.style.background = presente ? 'var(--ok)22' : 'var(--err)22'
+    avatar.style.color      = presente ? 'var(--ok)'   : 'var(--err)'
+  }
+  const estado = el.querySelector('div:last-child')
+  if (estado) {
+    estado.style.color  = presente ? 'var(--ok)' : 'var(--err)'
+    estado.textContent  = presente ? '✓ Presente' : '✗ Ausente'
+  }
+
+  // Actualizar contador en el header
+  const cl    = CLASES.find(c=>c.id===claseId)
+  const alums = ALUMNOS.filter(a=>a.claseId===claseId)
+  const presentes = alums.filter(a=>asistState[claseId+'_'+a.id]!==false).length
+  // Pequeño vibrato de confirmación
+  el.style.transform = 'scale(0.95)'
+  setTimeout(()=>el.style.transform='', 120)
+}
+
+function marcarTodos(claseId, valor) {
+  const alums = ALUMNOS.filter(a=>a.claseId===claseId)
+  alums.forEach(a => { asistState[claseId+'_'+a.id] = valor })
+  renderMain()
+}
+
+function guardarAsistencia(claseId) {
+  const cl    = CLASES.find(c=>c.id===claseId)
+  const alums = ALUMNOS.filter(a=>a.claseId===claseId)
+  const presentes = alums.filter(a=>asistState[claseId+'_'+a.id]!==false).length
+
+  // Guardar en el historial de cada alumno
+  alums.forEach(a => {
+    a.asistencia.push(asistState[claseId+'_'+a.id]!==false ? 1 : 0)
+  })
+
+  // Marcar la clase como guardada
+  if (cl) cl._asistGuardada = true
+
+  renderMain()
+  toast('✓ Asistencia guardada — ' + presentes + '/' + alums.length + ' presentes')
+}
+
+// compatibilidad con toggleAsist viejo (admin panel)
+function toggleAsist(claseId, alumId) { toggleAsistProf(claseId, alumId) }
+
+// ══════════════════════════════════════════════════════════
+//  CUOTAS
+// ══════════════════════════════════════════════════════════
+function renderCuotas() {
+  const morosos = ALUMNOS.filter(a=>a.deuda>0)
+  const alDia   = ALUMNOS.filter(a=>a.deuda===0)
+  const total   = ALUMNOS.reduce((s,a)=>s+a.deuda,0)
+  const clase   = id => CLASES.find(c=>c.id===id)
+
+  let html = `<div style="display:grid;grid-template-columns:1fr 300px;gap:14px">`
+
+  // Tabla principal
+  html += `<div>
+    ${morosos.length ? `<div class="card" style="margin-bottom:14px">
+      <div class="card-head">
+        <span class="card-title" style="color:var(--err)">⚠ Cuotas vencidas (${morosos.length} alumnos)</span>
+        <button class="btn btn-err btn-sm" onclick="sendDebtAll()">Enviar avisos masivos</button>
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th>Alumno</th><th>Clase</th><th class="r">Deuda</th><th>Vencimiento</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${morosos.map(a=>`<tr>
+            <td><strong>${a.nombre}</strong></td>
+            <td style="color:var(--tx2)">${clase(a.claseId)?.nombre}</td>
+            <td class="r" style="font-weight:700;color:var(--err);font-family:'DM Mono',monospace">${fmt(a.deuda)}</td>
+            <td style="color:var(--tx3)">01 Jun 2025</td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-ok btn-sm" onclick="markPaid(${a.id})">✓ Registrar pago</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('Aviso enviado a ${a.nombre}')">📱</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">✅ Alumnos al día (${alDia.length})</span>
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th>Alumno</th><th>Clase</th><th class="r">Cuota</th><th>Plan</th><th>Próximo venc.</th>
+        </tr></thead>
+        <tbody>
+          ${alDia.map(a=>`<tr>
+            <td><strong>${a.nombre}</strong></td>
+            <td style="color:var(--tx2)">${clase(a.claseId)?.nombre}</td>
+            <td class="r" style="font-family:'DM Mono',monospace">${fmt(clase(a.claseId)?.precio||0)}</td>
+            <td><span class="badge" style="background:var(--ac)15;color:var(--ac)">${a.plan}</span></td>
+            <td style="color:var(--tx3)">01 Jul 2025</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`
+
+  // Sidebar resumen
+  html += `<div>
+    <div class="card" style="margin:0 0 12px">
+      <div class="card-body">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:4px">Deuda total</div>
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:${total>0?'var(--err)':'var(--ok)'}">${fmt(total)}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:3px">${morosos.length} alumnos morosos</div>
+      </div>
+    </div>
+    <div class="card" style="margin:0 0 12px">
+      <div class="card-body">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:4px">MRR cobrado este mes</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ok)">${fmt(ALUMNOS.filter(a=>a.pagado&&a.plan==='mensual').reduce((s,a)=>s+(clase(a.claseId)?.precio||0),0))}</div>
+      </div>
+    </div>
+    <div class="card" style="margin:0">
+      <div class="card-head"><span class="card-title">Revenue por clase</span></div>
+      <div class="card-body" style="padding:10px 14px">
+        ${CLASES.sort((a,b)=>b.inscriptos*b.precio-a.inscriptos*a.precio).slice(0,6).map(c=>{
+          const rev = c.inscriptos * c.precio
+          const max = CLASES[0].inscriptos * CLASES[0].precio || 1
+          return `<div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${c.nombre}</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--ok);font-weight:600">${fmt(rev)}</span>
+            </div>
+            <div style="background:var(--bd);border-radius:3px;height:5px;overflow:hidden">
+              <div style="width:${Math.round(rev/max*100)}%;height:100%;background:var(--ok);border-radius:3px"></div>
+            </div>
+          </div>`
+        }).join('')}
+      </div>
+    </div>
+  </div>`
+
+  html += '</div>'
+  return html
+}
+
+function markPaid(id) {
+  const a = ALUMNOS.find(x=>x.id===id)
+  if (!a) return
+  a.deuda = 0; a.pagado = true
+  renderMain()
+  toast(`✓ Pago registrado — ${a.nombre}`)
+}
+
+function sendDebtAll() {
+  toast(`📱 Avisos enviados a ${ALUMNOS.filter(a=>a.deuda>0).length} alumnos`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════════
+function openClaseDetail(id) {
+  const cl    = CLASES.find(c=>c.id===id)
+  if (!cl) return
+  const prof  = PROFESORES.find(p=>p.id===cl.profesorId)
+  const alums = ALUMNOS.filter(a=>a.claseId===id)
+  const pct   = Math.round(cl.inscriptos/cl.cupo*100)
+  const sportColor = {pádel:'#5b7fff',crossfit:'#ef4444',fútbol:'#22c55e',yoga:'#06b6d4',natación:'#38bdf8',tenis:'#f59e0b'}[cl.sport]||'#8b5cf6'
+
+  showModal(`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:44px;height:44px;border-radius:10px;background:${sportColor}22;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎓</div>
+      <div>
+        <div class="modal-title" style="margin-bottom:2px">${cl.nombre}</div>
+        <div style="font-size:12px;color:var(--tx2)">${cl.sport} · ${cl.nivel} · ${cl.durMin}min</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {l:'Profesor',  v:prof?.nombre||'—',        c:'var(--ac)'},
+        {l:'Horario',   v:cl.dias.join(', ')+' '+cl.hora+'hs', c:'var(--tx)'},
+        {l:'Cuota',     v:fmt(cl.precio)+'/mes',    c:'var(--ok)'},
+        {l:'Alumnos',   v:cl.inscriptos+'/'+cl.cupo,c:pct>=100?'var(--err)':'var(--tx)'},
+        {l:'Ocupación', v:pct+'%',                  c:pct>=90?'var(--err)':pct>=75?'var(--warn)':'var(--ok)'},
+        {l:'Revenue',   v:fmt(cl.inscriptos*cl.precio), c:'var(--ok)'},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:14px;font-weight:700;font-family:'Syne',sans-serif;color:${s.c}">${s.v}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Alumnos inscriptos</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">
+      ${alums.map(a=>`<span style="padding:4px 10px;border-radius:7px;background:${a.deuda>0?'var(--err)15':'var(--s2)'};border:1px solid ${a.deuda>0?'var(--err)33':'var(--bd)'};font-size:11px;color:${a.deuda>0?'var(--err)':'var(--tx2)'}">${a.nombre}${a.deuda>0?' ⚠':''}</span>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-warn btn-sm" onclick="closeModal();toast('Próximamente: editar clase')">✏ Editar</button>
+      <button class="btn btn-primary" onclick="closeModal();openInscripcion(${id})">+ Inscribir alumno</button>
+    </div>
+  `)
+}
+
+function openInscripcion(preClaseId) {
+  showModal(`
+    <div class="modal-title">Inscribir alumno</div>
+    <div class="modal-sub">Registrá un alumno en una clase</div>
+    <div class="frow">
+      <div><label class="flbl">Nombre del alumno</label><input class="finp" id="ins-nombre" placeholder="Nombre completo"></div>
+      <div><label class="flbl">Teléfono</label><input class="finp" id="ins-tel" placeholder="11-xxxx-xxxx"></div>
+    </div>
+    <label class="flbl">Clase</label>
+    <select class="fsel" id="ins-clase">
+      <option value="">— elegí una clase —</option>
+      ${CLASES.map(c=>`<option value="${c.id}" ${preClaseId===c.id?'selected':''}>${c.nombre} — ${c.dias.join(',')} ${c.hora}hs (${c.inscriptos}/${c.cupo})</option>`).join('')}
+    </select>
+    <div class="frow">
+      <div>
+        <label class="flbl">Plan</label>
+        <select class="fsel" id="ins-plan">
+          <option value="mensual">Mensual</option>
+          <option value="por clase">Por clase</option>
+          <option value="trimestral">Trimestral</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Forma de pago</label>
+        <select class="fsel" id="ins-pago">
+          <option>Efectivo</option>
+          <option>Transferencia</option>
+          <option>Mercado Pago</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveInscripcion()">Inscribir</button>
+    </div>
+  `)
+}
+
+function saveInscripcion() {
+  const nombre  = document.getElementById('ins-nombre')?.value.trim()
+  const claseId = parseInt(document.getElementById('ins-clase')?.value)
+  if (!nombre) { toast('Ingresá el nombre','warn'); return }
+  if (!claseId){ toast('Elegí una clase','warn'); return }
+  const cl = CLASES.find(c=>c.id===claseId)
+  if (!cl) return
+  if (cl.inscriptos >= cl.cupo) { toast('La clase está completa','warn'); return }
+  cl.inscriptos++
+  ALUMNOS.push({
+    id: ALUMNOS.length+1, nombre,
+    claseId, plan: document.getElementById('ins-plan')?.value||'mensual',
+    pagado:true, asistencia:[], deuda:0, inscDesde: 'Jun 2025'
+  })
+  closeModal()
+  renderMain()
+  toast(`✓ ${nombre} inscripto en ${cl.nombre}`)
+}
+
+function openAlumnoDetail(id) {
+  const a  = ALUMNOS.find(x=>x.id===id)
+  if (!a) return
+  const cl = CLASES.find(c=>c.id===a.claseId)
+  const pct = Math.round(a.asistencia.reduce((s,v)=>s+v,0)/Math.max(a.asistencia.length,1)*100)
+  showModal(`
+    <div class="modal-title">${a.nombre}</div>
+    <div class="modal-sub">${cl?.nombre||'—'} · Desde ${a.inscDesde}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {l:'Asistencia',v:pct+'%',c:pct>=75?'var(--ok)':pct>=50?'var(--warn)':'var(--err)'},
+        {l:'Plan',v:a.plan,c:'var(--ac)'},
+        {l:'Estado',v:a.deuda>0?'Debe '+fmt(a.deuda):'Al día',c:a.deuda>0?'var(--err)':'var(--ok)'},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:14px;font-weight:700;font-family:'Syne',sans-serif;color:${s.c}">${s.v}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px">Historial de asistencia</div>
+    <div class="asist-row" style="flex-wrap:wrap;gap:3px;margin-bottom:14px">
+      ${a.asistencia.map(v=>`<div class="asist-dot" style="background:${v?'var(--ok)':'var(--err)'}"></div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      ${a.deuda>0?`<button class="btn btn-ok btn-sm" onclick="markPaid(${a.id});closeModal()">✓ Registrar pago</button>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="toast('Aviso de pago enviado')">📱 Recordatorio</button>
+    </div>
+  `)
+}
+
+function openProfDetail(id) {
+  const p     = PROFESORES.find(x=>x.id===id)
+  if (!p) return
+  const clases = CLASES.filter(c=>c.profesorId===id)
+  showModal(`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:48px;height:48px;border-radius:50%;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:${p.color}">${p.initials}</div>
+      <div>
+        <div class="modal-title" style="margin-bottom:2px">${p.nombre}</div>
+        <div style="font-size:12px;color:var(--tx2)">${p.sports.join(' · ')} · ⭐ ${p.rating}</div>
+      </div>
+    </div>
+    <div class="frow" style="margin-bottom:10px">
+      <div style="font-size:12px;color:var(--tx2)">📱 ${p.phone}</div>
+      <div style="font-size:12px;color:var(--tx2)">✉ ${p.email}</div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:7px">Clases a cargo</div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px">
+      ${clases.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--s2);border-radius:7px">
+        <span style="font-size:12px;color:var(--tx)">${c.nombre}</span>
+        <span style="font-size:11px;color:var(--tx2)">${c.dias.join(',')}, ${c.hora}hs · ${c.inscriptos}/${c.cupo}</span>
+      </div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-warn btn-sm" onclick="closeModal();toast('Editando profesor...')">✏ Editar</button>
+    </div>
+  `)
+}
+
+function openNewClass() {
+  showModal(`
+    <div class="modal-title">Nueva clase</div>
+    <div class="modal-sub">Creá una clase y asignale un profesor</div>
+    <div class="frow">
+      <div><label class="flbl">Nombre de la clase</label><input class="finp" id="nc-nombre" placeholder="Ej: Pádel Principiantes"></div>
+      <div>
+        <label class="flbl">Deporte</label>
+        <select class="fsel" id="nc-sport">
+          <option>pádel</option><option>fútbol</option><option>crossfit</option><option>tenis</option><option>yoga</option><option>natación</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Profesor</label>
+        <select class="fsel" id="nc-prof">
+          ${PROFESORES.filter(p=>p.activo).map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="flbl">Nivel</label>
+        <select class="fsel" id="nc-nivel">
+          <option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Infantil</option><option>Juvenil</option><option>Todos</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow3">
+      <div><label class="flbl">Hora de inicio</label><input type="time" class="finp" id="nc-hora" value="09:00"></div>
+      <div><label class="flbl">Duración (min)</label><input type="number" class="finp" id="nc-dur" value="60"></div>
+      <div><label class="flbl">Cupo máximo</label><input type="number" class="finp" id="nc-cupo" value="10"></div>
+    </div>
+    <div><label class="flbl">Cuota mensual ($)</label><input type="number" class="finp" id="nc-precio" placeholder="0"></div>
+    <label class="flbl">Días</label>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+      ${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`
+        <div onclick="this.classList.toggle('active');this.style.borderColor=this.classList.contains('active')?'var(--ac)':'var(--bd2)';this.style.background=this.classList.contains('active')?'var(--ac)12':'var(--s2)';this.style.color=this.classList.contains('active')?'var(--ac)':'var(--tx2)'"
+          style="padding:5px 12px;border-radius:7px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;font-size:12px;color:var(--tx2);transition:all .13s">${d}</div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNewClass()">Crear clase</button>
+    </div>
+  `)
+}
+
+function saveNewClass() {
+  const nombre = document.getElementById('nc-nombre')?.value.trim()
+  if (!nombre) { toast('Ingresá el nombre','warn'); return }
+  const dias = Array.from(document.querySelectorAll('#modal-body .active')).map(el=>el.textContent)
+  if (!dias.length) { toast('Elegí al menos un día','warn'); return }
+  const nuevaClase = {
+    id: CLASES.length+1, nombre,
+    sport:       document.getElementById('nc-sport')?.value||'pádel',
+    profesorId:  parseInt(document.getElementById('nc-prof')?.value)||1,
+    dias,
+    hora:        document.getElementById('nc-hora')?.value||'09:00',
+    durMin:      parseInt(document.getElementById('nc-dur')?.value)||60,
+    cupo:        parseInt(document.getElementById('nc-cupo')?.value)||10,
+    inscriptos:  0,
+    precio:      parseInt(document.getElementById('nc-precio')?.value)||0,
+    nivel:       document.getElementById('nc-nivel')?.value||'Todos',
+    descripcion: '',
+  }
+  CLASES.push(nuevaClase)
+  closeModal(); renderMain()
+  toast(`✓ Clase "${nombre}" creada`)
+}
+
+function openAddClassSlot(dia, hora) {
+  toast(`+ Nueva clase: ${dia} ${hora}hs`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html
+  document.getElementById('modal').style.display  = 'flex'
+}
+function closeModal() { document.getElementById('modal').style.display = 'none' }
+
+function toast(msg, type='success') {
+  const cols = {success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t = document.createElement('div'); t.className='toast'
+  t.innerHTML = '<span style="color:'+( cols[type]||cols.success )+'">●</span> '+msg
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2500)
+}
+
+function toggleTheme() {
+  const h = document.documentElement
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme', h.getAttribute('data-theme'))
+}
+const st = localStorage.getItem('shos-theme')
+if (st) document.documentElement.setAttribute('data-theme', st)
+
+// INIT
+renderMain()
+</script>
+</body>
+</html>

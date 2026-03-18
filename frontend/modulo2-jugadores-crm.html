@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Jugadores & CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root[data-theme="dark"]{
+  --bg:#06080f;--s1:#0c0f1a;--s2:#111520;--s3:#161b2a;
+  --bd:#1c2235;--bd2:#252d45;--bd3:#303a58;
+  --tx:#dde3f4;--tx2:#8494b8;--tx3:#4a5878;
+  --ac:#5b7fff;--ac2:#3d60f0;--ac3:#7b9aff;
+  --ok:#2ecc71;--warn:#f0a020;--err:#e05050;--info:#38bdf8;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000066;
+  --tag-active-bg:#1a2d50;--tag-active-col:#7b9aff;
+  --tag-warn-bg:#2a1e05;--tag-warn-col:#f0a020;
+  --tag-err-bg:#2a1010;--tag-err-col:#e05050;
+  --tag-ok-bg:#0d2a1a;--tag-ok-col:#2ecc71;
+  --tag-muted-bg:#1c2235;--tag-muted-col:#4a5878;
+}
+:root[data-theme="light"]{
+  --bg:#f0f3fb;--s1:#ffffff;--s2:#f5f8ff;--s3:#edf0f9;
+  --bd:#e0e5f0;--bd2:#c8d0e8;--bd3:#b0bcd8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d60f0;--ac2:#2550d8;--ac3:#5b7fff;
+  --ok:#16a34a;--warn:#d97706;--err:#dc2626;--info:#0284c7;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+  --tag-active-bg:#e8eeff;--tag-active-col:#3d60f0;
+  --tag-warn-bg:#fef9e7;--tag-warn-col:#d97706;
+  --tag-err-bg:#fef2f2;--tag-err-col:#dc2626;
+  --tag-ok-bg:#f0fdf4;--tag-ok-col:#16a34a;
+  --tag-muted-bg:#f0f3fb;--tag-muted-col:#9aaac8;
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px;transition:background .25s,color .25s}
+
+/* ── TOPBAR ── */
+.top{display:flex;align-items:center;gap:12px;padding:11px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.logo{display:flex;align-items:center;gap:9px}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;font-family:'Syne',sans-serif;flex-shrink:0}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--tx)}
+.ls{font-size:10px;color:var(--tx3)}
+.top-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);border:1px solid var(--bd2);cursor:pointer;position:relative;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+/* ── LAYOUT PRINCIPAL ── */
+.layout{display:flex;height:calc(100vh - 49px);overflow:hidden}
+
+/* ── PANEL IZQ: LISTA ── */
+.panel-list{width:320px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;background:var(--s1)}
+
+.search-wrap{padding:12px 14px;border-bottom:1px solid var(--bd)}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:8px 12px;transition:border-color .15s}
+.search-box:focus-within{border-color:var(--ac)}
+.search-box input{background:none;border:none;outline:none;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;flex:1}
+.search-box input::placeholder{color:var(--tx3)}
+.search-icon{color:var(--tx3);font-size:14px}
+
+.filter-row{display:flex;gap:5px;padding:8px 14px;overflow-x:auto;flex-shrink:0;border-bottom:1px solid var(--bd)}
+.ftag{padding:4px 11px;border-radius:16px;font-size:11px;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);white-space:nowrap;transition:all .14s;font-weight:500}
+.ftag:hover{border-color:var(--ac);color:var(--tx)}
+.ftag.on{background:var(--tag-active-bg);border-color:var(--ac);color:var(--tag-active-col)}
+
+.player-list{flex:1;overflow-y:auto}
+.player-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--bd)55;cursor:pointer;transition:background .12s;position:relative}
+.player-item:hover{background:var(--s2)}
+.player-item.active{background:var(--s3);border-left:3px solid var(--ac)}
+.player-item.active{padding-left:11px}
+.p-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;font-family:'Syne',sans-serif;flex-shrink:0;color:#fff}
+.p-name{font-size:13px;font-weight:500;color:var(--tx)}
+.p-meta{font-size:11px;color:var(--tx2);margin-top:1px}
+.p-right{margin-left:auto;text-align:right;flex-shrink:0}
+.p-spent{font-size:12px;font-weight:600;color:var(--tx);font-family:'DM Mono',monospace}
+.p-status{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;border-radius:10px;padding:2px 7px;margin-top:2px}
+.status-active{background:var(--tag-ok-bg);color:var(--tag-ok-col)}
+.status-inactive{background:var(--tag-warn-bg);color:var(--tag-warn-col)}
+.status-new{background:var(--tag-active-bg);color:var(--tag-active-col)}
+.status-debt{background:var(--tag-err-bg);color:var(--tag-err-col)}
+
+/* ── PANEL DER: FICHA ── */
+.panel-detail{flex:1;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
+.empty-state{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--tx3)}
+.empty-icon{font-size:40px;opacity:.4}
+
+/* ── FICHA HEADER ── */
+.detail-hero{padding:24px 28px 0;background:var(--s1);border-bottom:1px solid var(--bd)}
+.hero-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px}
+.big-av{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;font-family:'Syne',sans-serif;color:#fff;flex-shrink:0}
+.hero-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.hero-meta{font-size:12px;color:var(--tx2);display:flex;gap:12px;flex-wrap:wrap}
+.hero-meta span{display:flex;align-items:center;gap:4px}
+.hero-actions{margin-left:auto;display:flex;gap:7px;flex-shrink:0}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--bd)}
+.kpi{padding:12px 16px;border-right:1px solid var(--bd);text-align:center}
+.kpi:last-child{border-right:none}
+.kv{font-size:20px;font-weight:700;font-family:'Syne',sans-serif;line-height:1}
+.kl{font-size:10px;color:var(--tx3);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+
+/* ── TABS ── */
+.tabs{display:flex;padding:0 28px;background:var(--s1);border-bottom:1px solid var(--bd)}
+.tab{padding:10px 16px;cursor:pointer;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--ac)}
+
+/* ── CONTENIDO TABS ── */
+.tab-content{padding:20px 28px;flex:1}
+.section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── HISTORIAL ── */
+.bk-list{display:flex;flex-direction:column;gap:6px}
+.bk-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;transition:border-color .14s}
+.bk-item:hover{border-color:var(--bd2)}
+.bk-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.bk-info{flex:1;min-width:0}
+.bk-name{font-size:12px;font-weight:500;color:var(--tx)}
+.bk-date{font-size:11px;color:var(--tx2);margin-top:1px}
+.bk-right{text-align:right;flex-shrink:0}
+.bk-price{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--tx)}
+.bk-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;margin-top:2px}
+
+/* ── CONSUMO ── */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.bar-lbl{font-size:11px;color:var(--tx2);width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;background:var(--bd);border-radius:4px;height:18px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:600;transition:width .5s ease}
+.bar-val{font-size:11px;color:var(--tx2);width:60px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
+
+/* ── MENSAJES ── */
+.msg-form{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.msg-templates{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.msg-tpl{padding:5px 11px;border-radius:16px;font-size:11px;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);transition:all .14s;white-space:nowrap}
+.msg-tpl:hover{border-color:var(--ac);color:var(--tx)}
+.msg-tpl.on{background:var(--tag-active-bg);border-color:var(--ac);color:var(--tag-active-col)}
+.msg-textarea{width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:10px 12px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:80px;outline:none;transition:border-color .15s;margin-bottom:10px}
+.msg-textarea:focus{border-color:var(--ac)}
+.msg-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.msg-channel{display:flex;gap:5px}
+.ch-btn{padding:5px 11px;border-radius:7px;font-size:11px;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);transition:all .14s;font-weight:500;font-family:'DM Sans',sans-serif}
+.ch-btn.on{border-color:var(--ac);color:var(--ac);background:var(--tag-active-bg)}
+
+/* ── LOG DE MENSAJES ── */
+.msg-log{display:flex;flex-direction:column;gap:6px}
+.msg-log-item{display:flex;gap:10px;padding:9px 13px;background:var(--s1);border:1px solid var(--bd);border-radius:9px;font-size:12px}
+.msg-log-icon{flex-shrink:0;font-size:14px}
+.msg-log-body{flex:1;min-width:0}
+.msg-log-text{color:var(--tx);margin-bottom:2px;line-height:1.45}
+.msg-log-meta{font-size:10px;color:var(--tx3)}
+.msg-log-status{flex-shrink:0;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px}
+
+/* ── NOTAS ── */
+.note-item{background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:11px 14px;margin-bottom:7px}
+.note-text{font-size:12px;color:var(--tx);line-height:1.5;margin-bottom:5px}
+.note-meta{font-size:10px;color:var(--tx3)}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fi .15s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:440px;box-shadow:var(--sh);animation:su .18s}
+@keyframes su{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:18px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--ac)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fcheck{display:flex;align-items:center;gap:7px;margin-bottom:10px;font-size:12px;cursor:pointer}
+.fcheck input{accent-color:var(--ac);width:14px;height:14px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+/* ── SPORT CHIPS ── */
+.sport-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.sport-chip{padding:4px 11px;border-radius:16px;font-size:11px;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);transition:all .14s}
+.sport-chip.on{border-color:var(--ac);color:var(--ac);background:var(--tag-active-bg)}
+
+/* ── SELECTOR DE DEPORTES + CATEGORÍAS ── */
+.sport-selector{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.sport-row{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.sport-row.selected{border-color:var(--ac)}
+.sport-row-header{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;user-select:none}
+.sport-row-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--bd3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .14s;font-size:11px}
+.sport-row.selected .sport-row-check{background:var(--ac);border-color:var(--ac);color:#fff}
+.sport-row-name{font-size:13px;font-weight:500;color:var(--tx);flex:1}
+.sport-row-badge{font-size:10px;color:var(--ac);font-weight:600;background:var(--tag-active-bg);padding:1px 7px;border-radius:10px}
+.cat-panel{padding:0 12px 10px;border-top:1px solid var(--bd);display:none}
+.sport-row.selected .cat-panel{display:block}
+.cat-label{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin:8px 0 6px}
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
+.cat-opt{padding:6px 10px;border-radius:7px;border:1px solid var(--bd2);background:var(--s1);cursor:pointer;font-size:11px;color:var(--tx2);transition:all .13s;display:flex;flex-direction:column;gap:2px}
+.cat-opt:hover{border-color:var(--ac);color:var(--tx)}
+.cat-opt.on{background:var(--tag-active-bg);border-color:var(--ac);color:var(--tag-active-col)}
+.cat-opt-name{font-weight:600}
+.cat-opt-desc{font-size:10px;opacity:.7}
+/* ── MAPA ── */
+.map-container{position:relative;background:var(--s2);border-radius:10px;overflow:hidden;border:1px solid var(--bd)}
+.map-svg{width:100%;display:block}
+.map-pin{cursor:pointer;transition:transform .15s}
+.map-pin:hover{transform:scale(1.3)}
+.map-pin circle{transition:r .15s}
+.map-tooltip{position:absolute;background:var(--s1);border:1px solid var(--bd2);border-radius:8px;padding:8px 12px;font-size:11px;pointer-events:none;box-shadow:var(--sh2);z-index:10;min-width:130px;display:none}
+.map-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.map-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
+.map-leg-dot{width:10px;height:10px;border-radius:50%}
+.heat-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.heat-lbl{font-size:11px;color:var(--tx2);width:100px;flex-shrink:0}
+.heat-track{flex:1;background:var(--bd);border-radius:4px;height:20px;overflow:hidden}
+.heat-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:600;color:#fff}
+
+/* ── MENSAJES MASIVOS ── */
+.mass-msg-box{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:14px}
+.mass-seg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px}
+.seg-card{padding:9px 12px;border-radius:8px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;transition:all .14s}
+.seg-card:hover{border-color:var(--ac)}
+.seg-card.on{border-color:var(--ac);background:var(--tag-active-bg)}
+.seg-card-title{font-size:12px;font-weight:600;color:var(--tx)}
+.seg-card-count{font-size:10px;color:var(--tx3);margin-top:2px}
+.seg-card.on .seg-card-title{color:var(--tag-active-col)}
+.audience-preview{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px}
+.audience-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.aud-chip{padding:2px 9px;border-radius:10px;font-size:10px;font-weight:500;background:var(--tag-active-bg);color:var(--tag-active-col)}
+.mass-send-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* ── BTNS ── */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--tag-ok-bg);color:var(--tag-ok-col);border:1px solid var(--ok)44}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:si .2s}
+@keyframes si{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="top">
+  <div class="logo">
+    <div class="lb">S</div>
+    <div><div class="ln">Sport Hub OS</div><div class="ls">Jugadores & CRM — Pádel Norte Club</div></div>
+  </div>
+  <div class="top-right">
+    <button class="btn btn-ghost" onclick="showView('mapa')">🗺 Mapa de jugadores</button>
+    <button class="btn btn-ghost" onclick="showView('masivo')">📢 Mensaje masivo</button>
+    <button class="btn btn-primary" onclick="openNewPlayer()">+ Nuevo jugador</button>
+    <div class="ttog" onclick="toggleTheme()" title="Cambiar tema"></div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── PANEL LISTA ── -->
+  <div class="panel-list">
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="Buscar por nombre, teléfono o deporte..." oninput="filterPlayers()">
+      </div>
+    </div>
+
+    <div class="filter-row" id="filter-row"></div>
+    <div class="player-list" id="player-list"></div>
+  </div>
+
+  <!-- ── PANEL DETALLE ── -->
+  <div class="panel-detail" id="panel-detail">
+    <div class="empty-state">
+      <div class="empty-icon">👤</div>
+      <div style="font-size:14px;font-weight:500">Seleccioná un jugador</div>
+      <div style="font-size:12px">para ver su ficha completa</div>
+    </div>
+  </div>
+
+  <!-- ── PANEL MAPA ── -->
+  <div class="panel-detail" id="panel-mapa" style="display:none;padding:24px">
+    <div id="mapa-content"></div>
+  </div>
+
+  <!-- ── PANEL MASIVO ── -->
+  <div class="panel-detail" id="panel-masivo" style="display:none;padding:24px">
+    <div id="masivo-content"></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO JUGADOR -->
+<div class="overlay" id="modal-new" style="display:none" onclick="closeModal(event,'modal-new')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Nuevo jugador</div>
+    <div class="modal-sub">Pre-inscripción al club</div>
+    <div class="frow">
+      <div><label class="flbl">Nombre</label><input type="text" class="finp" id="np-name" placeholder="Nombre completo"></div>
+      <div><label class="flbl">Teléfono</label><input type="text" class="finp" id="np-phone" placeholder="11-xxxx-xxxx"></div>
+    </div>
+    <label class="flbl">Email (opcional)</label>
+    <input type="email" class="finp" id="np-email" placeholder="correo@ejemplo.com">
+    <div class="frow">
+      <div>
+        <label class="flbl">Nivel</label>
+        <select class="fsel" id="np-level">
+          <option value="principiante">Principiante</option>
+          <option value="amateur" selected>Amateur</option>
+          <option value="intermedio">Intermedio</option>
+          <option value="avanzado">Avanzado</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Zona / Barrio</label>
+        <input type="text" class="finp" id="np-zone" placeholder="Ej: Palermo, Belgrano..." oninput="suggestZone(this.value)">
+        <div id="zone-suggestions" style="display:none;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;margin-top:-6px;margin-bottom:8px;overflow:hidden;position:relative;z-index:10"></div>
+      </div>
+    </div>
+    <label class="flbl">Deportes y categorías</label>
+    <div class="sport-selector" id="sport-selector"></div>
+    <label class="fcheck">
+      <input type="checkbox" id="np-consent" checked>
+      <span>Acepto recibir comunicaciones del club (Ley 25.326)</span>
+    </label>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-new').style.display='none'">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNewPlayer()">Registrar jugador</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATOS DEMO
+// ══════════════════════════════════════════════════════════
+const COLORS = ['#5b7fff','#2ecc71','#f0a020','#e05050','#a855f7','#38bdf8','#f97316','#06b6d4']
+
+const PLAYERS = [
+  {
+    id:1, name:'Carlos Méndez', phone:'11-4523-8812', email:'carlos@gmail.com',
+    sports:['🎾 Pádel'], sportsDetail:['🎾 Pádel — 4ª'], sportsCats:{padel:'p-4a'},
+    level:'intermedio', zone:'Palermo', lat:-34.577, lng:-58.433, since:'Mar 2024',
+    status:'active', consent:true, totalSpent:186000, totalHours:42, visits:28,
+    lastVisit:'hace 2 días', debt:0,
+    bookings:[
+      {space:'Pádel 1',sport:'🎾',date:'Jue 12 Jun',time:'20:00',price:6000,paid:true,status:'completed'},
+      {space:'Pádel 2',sport:'🎾',date:'Mar 10 Jun',time:'19:00',price:6000,paid:true,status:'completed'},
+      {space:'Pádel 1',sport:'🎾',date:'Jue 5 Jun', time:'20:00',price:6000,paid:false,status:'confirmed'},
+      {space:'Pádel 3',sport:'🎾',date:'Mar 3 Jun', time:'18:00',price:4000,paid:true,status:'completed'},
+      {space:'Quincho 1',sport:'🍖',date:'Sáb 1 Jun',time:'12:00',price:12000,paid:true,status:'completed'},
+    ],
+    purchases:[
+      {name:'Agua mineral',qty:14,total:11200,cat:'🧴'},
+      {name:'Gatorade',qty:8,total:9600,cat:'🧃'},
+      {name:'Pelota HEAD x3',qty:3,total:13500,cat:'🎾'},
+      {name:'Grip Wilson',qty:4,total:7200,cat:'🎾'},
+      {name:'Remera club',qty:1,total:12000,cat:'👕'},
+    ],
+    messages:[
+      {type:'whatsapp',text:'¡Hola Carlos! Te recordamos tu turno de mañana a las 20hs en Pádel 1. ¡Nos vemos!',date:'11 Jun 20:00',status:'sent'},
+      {type:'whatsapp',text:'Carlos, hay un torneo de pádel el 20 de junio. ¿Te anotamos? Cupos limitados.',date:'5 Jun 10:30',status:'sent'},
+      {type:'email',text:'Tu reserva del Quincho 1 fue confirmada para el Sáb 1 Jun a las 12:00.',date:'28 May 14:20',status:'sent'},
+    ],
+    notes:['Turno fijo Pádel 1 todos los martes y jueves a las 20hs. Le gusta la cancha cubierta.','Tiene paleta propia, no alquila.'],
+  },
+  {
+    id:2, name:'Ana Gómez', phone:'11-8823-5540', email:'ana.gomez@hotmail.com',
+    sports:['🎾 Pádel'], sportsDetail:['🎾 Pádel — 3ª'], sportsCats:{padel:'p-3a'},
+    level:'avanzado', zone:'Belgrano', lat:-34.561, lng:-58.458, since:'Ago 2024',
+    status:'active', consent:true, totalSpent:128000, totalHours:31, visits:20,
+    lastVisit:'ayer', debt:6000,
+    bookings:[
+      {space:'Pádel 1',sport:'🎾',date:'Mié 11 Jun',time:'19:00',price:6000,paid:false,status:'confirmed'},
+      {space:'Pádel 2',sport:'🎾',date:'Lun 9 Jun', time:'20:00',price:6000,paid:true,status:'completed'},
+      {space:'Pádel 1',sport:'🎾',date:'Vie 6 Jun', time:'21:00',price:6000,paid:true,status:'completed'},
+    ],
+    purchases:[
+      {name:'Gatorade',qty:10,total:12000,cat:'🧃'},
+      {name:'Agua mineral',qty:8,total:6400,cat:'🧴'},
+      {name:'Paleta Babolat',qty:1,total:95000,cat:'🎾'},
+      {name:'Medias x2',qty:3,total:10500,cat:'🧦'},
+    ],
+    messages:[
+      {type:'whatsapp',text:'Ana, tenés una reserva sin cobrar del miércoles. ¿Podés pasarte a regularizar?',date:'11 Jun 21:30',status:'sent'},
+    ],
+    notes:['Juega con Sofía Ramírez siempre. Reservar en lo posible juntas.','Consultar si quiere participar en el torneo de julio.'],
+  },
+  {
+    id:3, name:'Roberto Sosa', phone:'11-3341-7761', email:'',
+    sports:['⚽ Fútbol'], sportsDetail:['⚽ Fútbol — Amateur 2ª'], sportsCats:{futbol:'f-am2'},
+    level:'amateur', zone:'Lanús', lat:-34.700, lng:-58.393, since:'Ene 2024',
+    status:'inactive', consent:true, totalSpent:31200, totalHours:8, visits:6,
+    lastVisit:'hace 34 días', debt:0,
+    bookings:[
+      {space:'Fútbol 5 — A',sport:'⚽',date:'Mar 6 May',time:'20:00',price:5500,paid:true,status:'completed'},
+      {space:'Fútbol 5 — B',sport:'⚽',date:'Mar 29 Abr',time:'20:00',price:5000,paid:true,status:'completed'},
+    ],
+    purchases:[
+      {name:'Agua mineral',qty:3,total:2400,cat:'🧴'},
+      {name:'Cerveza lata',qty:4,total:6000,cat:'🍺'},
+      {name:'Remera club',qty:1,total:12000,cat:'👕'},
+    ],
+    messages:[
+      {type:'whatsapp',text:'¡Roberto! Hace más de un mes que no te vemos por acá. Tenemos el fútbol 5 los martes a las 20hs libre. ¿Te anotamos?',date:'8 Jun 12:00',status:'sent'},
+    ],
+    notes:['Viene con un grupo de amigos del trabajo. Reservan siempre para 10 personas.'],
+  },
+  {
+    id:4, name:'Lucía Fernández', phone:'11-7765-4432', email:'lu.fernandez@gmail.com',
+    sports:['🎾 Pádel','🧘 Yoga'], sportsDetail:['🎾 Pádel — 8ª / Inicio','🧘 Yoga / Pilates — Principiante'], sportsCats:{padel:'p-8a',yoga:'y-beg'},
+    level:'principiante', zone:'Villa Crespo', lat:-34.601, lng:-58.440, since:'Nov 2024',
+    status:'new', consent:true, totalSpent:24500, totalHours:6, visits:4,
+    lastVisit:'hace 5 días', debt:0,
+    bookings:[
+      {space:'Pádel 3',sport:'🎾',date:'Sáb 7 Jun',time:'10:00',price:4000,paid:true,status:'completed'},
+      {space:'Yoga',sport:'🧘',date:'Jue 5 Jun',time:'09:00',price:2000,paid:true,status:'completed'},
+      {space:'Pádel 3',sport:'🎾',date:'Sáb 31 May',time:'10:00',price:4000,paid:true,status:'completed'},
+    ],
+    purchases:[
+      {name:'Agua mineral',qty:4,total:3200,cat:'🧴'},
+      {name:'Jugo naranja',qty:3,total:2700,cat:'🧃'},
+    ],
+    messages:[],
+    notes:['Primera vez en pádel. Recomendarle clase de principiantes con Martín.'],
+  },
+  {
+    id:5, name:'Diego Herrera', phone:'11-2234-6691', email:'diego.h@yahoo.com',
+    sports:['🎾 Pádel','⚽ Fútbol'], sportsDetail:['🎾 Pádel — 5ª','⚽ Fútbol — Recreativo'], sportsCats:{padel:'p-5a',futbol:'f-rec'},
+    level:'intermedio', zone:'Almagro', lat:-34.610, lng:-58.420, since:'Jun 2024',
+    status:'active', consent:false, totalSpent:67000, totalHours:16, visits:12,
+    lastVisit:'hace 7 días', debt:0,
+    bookings:[
+      {space:'Pádel 2',sport:'🎾',date:'Vie 6 Jun',time:'20:00',price:6000,paid:true,status:'completed'},
+      {space:'Fútbol 5 — A',sport:'⚽',date:'Mié 4 Jun',time:'19:00',price:5500,paid:true,status:'completed'},
+    ],
+    purchases:[
+      {name:'Gatorade',qty:5,total:6000,cat:'🧃'},
+      {name:'Overgrip x3',qty:2,total:4400,cat:'🎾'},
+    ],
+    messages:[],
+    notes:['No consintió comunicaciones comerciales. Solo mensajes de servicio.'],
+  },
+  {
+    id:6, name:'Sofía Ramírez', phone:'11-6677-8234', email:'sofi.ramirez@gmail.com',
+    sports:['🎾 Pádel'], sportsDetail:['🎾 Pádel — 2ª'], sportsCats:{padel:'p-2a'},
+    level:'avanzado', zone:'Belgrano', lat:-34.558, lng:-58.455, since:'Feb 2024',
+    status:'active', consent:true, totalSpent:142000, totalHours:36, visits:22,
+    lastVisit:'ayer', debt:0,
+    bookings:[
+      {space:'Pádel 1',sport:'🎾',date:'Mié 11 Jun',time:'19:00',price:6000,paid:true,status:'completed'},
+      {space:'Pádel 1',sport:'🎾',date:'Lun 9 Jun', time:'20:00',price:6000,paid:true,status:'completed'},
+    ],
+    purchases:[
+      {name:'Agua mineral',qty:12,total:9600,cat:'🧴'},
+      {name:'Pelota HEAD x3',qty:4,total:18000,cat:'🎾'},
+    ],
+    messages:[
+      {type:'whatsapp',text:'Sofía, el torneo del 20 de junio tiene cupo. ¿Jugás con Ana?',date:'5 Jun 10:30',status:'sent'},
+    ],
+    notes:['Siempre reserva con Ana Gómez. Pareja fija de pádel.'],
+  },
+]
+
+// ══════════════════════════════════════════════════════════
+//  ESTADO
+// ══════════════════════════════════════════════════════════
+let players    = [...PLAYERS]
+let filtered   = [...PLAYERS]
+let activeId   = null
+let activeTab  = 'historial'
+let filterStatus = 'all'
+let msgChannel = 'whatsapp'
+let selectedTemplate = null
+
+const STATUS_LABELS = { active:'Activo', inactive:'Inactivo +30d', new:'Nuevo', debt:'Deuda' }
+const STATUS_CLASS  = { active:'status-active', inactive:'status-inactive', new:'status-new', debt:'status-debt' }
+
+const fmt = n => n >= 1000 ? '$' + Math.round(n/1000) + 'k' : '$' + n
+
+// ══════════════════════════════════════════════════════════
+//  RENDER LISTA
+// ══════════════════════════════════════════════════════════
+function renderFilters() {
+  const filters = [
+    { id:'all',      label:`Todos (${players.length})` },
+    { id:'active',   label:`Activos (${players.filter(p=>p.status==='active').length})` },
+    { id:'inactive', label:`Inactivos (${players.filter(p=>p.status==='inactive').length})` },
+    { id:'new',      label:`Nuevos (${players.filter(p=>p.status==='new').length})` },
+    { id:'debt',     label:`Con deuda (${players.filter(p=>p.debt>0).length})` },
+    { id:'noconsent',label:`Sin consentimiento (${players.filter(p=>!p.consent).length})` },
+  ]
+  document.getElementById('filter-row').innerHTML = filters.map(f=>
+    `<div class="ftag ${filterStatus===f.id?'on':''}" onclick="setFilter('${f.id}')">${f.label}</div>`
+  ).join('')
+}
+
+function setFilter(s) {
+  filterStatus = s
+  filterPlayers()
+  renderFilters()
+}
+
+function filterPlayers() {
+  const q = document.getElementById('search').value.toLowerCase()
+  filtered = players.filter(p => {
+    const matchQ = !q || p.name.toLowerCase().includes(q) || p.phone.includes(q) || p.sports.join('').toLowerCase().includes(q) || p.zone.toLowerCase().includes(q)
+    const matchF = filterStatus === 'all'       ? true :
+                   filterStatus === 'debt'       ? p.debt > 0 :
+                   filterStatus === 'noconsent'  ? !p.consent :
+                   p.status === filterStatus
+    return matchQ && matchF
+  })
+  renderList()
+}
+
+function renderList() {
+  const list = document.getElementById('player-list')
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--tx3);font-size:12px">Sin resultados</div>'
+    return
+  }
+  list.innerHTML = filtered.map(p => {
+    const color = COLORS[p.id % COLORS.length]
+    const initials = p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+    const status = p.debt > 0 ? 'debt' : p.status
+    return `<div class="player-item ${activeId===p.id?'active':''}" onclick="selectPlayer(${p.id})">
+      <div class="p-av" style="background:${color}">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div class="p-name">${p.name}</div>
+        <div class="p-meta">${p.sports.join(' · ')} · ${p.zone}</div>
+      </div>
+      <div class="p-right">
+        <div class="p-spent">${fmt(p.totalSpent)}</div>
+        <div class="p-status ${STATUS_CLASS[status]}">${STATUS_LABELS[status]||p.status}</div>
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ══════════════════════════════════════════════════════════
+//  SELECCIONAR JUGADOR
+// ══════════════════════════════════════════════════════════
+function selectPlayer(id) {
+  activeId  = id
+  activeTab = 'historial'
+  renderList()
+  renderDetail()
+}
+
+function renderDetail() {
+  const p = players.find(x=>x.id===activeId)
+  if (!p) return
+  const color    = COLORS[p.id % COLORS.length]
+  const initials = p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+  const status   = p.debt > 0 ? 'debt' : p.status
+
+  const totalConsumption = { canchas:0, tienda:0 }
+  p.bookings.forEach(b=>{ if(b.paid) totalConsumption.canchas += b.price })
+  p.purchases.forEach(pr=>totalConsumption.tienda += pr.total)
+
+  document.getElementById('panel-detail').innerHTML = `
+    <!-- HERO -->
+    <div class="detail-hero">
+      <div class="hero-top">
+        <div class="big-av" style="background:${color}">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div class="hero-name">${p.name}</div>
+          <div class="hero-meta">
+            <span>📞 ${p.phone}</span>
+            ${p.email?`<span>✉ ${p.email}</span>`:''}
+            <span style="cursor:pointer;color:var(--ac);text-decoration:underline;text-decoration-color:var(--ac)44" onclick="openMaps('${p.zone}')">📍 ${p.zone}</span>
+            <span>🗓 Desde ${p.since}</span>
+            <span class="p-status ${STATUS_CLASS[status]}" style="padding:2px 8px">${STATUS_LABELS[status]}</span>
+            ${!p.consent?`<span style="background:var(--tag-warn-bg);color:var(--tag-warn-col);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600">Sin consentimiento</span>`:''}
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openMsg(${p.id})">💬 Mensaje</button>
+          <button class="btn btn-ghost btn-sm" onclick="editPlayer(${p.id})">✏ Editar</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row">
+        <div class="kpi"><div class="kv" style="color:var(--ac)">${fmt(p.totalSpent)}</div><div class="kl">Gasto total</div></div>
+        <div class="kpi"><div class="kv" style="color:var(--ok)">${p.totalHours}h</div><div class="kl">Horas jugadas</div></div>
+        <div class="kpi"><div class="kv" style="color:var(--warn)">${p.visits}</div><div class="kl">Visitas</div></div>
+        <div class="kpi"><div class="kv" style="color:${p.debt>0?'var(--err)':'var(--tx3)'}">${p.debt>0?fmt(p.debt):'$0'}</div><div class="kl">Deuda</div></div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      ${['historial','consumo','mensajes','notas'].map(t=>`
+        <div class="tab ${activeTab===t?'on':''}" onclick="switchTab('${t}')">${{historial:'Historial',consumo:'Consumo',mensajes:'Mensajes',notas:'Notas'}[t]}</div>
+      `).join('')}
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="tab-content" id="tab-body"></div>
+  `
+  renderTab()
+}
+
+function switchTab(t) { activeTab = t; renderTab() }
+
+function renderTab() {
+  const p   = players.find(x=>x.id===activeId)
+  const el  = document.getElementById('tab-body')
+  if (!el || !p) return
+
+  switch(activeTab) {
+
+    case 'historial':
+      el.innerHTML = `
+        <div class="section-title">Reservas recientes</div>
+        <div class="bk-list">
+          ${p.bookings.map(b=>{
+            const stCls = b.paid ? 'tag-ok' : b.status==='confirmed' ? 'tag-warn' : 'tag-muted'
+            const stLbl = b.paid ? 'Pagado' : b.status==='confirmed' ? 'Pendiente' : b.status
+            return `<div class="bk-item">
+              <div class="bk-icon" style="background:var(--s2)">${b.sport}</div>
+              <div class="bk-info">
+                <div class="bk-name">${b.space}</div>
+                <div class="bk-date">${b.date} · ${b.time} hs</div>
+              </div>
+              <div class="bk-right">
+                <div class="bk-price">${fmt(b.price)}</div>
+                <div class="bk-badge" style="background:var(--${stCls}-bg);color:var(--${stCls}-col)">${stLbl}</div>
+              </div>
+            </div>`
+          }).join('')}
+        </div>
+        ${p.debt>0?`<div style="margin-top:14px;background:var(--tag-err-bg);border:1px solid var(--err)44;border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--err)">Deuda pendiente: ${fmt(p.debt)}</div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:3px">1 reserva sin cobrar</div>
+          </div>
+          <button class="btn btn-sm" style="background:var(--tag-err-bg);border:1px solid var(--err);color:var(--err)" onclick="sendDebtMsg(${p.id})">Enviar aviso</button>
+        </div>`:''}
+      `
+      break
+
+    case 'consumo':
+      const allItems = [
+        { label:'Canchas', val: p.bookings.filter(b=>b.paid).reduce((a,b)=>a+b.price,0), color:'var(--ac)' },
+        { label:'Tienda',  val: p.purchases.reduce((a,b)=>a+b.total,0), color:'var(--ok)' },
+      ]
+      const maxVal = Math.max(...allItems.map(i=>i.val), 1)
+      const topItems = [...p.purchases].sort((a,b)=>b.total-a.total)
+
+      el.innerHTML = `
+        <div class="section-title">Distribución del gasto</div>
+        ${allItems.map(item=>`<div class="bar-row">
+          <span class="bar-lbl">${item.label}</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${Math.round(item.val/maxVal*100)}%;background:${item.color};color:#fff">${fmt(item.val)}</div>
+          </div>
+          <span class="bar-val">${fmt(item.val)}</span>
+        </div>`).join('')}
+
+        <div class="section-title" style="margin-top:20px">Productos más comprados</div>
+        <div class="bk-list">
+          ${topItems.map(pr=>`<div class="bk-item">
+            <div class="bk-icon" style="background:var(--s2);font-size:18px">${pr.cat}</div>
+            <div class="bk-info">
+              <div class="bk-name">${pr.name}</div>
+              <div class="bk-date">×${pr.qty} unidades</div>
+            </div>
+            <div class="bk-right">
+              <div class="bk-price">${fmt(pr.total)}</div>
+            </div>
+          </div>`).join('')}
+        </div>
+
+        <div class="section-title" style="margin-top:20px">Deportes y categorías</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${(p.sportsDetail || p.sports).map(s=>{
+            const parts = s.split(' — ')
+            const sportName = parts[0]
+            const catName   = parts[1] || null
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--s1);border:1px solid var(--bd);border-radius:8px">
+              <span style="font-size:13px;font-weight:500;color:var(--tx)">${sportName}</span>
+              ${catName ? `<span style="font-size:11px;font-weight:600;background:var(--tag-active-bg);color:var(--tag-active-col);padding:2px 9px;border-radius:10px">${catName}</span>` : '<span style="font-size:11px;color:var(--tx3)">Sin categoría</span>'}
+            </div>`
+          }).join('')}
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--tx2)">
+          Última visita: <strong style="color:var(--tx)">${p.lastVisit}</strong> · 
+          ${p.totalHours}h jugadas en total
+        </div>
+      `
+      break
+
+    case 'mensajes':
+      const templates = [
+        { id:'reminder', label:'Recordatorio de turno', text:`Hola ${p.name.split(' ')[0]}! 👋 Te recordamos tu turno de mañana. ¡Nos vemos!` },
+        { id:'promo',    label:'Promoción', text:`Hola ${p.name.split(' ')[0]}! Tenemos horarios disponibles esta semana con descuento especial para vos. ¿Te interesa?` },
+        { id:'inactive', label:'Reactivación', text:`¡Hola ${p.name.split(' ')[0]}! Hace un tiempo que no te vemos. Tenemos turnos disponibles, ¿te armamos uno?` },
+        { id:'debt',     label:'Deuda', text:`${p.name.split(' ')[0]}, te recordamos que tenés una reserva pendiente de pago. ¿Podés pasarte a regularizar?` },
+        { id:'torneo',   label:'Torneo', text:`${p.name.split(' ')[0]}, hay un torneo de ${p.sports[0]} el próximo mes. ¡Cupos limitados! ¿Te anotamos?` },
+      ]
+
+      el.innerHTML = `
+        ${!p.consent?`<div style="background:var(--tag-warn-bg);border:1px solid var(--warn)44;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--warn)">
+          ⚠ Este jugador no dio consentimiento para comunicaciones comerciales. Solo podés enviarle mensajes de servicio.
+        </div>`:''}
+
+        <div class="msg-form">
+          <div class="section-title" style="margin-bottom:10px">Plantillas rápidas</div>
+          <div class="msg-templates">
+            ${templates.filter(t=>p.consent||t.id==='reminder'||t.id==='debt').map(t=>
+              `<div class="msg-tpl ${selectedTemplate===t.id?'on':''}" onclick="selectTemplate(${p.id},'${t.id}','${t.text.replace(/'/g,"\\'")}')">${t.label}</div>`
+            ).join('')}
+          </div>
+
+          <textarea class="msg-textarea" id="msg-text" placeholder="Escribí el mensaje..."></textarea>
+
+          <div class="msg-actions">
+            <div class="msg-channel">
+              <div class="ch-btn ${msgChannel==='whatsapp'?'on':''}" onclick="setChannel('whatsapp')">💬 WhatsApp</div>
+              <div class="ch-btn ${msgChannel==='email'?'on':''}" onclick="setChannel('email')">✉ Email</div>
+            </div>
+            <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="sendMsg(${p.id})">Enviar mensaje</button>
+          </div>
+        </div>
+
+        <div class="section-title">Historial de comunicaciones</div>
+        <div class="msg-log">
+          ${p.messages.length ? p.messages.map(m=>`<div class="msg-log-item">
+            <div class="msg-log-icon">${m.type==='whatsapp'?'💬':'✉'}</div>
+            <div class="msg-log-body">
+              <div class="msg-log-text">${m.text}</div>
+              <div class="msg-log-meta">${m.date} · ${m.type==='whatsapp'?'WhatsApp':'Email'}</div>
+            </div>
+            <div class="msg-log-status" style="background:var(--tag-ok-bg);color:var(--tag-ok-col)">Enviado</div>
+          </div>`).join('') : '<div style="color:var(--tx3);font-size:12px">Sin mensajes enviados aún</div>'}
+        </div>
+      `
+      break
+
+    case 'notas':
+      el.innerHTML = `
+        <div class="section-title">
+          Notas internas
+          <button class="btn btn-ghost btn-sm" onclick="addNote(${p.id})">+ Agregar</button>
+        </div>
+        ${p.notes.map((n,i)=>`<div class="note-item">
+          <div class="note-text">${n}</div>
+          <div class="note-meta">Staff · Nota interna · <span style="cursor:pointer;color:var(--err)" onclick="deleteNote(${p.id},${i})">eliminar</span></div>
+        </div>`).join('')}
+        ${!p.notes.length?'<div style="color:var(--tx3);font-size:12px">Sin notas todavía</div>':''}
+
+        <div class="section-title" style="margin-top:20px">Datos del perfil</div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+          ${[
+            ['Nivel', p.level],
+            ['Deportes', (p.sportsDetail || p.sports).join(' · ')],
+            ['Zona', `<span style="cursor:pointer;color:var(--ac)" onclick="openMaps('${p.zone}')">${p.zone} 📍</span>`],
+            ['Desde', p.since],
+            ['Consentimiento', p.consent ? '✓ Otorgado' : '✗ No otorgado'],
+            ['Última visita', p.lastVisit],
+          ].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px">
+            <span style="color:var(--tx2)">${k}</span>
+            <span style="font-weight:500;color:var(--tx)">${v}</span>
+          </div>`).join('')}
+        </div>
+      `
+      break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  MENSAJES
+// ══════════════════════════════════════════════════════════
+function setChannel(ch) { msgChannel = ch; renderTab() }
+
+function selectTemplate(pid, tId, text) {
+  selectedTemplate = tId
+  const el = document.getElementById('msg-text')
+  if (el) el.value = text
+  renderTab()
+  setTimeout(()=>{ const el2=document.getElementById('msg-text'); if(el2){el2.value=text;el2.focus()} },50)
+}
+
+function sendMsg(pid) {
+  const el  = document.getElementById('msg-text')
+  const txt = el?.value?.trim()
+  if (!txt) { toast('⚠ Escribí un mensaje','warn'); return }
+  const p = players.find(x=>x.id===pid)
+  if (!p) return
+  p.messages.unshift({ type:msgChannel, text:txt, date:new Date().toLocaleDateString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}), status:'sent' })
+  selectedTemplate = null
+  toast(`✓ Mensaje enviado por ${msgChannel==='whatsapp'?'WhatsApp':'email'}`)
+  renderTab()
+}
+
+function sendDebtMsg(pid) {
+  const p = players.find(x=>x.id===pid)
+  if (!p) return
+  const txt = `${p.name.split(' ')[0]}, te recordamos que tenés una reserva pendiente de pago de ${fmt(p.debt)}. ¿Podés pasarte a regularizar?`
+  p.messages.unshift({ type:'whatsapp', text:txt, date:new Date().toLocaleDateString('es-AR'), status:'sent' })
+  toast('✓ Aviso de deuda enviado')
+  renderTab()
+}
+
+// ══════════════════════════════════════════════════════════
+//  NUEVO JUGADOR
+// ══════════════════════════════════════════════════════════
+function openNewPlayer() {
+  selectedSports = {}
+  document.getElementById('modal-new').style.display = 'flex'
+  setTimeout(renderSportSelector, 50)
+}
+// ══════════════════════════════════════════════════════════
+//  DEPORTES + CATEGORÍAS PROFESIONALES
+// ══════════════════════════════════════════════════════════
+const SPORT_CATS = {
+  padel: {
+    name:'Pádel', icon:'🎾', color:'#5b7fff',
+    desc:'Sistema World Padel Tour / APT',
+    categories:[
+      { id:'p-1a',   name:'1ª',        desc:'Elite mundial (top 30)' },
+      { id:'p-2a',   name:'2ª',        desc:'Semiprofesional' },
+      { id:'p-3a',   name:'3ª',        desc:'Jugador avanzado' },
+      { id:'p-4a',   name:'4ª',        desc:'Intermedio alto' },
+      { id:'p-5a',   name:'5ª',        desc:'Intermedio' },
+      { id:'p-6a',   name:'6ª',        desc:'Amateur' },
+      { id:'p-7a',   name:'7ª',        desc:'Principiante avanzado' },
+      { id:'p-8a',   name:'8ª / Inicio',desc:'Arrancando' },
+    ]
+  },
+  futbol: {
+    name:'Fútbol', icon:'⚽', color:'#22c55e',
+    desc:'Categorías AFA y ligas locales',
+    categories:[
+      { id:'f-pri',  name:'Primera división', desc:'Profesional / AFA' },
+      { id:'f-asc',  name:'Ascenso',          desc:'Nacional B / C / D' },
+      { id:'f-am1',  name:'Amateur 1ª',       desc:'Liga local — elite' },
+      { id:'f-am2',  name:'Amateur 2ª',       desc:'Liga local' },
+      { id:'f-inf',  name:'Infantil',         desc:'Hasta 12 años' },
+      { id:'f-juv',  name:'Juvenil',          desc:'13 a 17 años' },
+      { id:'f-sub20',name:'Sub-20',           desc:'Hasta 20 años' },
+      { id:'f-rec',  name:'Recreativo',       desc:'Sin competencia formal' },
+    ]
+  },
+  tenis: {
+    name:'Tenis', icon:'🎾', color:'#f59e0b',
+    desc:'Sistema ITF / AAT (Argentina)',
+    categories:[
+      { id:'t-pro',  name:'Profesional',    desc:'ITF / ATP / WTA' },
+      { id:'t-1',    name:'1ª categoría',   desc:'Ranking AAT alto' },
+      { id:'t-2',    name:'2ª categoría',   desc:'Ranking AAT medio' },
+      { id:'t-3',    name:'3ª categoría',   desc:'Club de competencia' },
+      { id:'t-4',    name:'4ª categoría',   desc:'Torneo de club' },
+      { id:'t-rec',  name:'Recreativo',     desc:'Solo juego informal' },
+    ]
+  },
+  pickleball: {
+    name:'Pickleball', icon:'🏓', color:'#06b6d4',
+    desc:'Sistema DUPR (Dynamic Universal)',
+    categories:[
+      { id:'pk-5',   name:'5.0+',           desc:'Elite / profesional' },
+      { id:'pk-45',  name:'4.5',            desc:'Avanzado' },
+      { id:'pk-40',  name:'4.0',            desc:'Intermedio alto' },
+      { id:'pk-35',  name:'3.5',            desc:'Intermedio' },
+      { id:'pk-30',  name:'3.0',            desc:'Principiante avanzado' },
+      { id:'pk-25',  name:'2.5',            desc:'Iniciación' },
+    ]
+  },
+  voley: {
+    name:'Vóley', icon:'🏐', color:'#a855f7',
+    desc:'Categorías FEVA',
+    categories:[
+      { id:'v-sup',  name:'Superliga',      desc:'Máxima categoría' },
+      { id:'v-a',    name:'Primera A',      desc:'Semiprofesional' },
+      { id:'v-b',    name:'Primera B',      desc:'Federado competencia' },
+      { id:'v-am',   name:'Amateur',        desc:'Torneos de club' },
+      { id:'v-inf',  name:'Infantil/Cadete',desc:'Sub-14 / Sub-16' },
+      { id:'v-rec',  name:'Recreativo',     desc:'Sin competencia formal' },
+    ]
+  },
+  basquet: {
+    name:'Básquet', icon:'🏀', color:'#f97316',
+    desc:'Categorías CABB / ligas locales',
+    categories:[
+      { id:'b-lag',  name:'Liga Argentina', desc:'Máxima categoría' },
+      { id:'b-tf',   name:'TNA / Federal',  desc:'Semiprofesional' },
+      { id:'b-am1',  name:'Amateur 1ª',     desc:'Liga local — elite' },
+      { id:'b-am2',  name:'Amateur 2ª',     desc:'Liga local' },
+      { id:'b-inf',  name:'Minibasquet',    desc:'Hasta 12 años' },
+      { id:'b-rec',  name:'Recreativo',     desc:'Sin competencia formal' },
+    ]
+  },
+  crossfit: {
+    name:'Crossfit', icon:'💪', color:'#ef4444',
+    desc:'Niveles de entrenamiento funcional',
+    categories:[
+      { id:'cf-rx',  name:'RX',             desc:'Movimientos sin escalar' },
+      { id:'cf-sc',  name:'Scaled',         desc:'Con adaptaciones' },
+      { id:'cf-beg', name:'Beginner',       desc:'Iniciación' },
+    ]
+  },
+  yoga: {
+    name:'Yoga / Pilates', icon:'🧘', color:'#06b6d4',
+    desc:'Niveles de práctica',
+    categories:[
+      { id:'y-adv',  name:'Avanzado',       desc:'Práctica profunda' },
+      { id:'y-int',  name:'Intermedio',     desc:'Con experiencia' },
+      { id:'y-beg',  name:'Principiante',   desc:'Comenzando' },
+    ]
+  },
+  natacion: {
+    name:'Natación', icon:'🏊', color:'#38bdf8',
+    desc:'Categorías FINA / ligas locales',
+    categories:[
+      { id:'n-comp', name:'Competición',    desc:'Torneos federados' },
+      { id:'n-adv',  name:'Avanzado',       desc:'Técnica depurada' },
+      { id:'n-int',  name:'Intermedio',     desc:'Nada con soltura' },
+      { id:'n-beg',  name:'Aprendizaje',    desc:'Aprende a nadar' },
+    ]
+  },
+  squash: {
+    name:'Squash', icon:'🎱', color:'#d97706',
+    desc:'Sistema PSA World Tour',
+    categories:[
+      { id:'sq-pro', name:'Profesional',    desc:'PSA ranking' },
+      { id:'sq-a',   name:'A — Elite',      desc:'Torneo nacional' },
+      { id:'sq-b',   name:'B — Avanzado',   desc:'Torneo de club' },
+      { id:'sq-c',   name:'C — Intermedio', desc:'Competencia interna' },
+      { id:'sq-rec', name:'Recreativo',     desc:'Solo juego informal' },
+    ]
+  },
+}
+
+// Estado del selector de deportes
+let selectedSports = {}  // { sportId: catId | null }
+
+function renderSportSelector() {
+  const el = document.getElementById('sport-selector')
+  if (!el) return
+  el.innerHTML = Object.entries(SPORT_CATS).map(([sid, sport]) => {
+    const isSelected = !!selectedSports[sid]
+    const selCat = selectedSports[sid]
+    const catName = selCat ? sport.categories.find(c=>c.id===selCat)?.name : null
+    return `<div class="sport-row ${isSelected?'selected':''}" id="srow-${sid}">
+      <div class="sport-row-header" onclick="toggleSportRow('${sid}')">
+        <div class="sport-row-check">${isSelected?'✓':''}</div>
+        <span style="font-size:16px">${sport.icon}</span>
+        <span class="sport-row-name">${sport.name}</span>
+        ${catName?`<span class="sport-row-badge">${catName}</span>`:''}
+      </div>
+      ${isSelected ? `<div class="cat-panel">
+        <div class="cat-label">${sport.desc} — elegí tu categoría</div>
+        <div class="cat-grid">
+          ${sport.categories.map(cat=>`
+            <div class="cat-opt ${selCat===cat.id?'on':''}" onclick="selectCat('${sid}','${cat.id}',event)">
+              <span class="cat-opt-name">${cat.name}</span>
+              <span class="cat-opt-desc">${cat.desc}</span>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
+    </div>`
+  }).join('')
+}
+
+function toggleSportRow(sid) {
+  if (selectedSports[sid] !== undefined) {
+    delete selectedSports[sid]
+  } else {
+    selectedSports[sid] = null  // seleccionado pero sin categoría aún
+  }
+  renderSportSelector()
+}
+
+function selectCat(sid, catId, e) {
+  e.stopPropagation()
+  selectedSports[sid] = selectedSports[sid] === catId ? null : catId
+  renderSportSelector()
+}
+
+function getSelectedSportsSummary() {
+  return Object.entries(selectedSports).map(([sid, catId]) => {
+    const sport = SPORT_CATS[sid]
+    const cat   = catId ? sport.categories.find(c=>c.id===catId) : null
+    return { sport: sport.name, icon: sport.icon, cat: cat?.name || 'Sin categoría', catId }
+  })
+}
+
+function toggleSport(el) { el.classList.toggle('on') }
+
+function saveNewPlayer() {
+  const name  = document.getElementById('np-name').value.trim()
+  const phone = document.getElementById('np-phone').value.trim()
+  if (!name || !phone) { toast('⚠ Nombre y teléfono son obligatorios','warn'); return }
+
+  const sportsSummary = getSelectedSportsSummary()
+  if (!sportsSummary.length) { toast('⚠ Elegí al menos un deporte','warn'); return }
+
+  // Construir array de sports para mostrar y el detalle completo
+  const sportsDisplay = sportsSummary.map(s => `${s.icon} ${s.sport}`)
+  const sportsDetail  = sportsSummary.map(s => `${s.icon} ${s.sport}${s.cat !== 'Sin categoría' ? ' — ' + s.cat : ''}`)
+
+  // Nivel general = categoría del primer deporte principal
+  const mainLevel = document.getElementById('np-level').value
+
+  const newP = {
+    id: players.length + 1,
+    name, phone,
+    email: document.getElementById('np-email').value,
+    sports: sportsDisplay,
+    sportsDetail,
+    sportsCats: { ...selectedSports },
+    level: mainLevel,
+    zone:  document.getElementById('np-zone').value || 'Sin zona',
+    lat: ZONE_COORDS[document.getElementById('np-zone').value] ? ZONE_COORDS[document.getElementById('np-zone').value][0] : null,
+    lng: ZONE_COORDS[document.getElementById('np-zone').value] ? ZONE_COORDS[document.getElementById('np-zone').value][1] : null,
+    since: new Date().toLocaleDateString('es-AR',{month:'short',year:'numeric'}),
+    status:'new', consent: document.getElementById('np-consent').checked,
+    totalSpent:0, totalHours:0, visits:0, lastVisit:'Hoy', debt:0,
+    bookings:[], purchases:[], messages:[],
+    notes: [`Deportes: ${sportsDetail.join(', ')}`],
+  }
+  players.push(newP)
+  filtered = [...players]
+
+  // Reset estado
+  selectedSports = {}
+  renderFilters()
+  renderList()
+  document.getElementById('modal-new').style.display = 'none'
+  toast(`✓ ${name} registrado — ${sportsSummary.length} deporte${sportsSummary.length>1?'s':''}`)
+  selectPlayer(newP.id)
+}
+
+// ══════════════════════════════════════════════════════════
+//  NOTAS
+// ══════════════════════════════════════════════════════════
+function addNote(pid) {
+  const txt = prompt('Ingresá la nota:')
+  if (!txt?.trim()) return
+  const p = players.find(x=>x.id===pid)
+  if (p) { p.notes.unshift(txt.trim()); renderTab(); toast('✓ Nota guardada') }
+}
+
+function deleteNote(pid, idx) {
+  const p = players.find(x=>x.id===pid)
+  if (p) { p.notes.splice(idx,1); renderTab() }
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function openMsg(pid) { activeTab='mensajes'; renderDetail() }
+function editPlayer(pid) { toast('Próximamente: edición completa del perfil') }
+
+function closeModal(e, id) {
+  if (e.target.id === id) document.getElementById(id).style.display = 'none'
+}
+
+function toast(msg, type='success') {
+  const colors = { success:'var(--ok)', warn:'var(--warn)', error:'var(--err)' }
+  const t = document.createElement('div')
+  t.className = 'toast'
+  t.innerHTML = `<span style="color:${colors[type]||colors.success}">●</span> ${msg}`
+  document.body.appendChild(t)
+  setTimeout(()=>t.remove(), 2600)
+}
+
+function toggleTheme() {
+  const h = document.documentElement
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme', h.getAttribute('data-theme'))
+}
+const st = localStorage.getItem('shos-theme')
+if (st) document.documentElement.setAttribute('data-theme', st)
+
+// ══════════════════════════════════════════════════════════
+//  COORDENADAS DE ZONAS (Buenos Aires)
+// ══════════════════════════════════════════════════════════
+const ZONE_COORDS = {
+  'Palermo':      [-34.577,-58.433], 'Belgrano':    [-34.560,-58.457],
+  'Almagro':      [-34.610,-58.420], 'Villa Crespo':[-34.601,-58.440],
+  'Lanús':        [-34.700,-58.393], 'Caballito':   [-34.618,-58.431],
+  'Flores':       [-34.632,-58.463], 'Balvanera':   [-34.615,-58.410],
+  'Núñez':        [-34.543,-58.461], 'Recoleta':    [-34.586,-58.392],
+  'San Isidro':   [-34.471,-58.525], 'Vicente López':[-34.527,-58.485],
+  'Quilmes':      [-34.720,-58.254], 'Lomas de Zamora':[-34.760,-58.400],
+  'Morón':        [-34.654,-58.619], 'La Matanza':  [-34.660,-58.610],
+  'Tigre':        [-34.427,-58.579], 'Avellaneda':  [-34.664,-58.366],
+  'San Martín':   [-34.573,-58.538], 'Merlo':       [-34.676,-58.727],
+  'Ramos Mejía':  [-34.644,-58.563], 'Olivos':      [-34.512,-58.495],
+  'Temperley':    [-34.780,-58.397], 'Haedo':       [-34.643,-58.598],
+}
+
+const ZONES_SUGGESTIONS = Object.keys(ZONE_COORDS)
+
+function suggestZone(val) {
+  const el = document.getElementById('zone-suggestions')
+  if (!val || val.length < 2) { el.style.display='none'; return }
+  const matches = ZONES_SUGGESTIONS.filter(z => z.toLowerCase().includes(val.toLowerCase())).slice(0,5)
+  if (!matches.length) { el.style.display='none'; return }
+  el.style.display = 'block'
+  el.innerHTML = matches.map(z =>
+    `<div onclick="setZone('${z}')" style="padding:7px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--bd);transition:background .12s" onmouseover="this.style.background='var(--s3)'" onmouseout="this.style.background=''">${z}</div>`
+  ).join('')
+}
+
+function setZone(zone) {
+  document.getElementById('np-zone').value = zone
+  document.getElementById('zone-suggestions').style.display = 'none'
+}
+
+function openMaps(zone) {
+  const coords = ZONE_COORDS[zone]
+  const url = coords
+    ? `https://maps.google.com/?q=${coords[0]},${coords[1]}`
+    : `https://maps.google.com/?q=${encodeURIComponent(zone+', Buenos Aires, Argentina')}`
+  window.open(url, '_blank')
+}
+
+// ══════════════════════════════════════════════════════════
+//  GESTIÓN DE VISTAS (lista / mapa / masivo)
+// ══════════════════════════════════════════════════════════
+let currentView = 'lista'
+
+function showView(view) {
+  currentView = view
+  document.getElementById('panel-detail').style.display  = view==='lista'  ? 'flex' : 'none'
+  document.getElementById('panel-mapa').style.display    = view==='mapa'   ? 'flex' : 'none'
+  document.getElementById('panel-masivo').style.display  = view==='masivo' ? 'flex' : 'none'
+
+  if (view === 'mapa')   renderMapView()
+  if (view === 'masivo') renderMasivoView()
+  if (view === 'lista' && !activeId) {
+    document.getElementById('panel-detail').innerHTML = `<div class="empty-state"><div class="empty-icon">👤</div><div style="font-size:14px;font-weight:500">Seleccioná un jugador</div><div style="font-size:12px">para ver su ficha completa</div></div>`
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  MAPA DE JUGADORES
+// ══════════════════════════════════════════════════════════
+
+// Bounding box Buenos Aires metropolitana
+const MAP_BOUNDS = { latMin:-34.85, latMax:-34.43, lngMin:-58.75, lngMax:-58.18 }
+
+function latToY(lat, h) {
+  return ((MAP_BOUNDS.latMax - lat) / (MAP_BOUNDS.latMax - MAP_BOUNDS.latMin)) * h
+}
+function lngToX(lng, w) {
+  return ((lng - MAP_BOUNDS.lngMin) / (MAP_BOUNDS.lngMax - MAP_BOUNDS.lngMin)) * w
+}
+
+// Agrupar jugadores por zona
+function getZoneGroups() {
+  const groups = {}
+  players.forEach(p => {
+    const zone = p.zone || 'Sin zona'
+    if (!groups[zone]) groups[zone] = { zone, lat: p.lat, lng: p.lng, players: [] }
+    groups[zone].players.push(p)
+  })
+  return Object.values(groups)
+}
+
+const SPORT_COLORS_MAP = {
+  'Pádel':   '#5b7fff', 'Fútbol':'#22c55e', 'Tenis':'#f59e0b',
+  'Crossfit':'#ef4444', 'Yoga':  '#06b6d4', 'Básquet':'#f97316',
+  'Vóley':   '#a855f7', 'Pickleball':'#38bdf8',
+}
+
+function renderMapView() {
+  const el = document.getElementById('mapa-content')
+  const W = 700, H = 440
+
+  // Leer filtros activos
+  const filterSport = window._mapFilterSport || null
+  const filterCat   = window._mapFilterCat   || null
+
+  // Deportes únicos disponibles en la base
+  const allSports = [...new Set(players.flatMap(p =>
+    p.sports.map(s => s.replace(/^.\s/, ''))
+  ))].filter(Boolean)
+
+  // Categorías disponibles para el deporte seleccionado
+  const sportKey = filterSport
+    ? Object.keys(SPORT_CATS).find(k => SPORT_CATS[k].name === filterSport)
+    : null
+  const availCats = sportKey ? SPORT_CATS[sportKey].categories : []
+
+  // Filtrar jugadores según selección
+  let visiblePlayers = players
+  if (filterSport) {
+    visiblePlayers = visiblePlayers.filter(p =>
+      p.sports.some(s => s.replace(/^.\s/, '') === filterSport)
+    )
+  }
+  if (filterCat && sportKey) {
+    visiblePlayers = visiblePlayers.filter(p => {
+      const cats = p.sportsCats || {}
+      return cats[sportKey] === filterCat
+    })
+  }
+
+  // Agrupar por zona con jugadores filtrados
+  const groups = {}
+  visiblePlayers.forEach(p => {
+    const zone = p.zone || 'Sin zona'
+    if (!groups[zone]) groups[zone] = { zone, lat: p.lat, lng: p.lng, players: [] }
+    groups[zone].players.push(p)
+  })
+  const filteredGroups = Object.values(groups).filter(g => g.lat && g.lng)
+  const maxCount = Math.max(...filteredGroups.map(g => g.players.length), 1)
+
+  // Construir pins
+  const pins = filteredGroups.map(g => {
+    const x     = lngToX(g.lng, W)
+    const y     = latToY(g.lat, H)
+    const r     = 8 + Math.round((g.players.length / maxCount) * 16)
+    const sport = filterSport || g.players[0]?.sports[0]?.replace(/^.\s/, '') || 'Pádel'
+    const color = SPORT_COLORS_MAP[sport] || '#5b7fff'
+    const hasDebt     = g.players.some(p => p.debt > 0)
+    const hasInactive = g.players.some(p => p.status === 'inactive')
+    const pinColor    = hasDebt ? '#e05050' : hasInactive ? '#f0a020' : color
+    return { x, y, r, color: pinColor, zone: g.zone, count: g.players.length, players: g.players, sport }
+  })
+
+  const sortedZones = [...filteredGroups].sort((a,b) => b.players.length - a.players.length)
+
+  // Etiqueta del filtro activo
+  const filterLabel = filterSport
+    ? filterCat
+      ? `${filterSport} — ${availCats.find(c=>c.id===filterCat)?.name || filterCat}`
+      : filterSport
+    : 'Todos los deportes'
+
+  el.innerHTML = `
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--tx)">Mapa de jugadores</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:2px">
+          <span style="color:var(--ac);font-weight:500">${visiblePlayers.length}</span> de ${players.length} jugadores
+          · <span style="color:var(--tx3)">${filterLabel}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="showView('lista')">← Volver</button>
+        <button class="btn btn-primary btn-sm" onclick="showView('masivo')">📢 Enviar mensaje</button>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+
+      <!-- DEPORTE -->
+      <div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Filtrar por deporte</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:${availCats.length ? '12px' : '0'}">
+        <div class="ftag ${!filterSport?'on':''}" onclick="setMapFilter(null,null)"
+          style="display:flex;align-items:center;gap:4px">
+          Todos <span style="font-size:10px;font-weight:600;opacity:.7">(${players.length})</span>
+        </div>
+        ${allSports.map(sport => {
+          const cnt   = players.filter(p => p.sports.some(s=>s.replace(/^.\s/,'')===sport)).length
+          const color = SPORT_COLORS_MAP[sport] || '#5b7fff'
+          const isOn  = filterSport === sport
+          return `<div class="ftag ${isOn?'on':''}" onclick="setMapFilter('${sport}',null)"
+            style="${isOn?`border-color:${color};background:${color}18;color:${color}`:''}
+                   display:flex;align-items:center;gap:4px">
+            ${sport}
+            <span style="font-size:10px;font-weight:600;opacity:.7">(${cnt})</span>
+          </div>`
+        }).join('')}
+      </div>
+
+      <!-- CATEGORÍA (solo si hay deporte seleccionado) -->
+      ${availCats.length ? `
+        <div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">
+          Filtrar por categoría — ${filterSport}
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <div class="ftag ${!filterCat?'on':''}" onclick="setMapFilter('${filterSport}',null)">
+            Todas las categorías
+          </div>
+          ${availCats.map(cat => {
+            const cnt = players.filter(p => {
+              const sk = Object.keys(SPORT_CATS).find(k=>SPORT_CATS[k].name===filterSport)
+              return sk && (p.sportsCats||{})[sk] === cat.id
+            }).length
+            if (!cnt) return ''
+            const isOn = filterCat === cat.id
+            const sportColor = SPORT_COLORS_MAP[filterSport] || '#5b7fff'
+            return `<div class="ftag ${isOn?'on':''}" onclick="setMapFilter('${filterSport}','${cat.id}')"
+              style="${isOn?`border-color:${sportColor};background:${sportColor}18;color:${sportColor}`:''}
+                     display:flex;align-items:center;gap:4px">
+              ${cat.name}
+              <span style="font-size:10px;font-weight:600;opacity:.7">(${cnt})</span>
+            </div>`
+          }).join('')}
+        </div>
+      ` : ''}
+    </div>
+
+    <!-- CUERPO: mapa + sidebar -->
+    <div style="display:grid;grid-template-columns:1fr 240px;gap:14px">
+
+      <!-- MAPA SVG -->
+      <div class="map-container" style="position:relative">
+        <svg class="map-svg" viewBox="0 0 ${W} ${H}" style="background:var(--s2)">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--bd)" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="${W}" height="${H}" fill="url(#grid)" opacity="0.4"/>
+          <text x="10" y="16" font-size="10" fill="var(--tx3)" font-family="DM Sans,sans-serif">Buenos Aires — Gran Buenos Aires</text>
+
+          <!-- Labels de referencia -->
+          ${[
+            {n:'Palermo',     x:310, y:138},
+            {n:'Belgrano',    x:265, y:98 },
+            {n:'Almagro',     x:338, y:172},
+            {n:'Lanús',       x:362, y:332},
+            {n:'V. Crespo',   x:290, y:163},
+            {n:'San Isidro',  x:200, y:62 },
+            {n:'Quilmes',     x:445, y:355},
+            {n:'Morón',       x:148, y:268},
+          ].map(z=>`<text x="${z.x}" y="${z.y}" font-size="8" fill="var(--tx3)"
+            font-family="DM Sans,sans-serif" text-anchor="middle" opacity="0.6">${z.n}</text>`).join('')}
+
+          <!-- Pins -->
+          ${!pins.length
+            ? `<text x="${W/2}" y="${H/2}" font-size="13" fill="var(--tx3)" text-anchor="middle" font-family="DM Sans,sans-serif">Sin jugadores para este filtro</text>`
+            : pins.map((p,i) => `
+              <g class="map-pin" onclick="mapPinClick(${i})" id="pin-${i}">
+                <circle cx="${p.x}" cy="${p.y}" r="${p.r+4}" fill="${p.color}" opacity="0.12"/>
+                <circle cx="${p.x}" cy="${p.y}" r="${p.r}" fill="${p.color}" opacity="0.88"/>
+                <text x="${p.x}" y="${p.y}" font-size="${p.count>9?9:11}" fill="#fff"
+                  font-family="DM Sans,sans-serif" font-weight="700"
+                  text-anchor="middle" dominant-baseline="central">${p.count}</text>
+              </g>`).join('')
+          }
+        </svg>
+        <div class="map-tooltip" id="map-tooltip"></div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div style="display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:${H}px">
+
+        <!-- Ranking zonas filtradas -->
+        <div>
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">
+            ${filterLabel} — por zona
+          </div>
+          ${sortedZones.length
+            ? sortedZones.slice(0,8).map(g => {
+                const sport = filterSport || g.players[0]?.sports[0]?.replace(/^.\s/,'') || 'Pádel'
+                const color = SPORT_COLORS_MAP[sport] || '#5b7fff'
+                const pct   = Math.round(g.players.length / Math.max(visiblePlayers.length,1) * 100)
+                return `<div class="heat-bar">
+                  <span class="heat-lbl" style="cursor:pointer;color:var(--ac)" onclick="filterByZone('${g.zone}')" title="Ver jugadores">${g.zone}</span>
+                  <div class="heat-track">
+                    <div class="heat-fill" style="width:${Math.max(pct*2.5,12)}%;background:${color}">${g.players.length}</div>
+                  </div>
+                </div>`
+              }).join('')
+            : '<div style="font-size:11px;color:var(--tx3)">Sin resultados</div>'
+          }
+        </div>
+
+        <!-- Desglose de categorías dentro del deporte activo -->
+        ${filterSport && availCats.length ? `
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Por categoría</div>
+            ${availCats.map(cat => {
+              const sk  = Object.keys(SPORT_CATS).find(k=>SPORT_CATS[k].name===filterSport)
+              const cnt = visiblePlayers.filter(p=>(p.sportsCats||{})[sk]===cat.id).length
+              if (!cnt) return ''
+              const pct   = Math.round(cnt / Math.max(visiblePlayers.length,1) * 100)
+              const color = SPORT_COLORS_MAP[filterSport] || '#5b7fff'
+              const isActive = filterCat === cat.id
+              return `<div class="heat-bar" style="cursor:pointer" onclick="setMapFilter('${filterSport}','${cat.id}')">
+                <span class="heat-lbl" style="color:${isActive?color:'var(--tx2)'}">
+                  ${isActive?'▶ ':''}${cat.name}
+                </span>
+                <div class="heat-track">
+                  <div class="heat-fill" style="width:${Math.max(pct*3,10)}%;background:${isActive?color:color+'88'}">${cnt}</div>
+                </div>
+              </div>`
+            }).join('')}
+          </div>
+        ` : ''}
+
+        <!-- Lista de jugadores visibles -->
+        <div>
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">
+            Jugadores (${visiblePlayers.length})
+          </div>
+          ${visiblePlayers.slice(0,10).map(p => {
+            const color = COLORS[p.id % COLORS.length]
+            const initials = p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+            const sk = sportKey
+            const catId = sk ? (p.sportsCats||{})[sk] : null
+            const catName = catId ? SPORT_CATS[sk]?.categories.find(c=>c.id===catId)?.name : null
+            return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--bd);cursor:pointer"
+              onclick="showView('lista');setTimeout(()=>selectPlayer(${p.id}),50)">
+              <div style="width:24px;height:24px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:11px;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+                <div style="font-size:10px;color:var(--tx3)">${p.zone}${catName?' · '+catName:''}</div>
+              </div>
+            </div>`
+          }).join('')}
+          ${visiblePlayers.length > 10 ? `<div style="font-size:10px;color:var(--tx3);text-align:center;padding-top:6px">+${visiblePlayers.length-10} más</div>` : ''}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="map-legend" style="margin-top:10px">
+      ${filterSport
+        ? `<div class="map-leg-item"><div class="map-leg-dot" style="background:${SPORT_COLORS_MAP[filterSport]||'#5b7fff'}"></div>${filterSport}</div>`
+        : Object.entries(SPORT_COLORS_MAP).slice(0,5).map(([s,c])=>`<div class="map-leg-item"><div class="map-leg-dot" style="background:${c}"></div>${s}</div>`).join('')
+      }
+      <div class="map-leg-item"><div class="map-leg-dot" style="background:#e05050"></div>Con deuda</div>
+      <div class="map-leg-item"><div class="map-leg-dot" style="background:#f0a020"></div>Inactivo</div>
+      <div style="font-size:10px;color:var(--tx3);margin-left:auto">Círculo = cantidad en la zona · click para ver detalle</div>
+    </div>
+  `
+
+  // Pin tooltips
+  window._mapPins = pins
+  window.mapPinClick = function(i) {
+    const p  = window._mapPins[i]
+    const tt = document.getElementById('map-tooltip')
+    const svgEl   = el.querySelector('svg')
+    const svgRect = svgEl.getBoundingClientRect()
+    const cRect   = el.querySelector('.map-container').getBoundingClientRect()
+    const scale   = svgRect.width / W
+    const tx = p.x * scale + svgRect.left - cRect.left
+    const ty = p.y * scale + svgRect.top  - cRect.top
+
+    const sportKey2 = filterSport ? Object.keys(SPORT_CATS).find(k=>SPORT_CATS[k].name===filterSport) : null
+
+    tt.style.display = 'block'
+    tt.style.left    = Math.min(tx+10, cRect.width-160) + 'px'
+    tt.style.top     = Math.max(ty-80, 4) + 'px'
+    tt.innerHTML = `
+      <strong style="color:var(--tx);font-size:12px">${p.zone}</strong>
+      <div style="color:var(--ac);font-size:11px;margin-bottom:5px">${p.count} jugador${p.count>1?'es':''}</div>
+      ${p.players.map(pl => {
+        const catId   = sportKey2 ? (pl.sportsCats||{})[sportKey2] : null
+        const catName = catId ? SPORT_CATS[sportKey2]?.categories.find(c=>c.id===catId)?.name : null
+        return `<div style="display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--tx2);padding:1px 0">
+          <span>${pl.name}</span>
+          ${catName ? `<span style="color:var(--ac);font-size:9px">${catName}</span>` : ''}
+        </div>`
+      }).join('')}
+      <div style="margin-top:5px;display:flex;gap:4px">
+        <button class="btn btn-sm" style="background:var(--ac);color:#fff;font-size:10px;padding:3px 8px"
+          onclick="filterByZone('${p.zone}')">Ver lista</button>
+        <button class="btn btn-sm btn-ghost" style="font-size:10px;padding:3px 8px"
+          onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(p.zone+', Buenos Aires')}','_blank')">Maps</button>
+      </div>`
+    setTimeout(()=>{ document.addEventListener('click', ()=>tt.style.display='none', {once:true}) }, 100)
+  }
+}
+
+function setMapFilter(sport, cat) {
+  window._mapFilterSport = sport
+  window._mapFilterCat   = cat
+  renderMapView()
+}
+
+function filterByZone(zone) {
+  showView('lista')
+  document.getElementById('search').value = zone
+  filterPlayers()
+}
+
+// ══════════════════════════════════════════════════════════
+//  MENSAJES MASIVOS
+// ══════════════════════════════════════════════════════════
+let massSegments = new Set()
+let massChannel  = 'whatsapp'
+
+function renderMasivoView() {
+  const el = document.getElementById('masivo-content')
+
+  const segments = [
+    { id:'all',       label:'Todos los jugadores',        count: players.length,                        icon:'👥', color:'#5b7fff' },
+    { id:'active',    label:'Activos',                    count: players.filter(p=>p.status==='active').length, icon:'✅', color:'#2ecc71' },
+    { id:'inactive',  label:'Inactivos +30 días',         count: players.filter(p=>p.status==='inactive').length, icon:'⏸', color:'#f0a020' },
+    { id:'new',       label:'Nuevos',                     count: players.filter(p=>p.status==='new').length, icon:'⭐', color:'#5b7fff' },
+    { id:'debt',      label:'Con deuda',                  count: players.filter(p=>p.debt>0).length,   icon:'💰', color:'#e05050' },
+    { id:'consent',   label:'Con consentimiento',         count: players.filter(p=>p.consent).length,  icon:'✓', color:'#2ecc71' },
+    ...Object.entries(SPORT_CATS).map(([sid, sport]) => ({
+      id: 'sport_'+sid,
+      label: sport.name,
+      count: players.filter(p=>p.sports.some(s=>s.includes(sport.name))).length,
+      icon: sport.icon, color: sport.color
+    })).filter(s => s.count > 0),
+  ]
+
+  const audience = getAudience()
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--tx)">Mensaje masivo</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:2px">Segmentá tu audiencia y enviá en un click</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="showView('lista')">← Volver</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:18px">
+
+      <!-- IZQ: Segmentación + mensaje -->
+      <div>
+        <div class="mass-msg-box">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:10px">1. Elegí la audiencia</div>
+          <div class="mass-seg-grid">
+            ${segments.map(s=>`
+              <div class="seg-card ${massSegments.has(s.id)?'on':''}" onclick="toggleSegment('${s.id}')">
+                <div class="seg-card-title">${s.icon} ${s.label}</div>
+                <div class="seg-card-count" style="color:${s.color}">${s.count} jugador${s.count!==1?'es':''}</div>
+              </div>`).join('')}
+          </div>
+
+          <!-- Preview de audiencia -->
+          <div class="audience-preview">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:12px;font-weight:600;color:var(--tx)">
+                Destinatarios: <span style="color:var(--ac)">${audience.length} jugadores</span>
+              </div>
+              ${!audience.length ? '<div style="font-size:11px;color:var(--warn)">Elegí al menos un segmento</div>' : ''}
+            </div>
+            ${audience.length ? `<div class="audience-chips">${audience.slice(0,8).map(p=>`<span class="aud-chip">${p.name.split(' ')[0]}</span>`).join('')}${audience.length>8?`<span class="aud-chip" style="background:var(--s3);color:var(--tx3)">+${audience.length-8} más</span>`:''}</div>` : ''}
+          </div>
+        </div>
+
+        <div class="mass-msg-box">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:10px">2. Escribí el mensaje</div>
+
+          <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap">
+            ${[
+              {id:'promo',  label:'Promoción',       text:'¡Hola! Esta semana tenemos descuentos especiales en reservas. ¿Te anotamos un turno?'},
+              {id:'torneo', label:'Torneo',           text:'¡Hay un nuevo torneo! Cupos limitados. ¿Te sumás?'},
+              {id:'novedad',label:'Novedad',          text:'Novedad en el complejo: ¡sumamos nuevos horarios y espacios para vos!'},
+              {id:'prox',   label:'Horarios libres',  text:'Hola! Tenemos horarios disponibles esta semana. ¿Reservamos uno?'},
+              {id:'react',  label:'Reactivación',     text:'¡Cuánto tiempo! Te extrañamos en el complejo. ¿Volvemos a jugar?'},
+            ].map(t=>`<div class="msg-tpl" onclick="setMassTemplate('${t.text.replace(/'/g,"\'")}')">${t.label}</div>`).join('')}
+          </div>
+
+          <textarea class="msg-textarea" id="mass-msg-text" placeholder="Escribí el mensaje que vas a enviar a todos los destinatarios..." style="min-height:100px"></textarea>
+
+          <div class="mass-send-row">
+            <div class="msg-channel">
+              <div class="ch-btn ${massChannel==='whatsapp'?'on':''}" onclick="setMassChannel('whatsapp')">💬 WhatsApp</div>
+              <div class="ch-btn ${massChannel==='email'?'on':''}" onclick="setMassChannel('email')">✉ Email</div>
+            </div>
+            <span style="font-size:11px;color:var(--tx3);flex:1;text-align:right">${audience.length} ${massChannel==='whatsapp'?'mensajes de WhatsApp':'emails'}</span>
+            <button class="btn btn-primary" onclick="sendMassMsg()" ${!audience.length?'disabled style="opacity:.4"':''}>
+              Enviar a ${audience.length} jugadores
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DER: Preview del mensaje -->
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Preview del mensaje</div>
+        <div style="background:${massChannel==='whatsapp'?'#1a2a1a':'var(--s2)'};border-radius:12px;padding:16px;border:1px solid var(--bd)">
+          ${massChannel==='whatsapp' ? `
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2a3a2a">
+              <div style="width:32px;height:32px;border-radius:50%;background:#2ecc71;display:flex;align-items:center;justify-content:center;font-size:14px">🏟</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#2ecc71">Sport Hub Norte</div>
+                <div style="font-size:10px;color:#5a8a5a">Complejo deportivo</div>
+              </div>
+            </div>
+            <div style="background:#0d2a1a;border-radius:10px 10px 10px 3px;padding:10px 12px;font-size:12px;color:#c8e6c9;line-height:1.55;min-height:50px" id="mass-preview-bubble">
+              El mensaje aparecerá acá...
+            </div>
+            <div style="font-size:10px;color:#4a6a4a;text-align:right;margin-top:4px">Enviado ✓</div>
+          ` : `
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">De: Sport Hub Norte &lt;hola@sporthubos.app&gt;</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd)">Para: [nombre del jugador]</div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:8px">Mensaje de Sport Hub Norte</div>
+            <div style="font-size:12px;color:var(--tx2);line-height:1.6;min-height:50px" id="mass-preview-bubble">El mensaje aparecerá acá...</div>
+          `}
+        </div>
+
+        <div style="margin-top:14px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:12px">
+          <div style="font-size:11px;font-weight:600;color:var(--tx3);margin-bottom:8px">ÚLTIMOS ENVÍOS MASIVOS</div>
+          ${[
+            {seg:'Inactivos',count:3,msg:'¿Volvemos a jugar?',date:'hace 5 días',ok:3},
+            {seg:'Pádel',    count:4,msg:'Nuevo torneo de pádel',date:'hace 12 días',ok:4},
+            {seg:'Todos',    count:6,msg:'Bienvenida al invierno',date:'hace 20 días',ok:6},
+          ].map(l=>`<div style="padding:7px 0;border-bottom:1px solid var(--bd);font-size:11px">
+            <div style="display:flex;justify-content:space-between">
+              <span style="color:var(--tx)">${l.seg} · <em style="color:var(--tx2)">"${l.msg}"</em></span>
+              <span style="color:var(--tag-ok-col)">✓ ${l.ok}</span>
+            </div>
+            <div style="color:var(--tx3);margin-top:2px">${l.date}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `
+
+  // Live preview
+  const ta = document.getElementById('mass-msg-text')
+  if (ta) {
+    ta.addEventListener('input', () => {
+      const prev = document.getElementById('mass-preview-bubble')
+      if (prev) prev.textContent = ta.value || 'El mensaje aparecerá acá...'
+    })
+  }
+}
+
+function toggleSegment(id) {
+  if (massSegments.has(id)) massSegments.delete(id)
+  else massSegments.add(id)
+  renderMasivoView()
+}
+
+function setMassChannel(ch) { massChannel = ch; renderMasivoView() }
+
+function setMassTemplate(text) {
+  renderMasivoView()
+  setTimeout(() => {
+    const ta = document.getElementById('mass-msg-text')
+    if (ta) {
+      ta.value = text
+      const prev = document.getElementById('mass-preview-bubble')
+      if (prev) prev.textContent = text
+    }
+  }, 30)
+}
+
+function getAudience() {
+  if (!massSegments.size) return []
+  let result = new Set()
+  massSegments.forEach(seg => {
+    if (seg === 'all')    players.forEach(p => result.add(p))
+    else if (seg === 'active')   players.filter(p=>p.status==='active').forEach(p=>result.add(p))
+    else if (seg === 'inactive') players.filter(p=>p.status==='inactive').forEach(p=>result.add(p))
+    else if (seg === 'new')      players.filter(p=>p.status==='new').forEach(p=>result.add(p))
+    else if (seg === 'debt')     players.filter(p=>p.debt>0).forEach(p=>result.add(p))
+    else if (seg === 'consent')  players.filter(p=>p.consent).forEach(p=>result.add(p))
+    else if (seg.startsWith('sport_')) {
+      const sportId   = seg.replace('sport_','')
+      const sportName = SPORT_CATS[sportId]?.name
+      if (sportName) players.filter(p=>p.sports.some(s=>s.includes(sportName))).forEach(p=>result.add(p))
+    }
+  })
+  // Solo jugadores con consentimiento para comerciales
+  return [...result].filter(p => p.consent)
+}
+
+function sendMassMsg() {
+  const audience = getAudience()
+  const txt = document.getElementById('mass-msg-text')?.value?.trim()
+  if (!txt) { toast('⚠ Escribí un mensaje','warn'); return }
+  if (!audience.length) { toast('⚠ No hay destinatarios válidos','warn'); return }
+
+  // Registrar en historial de cada jugador
+  const date = new Date().toLocaleDateString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+  audience.forEach(p => {
+    const player = players.find(x=>x.id===p.id)
+    if (player) player.messages.unshift({ type: massChannel, text: txt, date, status:'sent' })
+  })
+
+  massSegments.clear()
+  toast(`✓ Mensaje enviado a ${audience.length} jugadores por ${massChannel==='whatsapp'?'WhatsApp':'email'}`)
+  renderMasivoView()
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+renderFilters()
+renderList()
+</script>
+</body>
+</html>

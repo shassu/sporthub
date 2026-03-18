@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Tienda</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#06080f;--s1:#0c0f1a;--s2:#111520;--s3:#161b2a;
+  --bd:#1c2235;--bd2:#252d45;--bd3:#303a58;
+  --tx:#dde3f4;--tx2:#8494b8;--tx3:#4a5878;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;--info:#38bdf8;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000066;
+  --low-bg:#1a0d05;--low-bd:#4d2a0a;--low-col:#f0a020;
+  --out-bg:#1a0505;--out-bd:#4d0a0a;--out-col:#e05050;
+  --ok-bg:#091a0f;--ok-bd:#1a4d30;--ok-col:#2ecc71;
+}
+:root[data-theme="light"]{
+  --bg:#f0f3fb;--s1:#fff;--s2:#f5f8ff;--s3:#edf0f9;
+  --bd:#e0e5f0;--bd2:#c8d0e8;--bd3:#b0bcd8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d60f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--info:#0284c7;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+  --low-bg:#fef9e7;--low-bd:#fde047;--low-col:#ca8a04;
+  --out-bg:#fef2f2;--out-bd:#fca5a5;--out-col:#dc2626;
+  --ok-bg:#f0fdf4;--ok-bd:#86efac;--ok-col:#16a34a;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px;transition:background .25s,color .25s}
+
+.top{display:flex;align-items:center;gap:12px;padding:11px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;font-family:'Syne',sans-serif;flex-shrink:0}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ls{font-size:10px;color:var(--tx3)}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);border:1px solid var(--bd2);cursor:pointer;position:relative;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+.top-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-warn{background:var(--low-bg);color:var(--low-col);border:1px solid var(--low-bd)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+
+/* TABS */
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px}
+.tab{padding:10px 18px;cursor:pointer;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--ac)}
+
+/* LAYOUT */
+.main{padding:20px 24px;max-width:1400px;margin:0 auto}
+
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kv{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;line-height:1;margin-top:6px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* GRID DE PRODUCTOS */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.prod-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden;transition:border-color .14s,transform .14s;cursor:pointer}
+.prod-card:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.prod-card.low-stock{border-color:var(--low-bd)}
+.prod-card.out-stock{border-color:var(--out-bd)}
+.prod-card-top{padding:14px 14px 10px;position:relative}
+.prod-icon{font-size:28px;margin-bottom:8px;display:block}
+.prod-name{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px;line-height:1.3}
+.prod-cat{font-size:10px;color:var(--tx3)}
+.prod-stock-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;border-radius:6px;padding:2px 7px}
+.badge-ok{background:var(--ok-bg);color:var(--ok-col)}
+.badge-low{background:var(--low-bg);color:var(--low-col)}
+.badge-out{background:var(--out-bg);color:var(--out-col)}
+.prod-card-bottom{padding:10px 14px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.prod-price{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--tx)}
+.prod-margin{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px}
+.margin-high{background:#0d2a1a;color:#2ecc71}
+.margin-mid{background:#1a1a05;color:#e0c040}
+.margin-low{background:#1a0d05;color:#f0a020}
+[data-theme="light"] .margin-high{background:#f0fdf4;color:#16a34a}
+[data-theme="light"] .margin-mid{background:#fefce8;color:#ca8a04}
+[data-theme="light"] .margin-low{background:#fff7ed;color:#d97706}
+.prod-stock-bar{height:3px;background:var(--bd);position:relative}
+.prod-stock-fill{height:100%;transition:width .3s}
+
+/* LISTA DE PRODUCTOS (tabla) */
+.prod-table{width:100%;border-collapse:collapse}
+.prod-table th{padding:9px 12px;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.prod-table th.r{text-align:right}
+.prod-table td{padding:9px 12px;border-bottom:1px solid var(--bd)55;font-size:12px;vertical-align:middle}
+.prod-table tr:hover td{background:var(--s2)}
+.prod-table tr:last-child td{border-bottom:none}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fi .15s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:460px;box-shadow:var(--sh);animation:su .18s;max-height:92vh;overflow-y:auto}
+@keyframes su{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--ac)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.margin-preview{background:var(--s2);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;display:flex;align-items:center;justify-content:space-between}
+
+/* VENTA MODAL */
+.sale-item-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)}
+.sale-item-row:last-child{border-bottom:none}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.qty-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--bd2);background:var(--s2);color:var(--tx);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .12s}
+.qty-btn:hover{background:var(--bd2)}
+.qty-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;min-width:20px;text-align:center}
+
+/* ALERTAS STOCK */
+.alert-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bd)55}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* CHART BARRAS */
+.bar-h-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-h-lbl{font-size:11px;color:var(--tx2);width:120px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-h-track{flex:1;background:var(--bd);border-radius:4px;height:18px;overflow:hidden}
+.bar-h-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 7px;font-size:10px;font-weight:600;color:#fff;transition:width .4s}
+.bar-h-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--tx2);min-width:44px;text-align:right}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:si .2s}
+@keyframes si{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">S</div>
+  <div><div class="ln">Sport Hub OS</div><div class="ls">Tienda & Productos — Sport Hub Norte</div></div>
+  <div class="top-right">
+    <button class="btn btn-ghost btn-sm" onclick="openSale()">🛒 Registrar venta</button>
+    <button class="btn btn-warn btn-sm" onclick="switchTab('stock')" id="alert-btn"></button>
+    <button class="btn btn-primary" onclick="openNewProduct()">+ Producto</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-catalogo"  onclick="switchTab('catalogo')">Catálogo</div>
+  <div class="tab"    id="tab-ventas"    onclick="switchTab('ventas')">Ventas del día</div>
+  <div class="tab"    id="tab-stock"     onclick="switchTab('stock')">Control de stock</div>
+  <div class="tab"    id="tab-analisis"  onclick="switchTab('analisis')">Análisis</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<!-- MODAL NUEVO / EDITAR PRODUCTO -->
+<div class="overlay" id="modal-prod" style="display:none" onclick="closeOv(event,'modal-prod')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="mprod-title">Nuevo producto</div>
+    <div class="modal-sub">Completá los datos del producto</div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Nombre</label>
+        <input type="text" class="finp" id="p-name" placeholder="Ej: Agua mineral 500ml">
+      </div>
+      <div>
+        <label class="flbl">Categoría</label>
+        <select class="fsel" id="p-cat">
+          <option value="bebida">🧴 Bebida</option>
+          <option value="comida">🍕 Comida</option>
+          <option value="paleta">🎾 Paleta</option>
+          <option value="pelota">🎾 Pelota</option>
+          <option value="ropa">👕 Ropa</option>
+          <option value="calzado">👟 Calzado</option>
+          <option value="accesorio">🎽 Accesorio</option>
+          <option value="alquiler">🔑 Alquiler</option>
+          <option value="otro">📦 Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow3">
+      <div>
+        <label class="flbl">Precio de venta</label>
+        <input type="number" class="finp" id="p-price" placeholder="$0" oninput="updateMarginPreview()">
+      </div>
+      <div>
+        <label class="flbl">Costo unitario</label>
+        <input type="number" class="finp" id="p-cost" placeholder="$0" oninput="updateMarginPreview()">
+      </div>
+      <div>
+        <label class="flbl">Stock actual</label>
+        <input type="number" class="finp" id="p-stock" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="margin-preview" id="margin-preview">
+      <span style="color:var(--tx2)">Margen bruto</span>
+      <span id="margin-val" style="font-weight:700;font-family:'DM Mono',monospace">—</span>
+    </div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Stock mínimo (alerta)</label>
+        <input type="number" class="finp" id="p-minstock" placeholder="5" min="0">
+      </div>
+      <div>
+        <label class="flbl">SKU / Código</label>
+        <input type="text" class="finp" id="p-sku" placeholder="Opcional">
+      </div>
+    </div>
+    <label class="flbl">Proveedor</label>
+    <input type="text" class="finp" id="p-supplier" placeholder="Nombre del proveedor">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-prod').style.display='none'">Cancelar</button>
+      <button class="btn btn-ghost btn-sm" id="p-delete-btn" style="color:var(--err);border-color:var(--err);display:none" onclick="deleteProduct()">Eliminar</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VENTA -->
+<div class="overlay" id="modal-sale" style="display:none" onclick="closeOv(event,'modal-sale')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:500px">
+    <div class="modal-title">🛒 Registrar venta</div>
+    <div class="modal-sub">Agregá los productos vendidos</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input type="text" class="finp" id="sale-search" placeholder="Buscar producto..." oninput="renderSaleSearch()" style="margin:0;flex:1">
+    </div>
+    <div id="sale-search-results" style="margin-bottom:12px"></div>
+    <div id="sale-cart" style="margin-bottom:12px"></div>
+    <div style="background:var(--s2);border-radius:8px;padding:10px 12px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700">
+        <span>Total</span>
+        <span id="sale-total" style="font-family:'DM Mono',monospace;color:var(--ac)">$0</span>
+      </div>
+    </div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Forma de pago</label>
+        <select class="fsel" id="sale-pay" style="margin:0">
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="mercadopago">Mercado Pago</option>
+          <option value="tarjeta">Tarjeta</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Cliente (opcional)</label>
+        <input type="text" class="finp" id="sale-player" placeholder="Nombre" style="margin:0">
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-sale').style.display='none'">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmSale()">Confirmar venta</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+const CAT_ICONS = {
+  bebida:'🧴', comida:'🍕', paleta:'🎾', pelota:'🎾',
+  ropa:'👕', calzado:'👟', accesorio:'🎽', alquiler:'🔑', otro:'📦'
+}
+const CAT_LABELS = {
+  bebida:'Bebida', comida:'Comida', paleta:'Paleta', pelota:'Pelota',
+  ropa:'Ropa', calzado:'Calzado', accesorio:'Accesorio', alquiler:'Alquiler', otro:'Otro'
+}
+const PAY_COLORS = { efectivo:'#f0c040', transferencia:'#5b7fff', mercadopago:'#009ee3', tarjeta:'#a855f7' }
+const PAY_LABELS = { efectivo:'Efectivo', transferencia:'Transferencia', mercadopago:'Mercado Pago', tarjeta:'Tarjeta' }
+
+let products = [
+  {id:1,  name:'Agua mineral 500ml', cat:'bebida',    price:800,   cost:280,  stock:48, minStock:10, sku:'BEB-001', supplier:'Distribuidora Norte',  sold:52, revenue:41600},
+  {id:2,  name:'Gatorade 500ml',     cat:'bebida',    price:1200,  cost:480,  stock:22, minStock:10, sku:'BEB-002', supplier:'Distribuidora Norte',  sold:38, revenue:45600},
+  {id:3,  name:'Coca-Cola 354ml',    cat:'bebida',    price:900,   cost:350,  stock:30, minStock:12, sku:'BEB-003', supplier:'Coca-Cola FEMSA',      sold:28, revenue:25200},
+  {id:4,  name:'Cerveza lata',       cat:'bebida',    price:1500,  cost:600,  stock:3,  minStock:8,  sku:'BEB-004', supplier:'Distribuidora Norte',  sold:15, revenue:22500},
+  {id:5,  name:'Jugo naranja',       cat:'bebida',    price:900,   cost:320,  stock:18, minStock:6,  sku:'BEB-005', supplier:'Distribuidora Norte',  sold:12, revenue:10800},
+  {id:6,  name:'Pelota HEAD x3',     cat:'pelota',    price:4500,  cost:2200, stock:8,  minStock:4,  sku:'PEL-001', supplier:'Sportlandia',          sold:12, revenue:54000},
+  {id:7,  name:'Paleta HEAD Flash',  cat:'paleta',    price:85000, cost:52000,stock:2,  minStock:2,  sku:'PAL-001', supplier:'Sportlandia',          sold:3,  revenue:255000},
+  {id:8,  name:'Paleta Babolat',     cat:'paleta',    price:95000, cost:58000,stock:1,  minStock:2,  sku:'PAL-002', supplier:'Sportlandia',          sold:2,  revenue:190000},
+  {id:9,  name:'Grip Wilson',        cat:'accesorio', price:1800,  cost:600,  stock:15, minStock:5,  sku:'ACC-001', supplier:'Sportlandia',          sold:22, revenue:39600},
+  {id:10, name:'Overgrip x3',        cat:'accesorio', price:2200,  cost:750,  stock:10, minStock:5,  sku:'ACC-002', supplier:'Sportlandia',          sold:16, revenue:35200},
+  {id:11, name:'Remera club',        cat:'ropa',      price:12000, cost:5500, stock:6,  minStock:3,  sku:'ROP-001', supplier:'Imprenta Deporte',     sold:8,  revenue:96000},
+  {id:12, name:'Medias x2 pares',    cat:'ropa',      price:3500,  cost:1400, stock:12, minStock:4,  sku:'ROP-002', supplier:'Imprenta Deporte',     sold:11, revenue:38500},
+  {id:13, name:'Alquiler paleta',    cat:'alquiler',  price:2000,  cost:200,  stock:5,  minStock:2,  sku:'ALQ-001', supplier:'Interno',              sold:34, revenue:68000},
+  {id:14, name:'Empanadas x4',       cat:'comida',    price:2800,  cost:1200, stock:0,  minStock:5,  sku:'COM-001', supplier:'La Cantina',           sold:18, revenue:50400},
+  {id:15, name:'Barrita proteína',   cat:'comida',    price:1500,  cost:650,  stock:7,  minStock:4,  sku:'COM-002', supplier:'NutriSport',           sold:9,  revenue:13500},
+]
+
+let sales = [
+  {id:1,  time:'08:10', items:[{name:'Agua mineral 500ml',qty:2,price:800}],  total:1600,  pay:'efectivo',      player:'Carlos M.'},
+  {id:2,  time:'09:20', items:[{name:'Gatorade 500ml',qty:1,price:1200},{name:'Grip Wilson',qty:1,price:1800}], total:3000, pay:'tarjeta', player:''},
+  {id:3,  time:'10:05', items:[{name:'Pelota HEAD x3',qty:1,price:4500}],     total:4500,  pay:'transferencia', player:''},
+  {id:4,  time:'11:40', items:[{name:'Agua mineral 500ml',qty:3,price:800},{name:'Coca-Cola 354ml',qty:2,price:900}], total:4200, pay:'efectivo', player:''},
+  {id:5,  time:'13:15', items:[{name:'Empanadas x4',qty:2,price:2800},{name:'Coca-Cola 354ml',qty:3,price:900}], total:8300, pay:'efectivo', player:'Grupo Los Pibes'},
+  {id:6,  time:'14:30', items:[{name:'Remera club',qty:1,price:12000},{name:'Medias x2 pares',qty:1,price:3500}], total:15500, pay:'tarjeta', player:'Ana G.'},
+  {id:7,  time:'15:00', items:[{name:'Alquiler paleta',qty:2,price:2000}],    total:4000,  pay:'efectivo',      player:''},
+  {id:8,  time:'18:30', items:[{name:'Gatorade 500ml',qty:2,price:1200},{name:'Barrita proteína',qty:2,price:1500}], total:5400, pay:'mercadopago', player:''},
+  {id:9,  time:'19:45', items:[{name:'Cerveza lata',qty:3,price:1500},{name:'Agua mineral 500ml',qty:2,price:800}], total:6100, pay:'efectivo', player:''},
+  {id:10, time:'21:00', items:[{name:'Overgrip x3',qty:2,price:2200}],        total:4400,  pay:'transferencia', player:'Diego H.'},
+]
+
+let cart = {}
+let editingProductId = null
+let activeTab = 'catalogo'
+let filterCat = 'all'
+let sortBy = 'name'
+let viewMode = 'grid'
+let nextId = 100
+
+const fmt = n => {
+  if (n >= 1000000) return '$'+(n/1000000).toFixed(1)+'M'
+  if (n >= 1000)    return '$'+(n/1000).toFixed(1)+'k'
+  return '$'+n.toLocaleString()
+}
+
+function margin(p) {
+  if (!p.price || !p.cost) return 0
+  return Math.round((p.price - p.cost) / p.price * 100)
+}
+
+function stockStatus(p) {
+  if (p.stock <= 0)           return 'out'
+  if (p.stock <= p.minStock)  return 'low'
+  return 'ok'
+}
+
+function stockBadge(p) {
+  const s = stockStatus(p)
+  if (s === 'out') return { cls:'badge-out', label:'Sin stock' }
+  if (s === 'low') return { cls:'badge-low', label:`Stock bajo (${p.stock})` }
+  return { cls:'badge-ok', label:`Stock: ${p.stock}` }
+}
+
+function marginClass(m) {
+  if (m >= 50) return 'margin-high'
+  if (m >= 30) return 'margin-mid'
+  return 'margin-low'
+}
+
+// ══════════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  updateAlertBtn()
+  switch(activeTab) {
+    case 'catalogo':  renderCatalogo();  break
+    case 'ventas':    renderVentas();    break
+    case 'stock':     renderStock();     break
+    case 'analisis':  renderAnalisis();  break
+  }
+}
+
+function updateAlertBtn() {
+  const alerts = products.filter(p => stockStatus(p) !== 'ok')
+  const btn = document.getElementById('alert-btn')
+  if (!btn) return
+  if (alerts.length) {
+    btn.textContent = `⚠ ${alerts.length} alerta${alerts.length>1?'s':''} de stock`
+    btn.style.display = 'flex'
+  } else {
+    btn.style.display = 'none'
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB CATÁLOGO
+// ══════════════════════════════════════════════════════════
+function renderCatalogo() {
+  const cats = ['all', ...new Set(products.map(p=>p.cat))]
+  const totalRevenue = products.reduce((a,p)=>a+p.revenue, 0)
+  const totalProducts = products.length
+  const lowCount = products.filter(p=>stockStatus(p)==='low').length
+  const outCount = products.filter(p=>stockStatus(p)==='out').length
+  const avgMargin = Math.round(products.reduce((a,p)=>a+margin(p),0)/products.length)
+
+  let shown = filterCat === 'all' ? products : products.filter(p=>p.cat===filterCat)
+  const q = document.getElementById('cat-search')?.value?.toLowerCase() || ''
+  if (q) shown = shown.filter(p=>p.name.toLowerCase().includes(q)||p.sku?.toLowerCase().includes(q))
+  if (sortBy === 'revenue') shown = [...shown].sort((a,b)=>b.revenue-a.revenue)
+  else if (sortBy === 'margin') shown = [...shown].sort((a,b)=>margin(b)-margin(a))
+  else if (sortBy === 'stock') shown = [...shown].sort((a,b)=>a.stock-b.stock)
+  else shown = [...shown].sort((a,b)=>a.name.localeCompare(b.name))
+
+  document.getElementById('main').innerHTML = `
+    <!-- KPIs -->
+    <div class="kpi-strip">
+      <div class="kpi" style="border-top:3px solid var(--ac)">
+        <div style="font-size:11px;color:var(--tx2)">Productos activos</div>
+        <div class="kv" style="color:var(--ac)">${totalProducts}</div>
+        <div class="kl">en catálogo</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid var(--ok)">
+        <div style="font-size:11px;color:var(--tx2)">Ventas del mes</div>
+        <div class="kv" style="color:var(--ok)">${fmt(totalRevenue)}</div>
+        <div class="kl">tienda</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid var(--info)">
+        <div style="font-size:11px;color:var(--tx2)">Margen promedio</div>
+        <div class="kv" style="color:var(--info)">${avgMargin}%</div>
+        <div class="kl">sobre ventas</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid var(--warn)">
+        <div style="font-size:11px;color:var(--tx2)">Stock bajo</div>
+        <div class="kv" style="color:var(--warn)">${lowCount}</div>
+        <div class="kl">productos</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid var(--err)">
+        <div style="font-size:11px;color:var(--tx2)">Sin stock</div>
+        <div class="kv" style="color:var(--err)">${outCount}</div>
+        <div class="kl">productos</div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:6px 10px;flex:1;min-width:180px">
+        <span style="color:var(--tx3)">🔍</span>
+        <input type="text" id="cat-search" placeholder="Buscar producto o SKU..." oninput="renderCatalogo()"
+          style="background:none;border:none;outline:none;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;flex:1">
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${cats.map(c=>`<div class="btn btn-ghost btn-sm ${filterCat===c?'on':''}"
+          style="${filterCat===c?'border-color:var(--ac);color:var(--ac);background:var(--ac)12':''}"
+          onclick="filterCat='${c}';renderCatalogo()">
+          ${c==='all'?'Todos':CAT_ICONS[c]+' '+CAT_LABELS[c]}
+        </div>`).join('')}
+      </div>
+      <select onchange="sortBy=this.value;renderCatalogo()" style="background:var(--s2);border:1px solid var(--bd2);border-radius:7px;padding:5px 8px;color:var(--tx);font-size:11px;outline:none;cursor:pointer">
+        <option value="name"    ${sortBy==='name'?'selected':''}>A–Z</option>
+        <option value="revenue" ${sortBy==='revenue'?'selected':''}>Mayor venta</option>
+        <option value="margin"  ${sortBy==='margin'?'selected':''}>Mayor margen</option>
+        <option value="stock"   ${sortBy==='stock'?'selected':''}>Menor stock</option>
+      </select>
+      <div style="display:flex;gap:3px">
+        <button class="btn btn-ghost btn-sm ${viewMode==='grid'?'on':''}"
+          style="${viewMode==='grid'?'border-color:var(--ac);color:var(--ac)':''}"
+          onclick="viewMode='grid';renderCatalogo()">⊞</button>
+        <button class="btn btn-ghost btn-sm ${viewMode==='list'?'on':''}"
+          style="${viewMode==='list'?'border-color:var(--ac);color:var(--ac)':''}"
+          onclick="viewMode='list';renderCatalogo()">☰</button>
+      </div>
+    </div>
+
+    <!-- GRILLA / LISTA -->
+    ${viewMode==='grid' ? `
+      <div class="product-grid">
+        ${shown.map(p => {
+          const m   = margin(p)
+          const b   = stockBadge(p)
+          const ss  = stockStatus(p)
+          const pct = p.minStock>0 ? Math.min(Math.round(p.stock/Math.max(p.minStock*3,p.stock+1)*100),100) : 80
+          const barColor = ss==='out'?'var(--err)':ss==='low'?'var(--warn)':'var(--ok)'
+          return `<div class="prod-card ${ss==='low'?'low-stock':ss==='out'?'out-stock':''}"
+            onclick="openEditProduct(${p.id})">
+            <div class="prod-card-top">
+              <span class="prod-icon">${CAT_ICONS[p.cat]}</span>
+              <div class="prod-name">${p.name}</div>
+              <div class="prod-cat">${CAT_LABELS[p.cat]} · SKU: ${p.sku||'—'}</div>
+              <div class="prod-stock-badge ${b.cls}">${b.label}</div>
+            </div>
+            <div class="prod-stock-bar">
+              <div class="prod-stock-fill" style="width:${pct}%;background:${barColor}"></div>
+            </div>
+            <div class="prod-card-bottom">
+              <span class="prod-price">${fmt(p.price)}</span>
+              <div>
+                <span class="prod-margin ${marginClass(m)}">${m}% margen</span>
+              </div>
+            </div>
+          </div>`
+        }).join('')}
+      </div>
+    ` : `
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        <table class="prod-table">
+          <thead>
+            <tr>
+              <th>Producto</th><th>Cat.</th><th>SKU</th>
+              <th class="r">Precio</th><th class="r">Costo</th><th class="r">Margen</th>
+              <th class="r">Stock</th><th class="r">Vendidos</th><th class="r">Revenue</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${shown.map(p=>{
+              const m  = margin(p)
+              const ss = stockStatus(p)
+              const sc = ss==='out'?'var(--err)':ss==='low'?'var(--warn)':'var(--ok)'
+              return `<tr style="cursor:pointer" onclick="openEditProduct(${p.id})">
+                <td><strong>${p.name}</strong></td>
+                <td>${CAT_ICONS[p.cat]} ${CAT_LABELS[p.cat]}</td>
+                <td style="color:var(--tx3);font-family:'DM Mono',monospace;font-size:10px">${p.sku||'—'}</td>
+                <td class="r" style="font-family:'DM Mono',monospace;font-weight:600">${fmt(p.price)}</td>
+                <td class="r" style="font-family:'DM Mono',monospace;color:var(--tx2)">${fmt(p.cost)}</td>
+                <td class="r"><span class="prod-margin ${marginClass(m)}">${m}%</span></td>
+                <td class="r" style="font-weight:600;color:${sc}">${p.stock}</td>
+                <td class="r" style="color:var(--tx2)">${p.sold}</td>
+                <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--ok)">${fmt(p.revenue)}</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();quickSell(${p.id})">Vender</button></td>
+              </tr>`
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `}
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB VENTAS DEL DÍA
+// ══════════════════════════════════════════════════════════
+function renderVentas() {
+  const totalSales = sales.reduce((a,s)=>a+s.total, 0)
+  const byPay = {}
+  sales.forEach(s=>{ byPay[s.pay]=(byPay[s.pay]||0)+s.total })
+
+  document.getElementById('main').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:16px">
+
+      <!-- LISTA DE VENTAS -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600">
+            Ventas del día — <span style="color:var(--ok)">${fmt(totalSales)}</span>
+          </div>
+          <span style="font-size:11px;color:var(--tx3)">${sales.length} transacciones</span>
+        </div>
+        ${sales.map(s=>`
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bd)55;transition:background .12s" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tx3);padding-top:2px;width:42px;flex-shrink:0">${s.time}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;color:var(--tx);margin-bottom:3px">
+                ${s.items.map(i=>`${i.name} <span style="color:var(--tx3)">×${i.qty}</span>`).join(' · ')}
+              </div>
+              <div style="display:flex;gap:8px;font-size:10px">
+                <span style="background:${PAY_COLORS[s.pay]||'#666'}22;color:${PAY_COLORS[s.pay]||'var(--tx2)'};border-radius:10px;padding:1px 7px;font-weight:500">${PAY_LABELS[s.pay]||s.pay}</span>
+                ${s.player?`<span style="color:var(--tx3)">${s.player}</span>`:''}
+              </div>
+            </div>
+            <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--ok);flex-shrink:0">${fmt(s.total)}</div>
+          </div>`).join('')}
+      </div>
+
+      <!-- SIDEBAR -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <!-- Resumen del día -->
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px">
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;margin-bottom:12px">Resumen</div>
+          <div style="font-size:24px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ok);margin-bottom:4px">${fmt(totalSales)}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">${sales.length} ventas · ${sales.reduce((a,s)=>a+s.items.reduce((b,i)=>b+i.qty,0),0)} unidades</div>
+          ${Object.entries(byPay).map(([pay,val])=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);font-size:11px">
+              <span style="display:flex;align-items:center;gap:5px">
+                <span style="width:8px;height:8px;border-radius:2px;background:${PAY_COLORS[pay]||'#666'};display:inline-block"></span>
+                ${PAY_LABELS[pay]||pay}
+              </span>
+              <span style="font-weight:600;font-family:'DM Mono',monospace">${fmt(val)}</span>
+            </div>`).join('')}
+        </div>
+
+        <!-- Productos más vendidos hoy -->
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600;font-family:'Syne',sans-serif">Top productos hoy</div>
+          ${(()=>{
+            const map = {}
+            sales.forEach(s=>s.items.forEach(i=>{
+              if (!map[i.name]) map[i.name]={name:i.name,qty:0,total:0}
+              map[i.name].qty+=i.qty; map[i.name].total+=i.qty*i.price
+            }))
+            const top = Object.values(map).sort((a,b)=>b.total-a.total).slice(0,6)
+            const maxV = Math.max(...top.map(t=>t.total),1)
+            return top.map((t,i)=>`<div class="bar-h-row" style="padding:6px 14px">
+              <span class="bar-h-lbl">${t.name}</span>
+              <div class="bar-h-track"><div class="bar-h-fill" style="width:${Math.round(t.total/maxV*100)}%;background:var(--ac)">${fmt(t.total)}</div></div>
+              <span class="bar-h-val">×${t.qty}</span>
+            </div>`).join('')
+          })()}
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB STOCK
+// ══════════════════════════════════════════════════════════
+function renderStock() {
+  const alerts = products.filter(p=>stockStatus(p)!=='ok').sort((a,b)=>{
+    const o = {out:0,low:1}
+    return o[stockStatus(a)]-o[stockStatus(b)]
+  })
+  const ok = products.filter(p=>stockStatus(p)==='ok')
+
+  document.getElementById('main').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
+
+      <!-- ALERTAS Y TABLA COMPLETA -->
+      <div>
+        ${alerts.length ? `
+          <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:14px">
+            <div style="padding:10px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px">
+              <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600">⚠ Requieren atención</div>
+              <span style="font-size:11px;background:var(--low-bg);color:var(--low-col);border-radius:10px;padding:1px 8px">${alerts.length} productos</span>
+            </div>
+            ${alerts.map(p=>{
+              const ss  = stockStatus(p)
+              const col = ss==='out'?'var(--err)':'var(--warn)'
+              const bg  = ss==='out'?'var(--out-bg)':'var(--low-bg)'
+              return `<div class="alert-row">
+                <div class="alert-dot" style="background:${col}"></div>
+                <div style="flex:1">
+                  <div style="font-size:12px;font-weight:500">${p.name}</div>
+                  <div style="font-size:11px;color:var(--tx2)">Stock: <strong style="color:${col}">${p.stock}</strong> · Mínimo: ${p.minStock} · Proveedor: ${p.supplier}</div>
+                </div>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-sm" style="background:${bg};color:${col};border:1px solid ${col}44" onclick="openReplenish(${p.id})">Reponer</button>
+                  <button class="btn btn-ghost btn-sm" onclick="openEditProduct(${p.id})">Editar</button>
+                </div>
+              </div>`
+            }).join('')}
+          </div>
+        ` : `<div style="background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:var(--ok-col)">✓ Todo el stock está en niveles correctos</div>`}
+
+        <!-- Tabla completa de stock -->
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+          <div style="padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Syne',sans-serif;font-size:13px;font-weight:600">Inventario completo</div>
+          <table class="prod-table">
+            <thead><tr>
+              <th>Producto</th><th>Cat.</th>
+              <th class="r">Stock actual</th><th class="r">Mínimo</th><th class="r">Estado</th>
+              <th class="r">Costo unit.</th><th class="r">Valor inventario</th><th></th>
+            </tr></thead>
+            <tbody>
+              ${products.map(p=>{
+                const ss  = stockStatus(p)
+                const col = ss==='out'?'var(--err)':ss==='low'?'var(--warn)':'var(--ok)'
+                return `<tr>
+                  <td><strong>${p.name}</strong><div style="font-size:10px;color:var(--tx3)">${p.sku||''}</div></td>
+                  <td>${CAT_ICONS[p.cat]}</td>
+                  <td class="r" style="font-weight:700;color:${col};font-family:'DM Mono',monospace">${p.stock}</td>
+                  <td class="r" style="color:var(--tx2)">${p.minStock}</td>
+                  <td class="r"><span style="font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;background:${ss==='out'?'var(--out-bg)':ss==='low'?'var(--low-bg)':'var(--ok-bg)'};color:${col}">${ss==='out'?'Sin stock':ss==='low'?'Bajo':'OK'}</span></td>
+                  <td class="r" style="font-family:'DM Mono',monospace;color:var(--tx2)">${fmt(p.cost)}</td>
+                  <td class="r" style="font-family:'DM Mono',monospace;font-weight:600">${fmt(p.stock*p.cost)}</td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openReplenish(${p.id})">+</button></td>
+                </tr>`
+              }).join('')}
+              <tr style="border-top:2px solid var(--bd2)">
+                <td colspan="6" style="font-weight:700;font-family:'Syne',sans-serif;padding:10px 12px">VALOR TOTAL INVENTARIO</td>
+                <td class="r" style="font-family:'DM Mono',monospace;font-weight:700;color:var(--ac);font-size:14px">${fmt(products.reduce((a,p)=>a+p.stock*p.cost,0))}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SIDEBAR: Proveedores -->
+      <div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--bd);font-family:'Syne',sans-serif;font-size:13px;font-weight:600">Proveedores</div>
+          ${(()=>{
+            const map = {}
+            products.forEach(p=>{ if(!map[p.supplier])map[p.supplier]={name:p.supplier,products:[],totalValue:0}; map[p.supplier].products.push(p.name); map[p.supplier].totalValue+=p.stock*p.cost })
+            return Object.values(map).map(s=>`<div style="padding:9px 14px;border-bottom:1px solid var(--bd)55">
+              <div style="font-size:12px;font-weight:500">${s.name}</div>
+              <div style="font-size:10px;color:var(--tx3);margin-top:2px">${s.products.length} producto${s.products.length>1?'s':''}</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:2px">Inventario: <span style="font-weight:600;color:var(--tx)">${fmt(s.totalValue)}</span></div>
+            </div>`).join('')
+          })()}
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB ANÁLISIS
+// ══════════════════════════════════════════════════════════
+function renderAnalisis() {
+  const byRevenue = [...products].sort((a,b)=>b.revenue-a.revenue)
+  const byMargin  = [...products].sort((a,b)=>margin(b)-margin(a))
+  const maxRev    = Math.max(...byRevenue.map(p=>p.revenue),1)
+  const byCatRev  = {}
+  products.forEach(p=>{ byCatRev[p.cat]=(byCatRev[p.cat]||0)+p.revenue })
+  const sortedCats= Object.entries(byCatRev).sort((a,b)=>b[1]-a[1])
+  const maxCatRev = Math.max(...sortedCats.map(([,v])=>v),1)
+
+  // Productos que más rotan (vendidos / stock inicial estimado)
+  const rotation  = [...products].sort((a,b)=>b.sold-a.sold).slice(0,5)
+
+  document.getElementById('main').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+      <!-- Top revenue -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Syne',sans-serif;font-size:13px;font-weight:600">
+          Mayor revenue este mes
+        </div>
+        <div style="padding:12px 16px">
+          ${byRevenue.slice(0,8).map(p=>`<div class="bar-h-row">
+            <span class="bar-h-lbl">${CAT_ICONS[p.cat]} ${p.name}</span>
+            <div class="bar-h-track">
+              <div class="bar-h-fill" style="width:${Math.round(p.revenue/maxRev*100)}%;background:var(--ok)">${fmt(p.revenue)}</div>
+            </div>
+            <span class="bar-h-val">${fmt(p.revenue)}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Mayor margen -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Syne',sans-serif;font-size:13px;font-weight:600">
+          Mayor margen bruto
+        </div>
+        <div style="padding:12px 16px">
+          ${byMargin.slice(0,8).map(p=>{
+            const m = margin(p)
+            return `<div class="bar-h-row">
+              <span class="bar-h-lbl">${CAT_ICONS[p.cat]} ${p.name}</span>
+              <div class="bar-h-track">
+                <div class="bar-h-fill" style="width:${m}%;background:${m>=50?'var(--ac)':m>=30?'var(--warn)':'var(--err)'}">${m}%</div>
+              </div>
+              <span class="bar-h-val">${m}%</span>
+            </div>`
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Revenue por categoría -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Syne',sans-serif;font-size:13px;font-weight:600">
+          Revenue por categoría
+        </div>
+        <div style="padding:12px 16px">
+          ${sortedCats.map(([cat,val])=>`<div class="bar-h-row">
+            <span class="bar-h-lbl">${CAT_ICONS[cat]} ${CAT_LABELS[cat]}</span>
+            <div class="bar-h-track">
+              <div class="bar-h-fill" style="width:${Math.round(val/maxCatRev*100)}%;background:var(--info)">${fmt(val)}</div>
+            </div>
+            <span class="bar-h-val">${fmt(val)}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Más vendidos + rotación -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Syne',sans-serif;font-size:13px;font-weight:600">
+          Más vendidos (unidades) — mes
+        </div>
+        <table class="prod-table">
+          <thead><tr>
+            <th>#</th><th>Producto</th>
+            <th class="r">Unidades</th><th class="r">Revenue</th><th class="r">Margen</th>
+          </tr></thead>
+          <tbody>
+            ${rotation.map((p,i)=>`<tr>
+              <td style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tx3)">${['🥇','🥈','🥉','4°','5°'][i]}</td>
+              <td>${CAT_ICONS[p.cat]} <strong>${p.name}</strong></td>
+              <td class="r" style="font-weight:600">${p.sold}</td>
+              <td class="r" style="font-family:'DM Mono',monospace;color:var(--ok);font-weight:600">${fmt(p.revenue)}</td>
+              <td class="r"><span class="prod-margin ${marginClass(margin(p))}">${margin(p)}%</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+
+        <!-- Insight -->
+        <div style="padding:12px 14px;background:var(--ac)0a;border-top:1px solid var(--ac)22">
+          <div style="font-size:11px;font-weight:600;color:var(--ac);margin-bottom:4px">💡 Insights del mes</div>
+          <div style="font-size:11px;color:var(--tx2);line-height:1.6">
+            El <strong style="color:var(--tx)">alquiler de paleta</strong> tiene el mayor margen (${margin(products.find(p=>p.id===13))}%) con alta rotación.<br>
+            Las <strong style="color:var(--tx)">paletas</strong> generan más revenue pero rotan poco — revisá el precio.<br>
+            La <strong style="color:var(--tx)">cerveza lata</strong> está por debajo del stock mínimo — pedido urgente.
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODAL PRODUCTO
+// ══════════════════════════════════════════════════════════
+function openNewProduct() {
+  editingProductId = null
+  document.getElementById('mprod-title').textContent = 'Nuevo producto'
+  document.getElementById('p-delete-btn').style.display = 'none'
+  ;['p-name','p-sku','p-supplier'].forEach(id=>document.getElementById(id).value='')
+  ;['p-price','p-cost','p-stock','p-minstock'].forEach(id=>document.getElementById(id).value='')
+  document.getElementById('p-cat').value = 'bebida'
+  document.getElementById('margin-preview').querySelector('#margin-val').textContent='—'
+  document.getElementById('modal-prod').style.display = 'flex'
+  setTimeout(()=>document.getElementById('p-name').focus(), 60)
+}
+
+function openEditProduct(id) {
+  const p = products.find(x=>x.id===id)
+  if (!p) return
+  editingProductId = id
+  document.getElementById('mprod-title').textContent = 'Editar producto'
+  document.getElementById('p-delete-btn').style.display = 'inline-flex'
+  document.getElementById('p-name').value     = p.name
+  document.getElementById('p-cat').value      = p.cat
+  document.getElementById('p-price').value    = p.price
+  document.getElementById('p-cost').value     = p.cost
+  document.getElementById('p-stock').value    = p.stock
+  document.getElementById('p-minstock').value = p.minStock
+  document.getElementById('p-sku').value      = p.sku || ''
+  document.getElementById('p-supplier').value = p.supplier || ''
+  updateMarginPreview()
+  document.getElementById('modal-prod').style.display = 'flex'
+}
+
+function updateMarginPreview() {
+  const price = parseFloat(document.getElementById('p-price').value)||0
+  const cost  = parseFloat(document.getElementById('p-cost').value)||0
+  const el    = document.getElementById('margin-val')
+  if (!el) return
+  if (!price || !cost) { el.textContent='—'; return }
+  const m   = Math.round((price-cost)/price*100)
+  const profit = price - cost
+  el.textContent   = `${m}% — ganás $${profit.toLocaleString()} por unidad`
+  el.style.color   = m>=50?'var(--ok)':m>=30?'var(--warn)':'var(--err)'
+}
+
+function saveProduct() {
+  const name  = document.getElementById('p-name').value.trim()
+  const price = parseInt(document.getElementById('p-price').value)||0
+  const cost  = parseInt(document.getElementById('p-cost').value)||0
+  if (!name)  { toast('⚠ Ingresá un nombre','warn'); return }
+  if (!price) { toast('⚠ Ingresá el precio de venta','warn'); return }
+
+  const data = {
+    name, price, cost,
+    cat:       document.getElementById('p-cat').value,
+    stock:     parseInt(document.getElementById('p-stock').value)||0,
+    minStock:  parseInt(document.getElementById('p-minstock').value)||5,
+    sku:       document.getElementById('p-sku').value.trim(),
+    supplier:  document.getElementById('p-supplier').value.trim(),
+    sold: 0, revenue: 0,
+  }
+
+  if (editingProductId) {
+    const idx = products.findIndex(p=>p.id===editingProductId)
+    if (idx>=0) { data.sold=products[idx].sold; data.revenue=products[idx].revenue; products[idx]={...products[idx],...data} }
+    toast('✓ Producto actualizado')
+  } else {
+    products.push({ id: nextId++, ...data })
+    toast('✓ Producto creado')
+  }
+  document.getElementById('modal-prod').style.display = 'none'
+  renderMain()
+}
+
+function deleteProduct() {
+  if (!editingProductId) return
+  if (!confirm('¿Eliminar este producto?')) return
+  products = products.filter(p=>p.id!==editingProductId)
+  document.getElementById('modal-prod').style.display = 'none'
+  toast('Producto eliminado','warn')
+  renderMain()
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODAL VENTA
+// ══════════════════════════════════════════════════════════
+function openSale() {
+  cart = {}
+  document.getElementById('sale-search').value = ''
+  renderSaleSearch()
+  renderCart()
+  document.getElementById('modal-sale').style.display = 'flex'
+  setTimeout(()=>document.getElementById('sale-search').focus(), 60)
+}
+
+function quickSell(id) {
+  cart = {}
+  cart[id] = 1
+  renderCart()
+  document.getElementById('sale-search').value = ''
+  renderSaleSearch()
+  document.getElementById('modal-sale').style.display = 'flex'
+}
+
+function renderSaleSearch() {
+  const q   = document.getElementById('sale-search')?.value?.toLowerCase() || ''
+  const res = document.getElementById('sale-search-results')
+  if (!res) return
+  if (!q) { res.innerHTML=''; return }
+  const found = products.filter(p=>p.name.toLowerCase().includes(q)||p.sku?.toLowerCase().includes(q)).slice(0,6)
+  res.innerHTML = found.map(p=>`
+    <div onclick="addToCart(${p.id})" style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:7px;cursor:pointer;transition:background .12s;border:1px solid var(--bd);margin-bottom:4px"
+      onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+      <div>
+        <span style="font-size:12px;font-weight:500">${CAT_ICONS[p.cat]} ${p.name}</span>
+        ${p.stock<=p.minStock?`<span style="font-size:10px;color:var(--warn);margin-left:5px">stock: ${p.stock}</span>`:''}
+      </div>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--ac)">${fmt(p.price)}</span>
+    </div>`).join('')
+}
+
+function addToCart(id) {
+  cart[id] = (cart[id]||0) + 1
+  document.getElementById('sale-search').value = ''
+  document.getElementById('sale-search-results').innerHTML = ''
+  renderCart()
+}
+
+function updateQty(id, delta) {
+  cart[id] = (cart[id]||0) + delta
+  if (cart[id] <= 0) delete cart[id]
+  renderCart()
+}
+
+function renderCart() {
+  const el    = document.getElementById('sale-cart')
+  const total = document.getElementById('sale-total')
+  if (!el) return
+  const items = Object.entries(cart)
+  if (!items.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:12px;padding:12px">Buscá un producto para agregar</div>'
+    if (total) total.textContent = '$0'
+    return
+  }
+  let sum = 0
+  el.innerHTML = `<div style="background:var(--s2);border-radius:8px;overflow:hidden">` +
+    items.map(([id, qty]) => {
+      const p = products.find(x=>x.id===parseInt(id))
+      if (!p) return ''
+      const sub = p.price * qty; sum += sub
+      return `<div class="sale-item-row">
+        <span style="font-size:14px">${CAT_ICONS[p.cat]}</span>
+        <span style="flex:1;font-size:12px;font-weight:500">${p.name}</span>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="updateQty(${p.id},-1)">−</button>
+          <span class="qty-val">${qty}</span>
+          <button class="qty-btn" onclick="updateQty(${p.id},1)">+</button>
+        </div>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;min-width:50px;text-align:right">${fmt(sub)}</span>
+      </div>`
+    }).join('') + '</div>'
+  if (total) total.textContent = fmt(sum)
+}
+
+function confirmSale() {
+  const items = Object.entries(cart)
+  if (!items.length) { toast('⚠ Agregá al menos un producto','warn'); return }
+  let total = 0
+  const saleItems = items.map(([id,qty])=>{
+    const p = products.find(x=>x.id===parseInt(id))
+    if (!p) return null
+    total += p.price * qty
+    // Descontar stock
+    p.stock = Math.max(0, p.stock - qty)
+    p.sold  += qty
+    p.revenue += p.price * qty
+    return { name:p.name, qty, price:p.price }
+  }).filter(Boolean)
+  const now = new Date()
+  sales.push({
+    id: nextId++,
+    time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+    items: saleItems, total,
+    pay: document.getElementById('sale-pay').value,
+    player: document.getElementById('sale-player').value,
+  })
+  document.getElementById('modal-sale').style.display = 'none'
+  toast(`✓ Venta registrada — ${fmt(total)}`)
+  cart = {}
+  renderMain()
+}
+
+// ══════════════════════════════════════════════════════════
+//  REPOSICIÓN
+// ══════════════════════════════════════════════════════════
+function openReplenish(id) {
+  const p = products.find(x=>x.id===id)
+  if (!p) return
+  const qty = prompt(`Reponer "${p.name}"\nStock actual: ${p.stock}\nIngresá la cantidad a agregar:`)
+  if (!qty || isNaN(qty) || parseInt(qty)<=0) return
+  p.stock += parseInt(qty)
+  toast(`✓ Stock actualizado: ${p.name} — ${p.stock} unidades`)
+  renderMain()
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function closeOv(e,id){ if(e.target.id===id) document.getElementById(id).style.display='none' }
+
+function toast(msg,type='success'){
+  const colors={success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t=document.createElement('div');t.className='toast'
+  t.innerHTML=`<span style="color:${colors[type]||colors.success}">●</span> ${msg}`
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2600)
+}
+
+function toggleTheme(){
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme',h.getAttribute('data-theme'))
+}
+const st=localStorage.getItem('shos-theme')
+if(st) document.documentElement.setAttribute('data-theme',st)
+
+renderMain()
+</script>
+</body>
+</html>

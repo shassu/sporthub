@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Eventos Especiales</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --gold:#f0c040;--purple:#8b5cf6;--teal:#06b6d4;--pink:#ec4899;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000055
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#8a9ab8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --gold:#ca8a04;--purple:#7c3aed;--teal:#0891b2;--pink:#db2777;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--pink);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--pink)}
+
+.main{padding:22px 26px;max-width:1400px;margin:0 auto}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-top:5px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* ESPACIOS GRID */
+.espacios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.espacio-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s}
+.espacio-card:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.ec-img{height:120px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
+.ec-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;border-radius:20px;padding:3px 10px}
+.ec-body{padding:14px 16px}
+.ec-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:3px}
+.ec-meta{font-size:11px;color:var(--tx2);line-height:1.5}
+.ec-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--bd);text-align:center}
+.ecs{padding:9px 8px}
+.ecs-v{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.ecs-l{font-size:9px;color:var(--tx3);text-transform:uppercase;margin-top:2px}
+
+/* CALENDARIO DE EVENTOS */
+.cal-evento{border-radius:8px;padding:8px 12px;margin-bottom:6px;cursor:pointer;transition:all .13s;border:1px solid transparent}
+.cal-evento:hover{border-color:var(--bd2)}
+
+/* PAQUETES */
+.paquetes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.pkg-card{background:var(--s1);border:2px solid var(--bd);border-radius:14px;padding:18px;cursor:pointer;transition:all .15s;position:relative}
+.pkg-card:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.pkg-card.featured{border-color:var(--pink)}
+.pkg-icon{font-size:32px;margin-bottom:10px}
+.pkg-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:4px}
+.pkg-desc{font-size:12px;color:var(--tx2);margin-bottom:12px;line-height:1.5}
+.pkg-price{font-family:'Syne',sans-serif;font-size:26px;font-weight:800}
+.pkg-feature{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--tx2);padding:4px 0;border-bottom:1px solid var(--bd)44}
+.pkg-feature:last-child{border-bottom:none}
+
+/* CATERING */
+.catering-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--bd)44;font-size:12px;transition:background .12s}
+.catering-item:hover{background:var(--s2)}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif}
+.card-body{padding:14px 16px}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-pink{background:var(--pink);color:#fff}
+.btn-gold{background:var(--gold);color:#0d1020}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--ok)18;color:var(--ok);border:1px solid var(--ok)44}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl th.r{text-align:right}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--bd)55;vertical-align:middle}
+.tbl tr:hover td{background:var(--s2)}
+.tbl tr:last-child td{border-bottom:none}
+.finp,.fsel,.ftextarea{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus,.ftextarea:focus{border-color:var(--pink)}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:540px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.tog{width:34px;height:19px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tog.on{background:var(--ok)}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog.on::after{transform:translateX(15px)}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">🎉</div>
+  <div>
+    <div class="ln">Sport Hub OS — Eventos Especiales</div>
+    <div style="font-size:10px;color:var(--tx3)">Sport Hub Norte</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-ghost btn-sm" onclick="switchTab('espacios')">Ver espacios</button>
+    <button class="btn btn-pink" onclick="openNuevoEvento()">+ Nuevo evento</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-agenda"   onclick="switchTab('agenda')">📅 Agenda</div>
+  <div class="tab"    id="tab-espacios" onclick="switchTab('espacios')">🏛 Espacios</div>
+  <div class="tab"    id="tab-paquetes" onclick="switchTab('paquetes')">🎁 Paquetes</div>
+  <div class="tab"    id="tab-catering" onclick="switchTab('catering')">🍽 Catering</div>
+  <div class="tab"    id="tab-cotizar"  onclick="switchTab('cotizar')">💬 Cotizaciones</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+const fmt = n => n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n.toLocaleString()
+
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+const ESPACIOS = [
+  {
+    id:1, nombre:'Quincho Principal', icon:'🔥', tipo:'quincho',
+    capacidad:60, capacidadMesa:40, m2:80,
+    color:'#f0a020', colorBg:'#f0a02018',
+    descripcion:'Quincho techado con parrilla de ladrillo, mesa de asado y zona de bar. Vista a las canchas.',
+    amenities:['Parrilla de ladrillo','Heladera y freezer','Mesas y sillas incluidas','Iluminación LED','Música ambiente','TV 65"','Baños exclusivos'],
+    precioHora:8500, precioJornada:45000, precioFinde:55000,
+    disponible:true, reservas:14,
+  },
+  {
+    id:2, nombre:'SUM Salón', icon:'🎊', tipo:'sum',
+    capacidad:120, capacidadMesa:80, m2:150,
+    color:'#8b5cf6', colorBg:'#8b5cf618',
+    descripcion:'Salón multipropósito con escenario, sistema de sonido profesional y pantalla de proyección.',
+    amenities:['Escenario 4x3m','Sonido profesional','Proyector 4K','Climatización A/C','Cocina equipada','Bar exclusivo','Estacionamiento'],
+    precioHora:12000, precioJornada:70000, precioFinde:85000,
+    disponible:true, reservas:8,
+  },
+  {
+    id:3, nombre:'Terraza Sky', icon:'🌅', tipo:'terraza',
+    capacidad:80, capacidadMesa:50, m2:100,
+    color:'#06b6d4', colorBg:'#06b6d418',
+    descripcion:'Terraza descubierta en el último piso con vista panorámica. Toldo retráctil para lluvia.',
+    amenities:['Vista panorámica 360°','Toldo retráctil','Bar portátil','Iluminación cálida','Calefactores','Lounges y mesas altas'],
+    precioHora:7000, precioJornada:38000, precioFinde:48000,
+    disponible:false, reservas:11,
+    proximaDisponibilidad:'1 Jul 2025',
+  },
+  {
+    id:4, nombre:'Quincho Íntimo', icon:'🕯', tipo:'quincho',
+    capacidad:20, capacidadMesa:16, m2:30,
+    color:'#ec4899', colorBg:'#ec489918',
+    descripcion:'Espacio íntimo ideal para cumpleaños privados, despedidas o cenas de equipo.',
+    amenities:['Parrilla pequeña','Frigobar','Mesa larga fija','Ambientación incluida','Bluetooth'],
+    precioHora:4500, precioJornada:22000, precioFinde:28000,
+    disponible:true, reservas:19,
+  },
+]
+
+const PAQUETES = [
+  {
+    id:1, nombre:'Cumpleaños Básico', icon:'🎂', featured:false,
+    precio:45000, colorAccent:'#ec4899',
+    desc:'Todo lo necesario para un cumpleaños memorable. Hasta 30 personas.',
+    duracion:'4 horas', personas:'hasta 30',
+    incluye:[
+      'Quincho Íntimo por 4 horas',
+      'Decoración temática básica (globos y guirnaldas)',
+      'Mesa dulce: torta + 2 opciones de snacks',
+      'Bebidas sin alcohol (gaseosas, agua, jugos)',
+      'Vajilla descartable premium',
+      'Coordinador de evento',
+    ],
+    opcionales:['Parrilla (+$8.000)','DJ (+$15.000)','Fotógrafo (+$20.000)'],
+    vendidos:28,
+  },
+  {
+    id:2, nombre:'Cumpleaños Premium', icon:'🥳', featured:true,
+    precio:85000, colorAccent:'#f0c040',
+    desc:'La experiencia completa. Catering, decoración profesional y entretenimiento.',
+    duracion:'6 horas', personas:'hasta 60',
+    incluye:[
+      'Quincho Principal por 6 horas',
+      'Decoración profesional personalizada',
+      'Mesa dulce completa con torta a elección',
+      'Catering: picada + plato principal + postre',
+      'Bebidas: soft + cerveza/vino (2hs open bar)',
+      'Mozos y coordinador incluidos',
+      'Música ambiental con sistema de sonido',
+    ],
+    opcionales:['DJ profesional (+$20.000)','Fotógrafo (+$25.000)','Hora extra (+$12.000)'],
+    vendidos:14,
+  },
+  {
+    id:3, nombre:'Evento Corporativo', icon:'🏢', featured:false,
+    precio:120000, colorAccent:'#8b5cf6',
+    desc:'Reuniones, capacitaciones y team building. Capacidad hasta 80 personas.',
+    duracion:'8 horas', personas:'hasta 80',
+    incluye:[
+      'SUM Salón completo (mañana + tarde)',
+      'Coffee break x2 (mañana y tarde)',
+      'Almuerzo tipo buffet',
+      'Proyector y sistema de sonido profesional',
+      'WiFi alta velocidad',
+      'Coordinador y asistente de eventos',
+      'Estacionamiento para todos los asistentes',
+    ],
+    opcionales:['Cena de cierre (+$30.000)','Actividades team building (+$25.000)'],
+    vendidos:7,
+  },
+  {
+    id:4, nombre:'Asado & Friends', icon:'🥩', featured:false,
+    precio:35000, colorAccent:'#f0a020',
+    desc:'Reunión de amigos o familia con asado incluido. Hasta 20 personas.',
+    duracion:'5 horas', personas:'hasta 20',
+    incluye:[
+      'Quincho Íntimo por 5 horas',
+      'Asador a cargo del club',
+      'Carne (1.2kg/persona): vacío, chorizo, morcilla',
+      'Guarnición: ensaladas y pan',
+      'Bebidas: soft + 2 latas cerveza/persona',
+      'Carbón y todos los elementos de asado',
+    ],
+    opcionales:['Cordero/cerdo (+$15.000)','Postre casero (+$6.000)'],
+    vendidos:22,
+  },
+  {
+    id:5, nombre:'Despedida de Soltera/o', icon:'💍', featured:false,
+    precio:65000, colorAccent:'#ec4899',
+    desc:'El broche final antes del gran día. Sorpresa o planificada.',
+    duracion:'5 horas', personas:'hasta 40',
+    incluye:[
+      'Quincho Principal por 5 horas',
+      'Decoración temática especial',
+      'Mesa de picadas y snacks',
+      'Open bar 3 horas (bebidas a elección)',
+      'Juegos organizados por el coordinador',
+      'Lista de música personalizada',
+    ],
+    opcionales:['Stripper/show artístico (cotizar)','Fotógrafo (+$20.000)'],
+    vendidos:9,
+  },
+]
+
+const CATERING_MENU = {
+  entradas: [
+    {id:1,  nombre:'Picada completa (x4)',    precio:12000, desc:'Quesos, fiambres, aceitunas y pan artesanal', veggie:false},
+    {id:2,  nombre:'Picada veggie (x4)',       precio:10000, desc:'Hummus, bastones, quesos y crackers',          veggie:true},
+    {id:3,  nombre:'Empanadas (docena)',        precio:7000,  desc:'6 carne + 3 jamón/queso + 3 caprese',          veggie:false},
+    {id:4,  nombre:'Mini bruschettas (x20)',   precio:5500,  desc:'Tomate cherry, rúcula y parmesano',             veggie:true},
+    {id:5,  nombre:'Croquetas de papa (x20)',  precio:4500,  desc:'Con salsa de queso y ciboulette',               veggie:true},
+  ],
+  principales: [
+    {id:6,  nombre:'Asado completo (x10)',     precio:55000, desc:'Vacío, chorizo, morcilla y achuras',            veggie:false},
+    {id:7,  nombre:'Pollo a la parrilla (x10)',precio:32000, desc:'Marinado con especias, acompañado de ensalada', veggie:false},
+    {id:8,  nombre:'Buffet vegetariano (x10)', precio:28000, desc:'3 opciones calientes + ensaladas variadas',     veggie:true},
+    {id:9,  nombre:'Pasta en salsa (x10)',     precio:25000, desc:'Fideos o lasaña con salsa a elección',          veggie:false},
+    {id:10, nombre:'Sándwiches gourmet (x20)', precio:22000, desc:'4 variedades, pan artesanal',                   veggie:false},
+  ],
+  postres: [
+    {id:11, nombre:'Torta personalizada',      precio:18000, desc:'Hasta 30 porciones, diseño a elección',         veggie:true},
+    {id:12, nombre:'Mesa dulce completa',      precio:25000, desc:'Torta + alfajores + cupcakes + chocolates',      veggie:true},
+    {id:13, nombre:'Cheesecake (x10)',         precio:9000,  desc:'New York style con topping de frutos rojos',     veggie:true},
+    {id:14, nombre:'Porciones de torta (x20)', precio:12000, desc:'Variedad: selva negra, mousse, lemon pie',       veggie:true},
+  ],
+  bebidas: [
+    {id:15, nombre:'Soft drinks (x20)',        precio:8000,  desc:'Gaseosas, agua y jugos (4 unidades/persona)'},
+    {id:16, nombre:'Open bar 2hs',             precio:18000, desc:'Cerveza artesanal + vinos + soft por persona'},
+    {id:17, nombre:'Open bar 4hs',             precio:30000, desc:'Toda la noche: cerveza + vino + tragos básicos'},
+    {id:18, nombre:'Champagne (x6 botellas)',  precio:22000, desc:'Para el brindis especial'},
+    {id:19, nombre:'Café/té/facturas (x20)',   precio:5500,  desc:'Ideal para eventos de día o corporativos'},
+  ],
+}
+
+const EVENTOS = [
+  {id:1,  tipo:'cumple',    nombre:'Cumpleaños Valentina',  espacio:4, paquete:1, fecha:'21 Jun 2025', hora:'19:00', personas:22, estado:'confirmado',  total:53000, seña:26500, contacto:'Carlos M. · 11-4521-3344'},
+  {id:2,  tipo:'corporativo',nombre:'Reunión Empresa TechAR',espacio:2,paquete:3,fecha:'24 Jun 2025', hora:'09:00', personas:45, estado:'confirmado',  total:155000,seña:77500, contacto:'Lucía Paz · 11-9876-5432'},
+  {id:3,  tipo:'asado',     nombre:'Asado Equipo Comercial', espacio:1, paquete:4, fecha:'28 Jun 2025', hora:'13:00', personas:18, estado:'confirmado',  total:42000, seña:21000, contacto:'Rodrigo F. · 11-3322-6677'},
+  {id:4,  tipo:'despedida', nombre:'Despedida Martina G.',   espacio:1, paquete:5, fecha:'29 Jun 2025', hora:'21:00', personas:35, estado:'pendiente',   total:72000, seña:0,     contacto:'Ana C. · 11-6677-8899'},
+  {id:5,  tipo:'cumple',    nombre:'Cumpleaños Lucas M.',    espacio:4, paquete:2, fecha:'5 Jul 2025',  hora:'18:00', personas:55, estado:'cotizando',   total:95000, seña:0,     contacto:'Lucas M. · 11-5533-2211'},
+  {id:6,  tipo:'corporativo',nombre:'Capacitación HR Corp',  espacio:2, paquete:3, fecha:'8 Jul 2025',  hora:'08:30', personas:60, estado:'confirmado',  total:140000,seña:70000, contacto:'María B. · 11-7788-9900'},
+]
+
+const TIPO_EVENTO = {
+  cumple:     { label:'Cumpleaños',         icon:'🎂', color:'var(--pink)' },
+  corporativo:{ label:'Corporativo',        icon:'🏢', color:'var(--purple)' },
+  asado:      { label:'Asado & Reunión',    icon:'🔥', color:'var(--warn)' },
+  despedida:  { label:'Despedida',          icon:'💍', color:'var(--pink)' },
+  social:     { label:'Evento social',      icon:'🎉', color:'var(--ac)' },
+}
+const ESTADO_COLORS = {
+  confirmado:'var(--ok)', pendiente:'var(--warn)', cotizando:'var(--ac)', cancelado:'var(--err)'
+}
+
+let activeTab = 'agenda'
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  const totalIngresos = EVENTOS.filter(e=>e.estado==='confirmado').reduce((a,e)=>a+e.total,0)
+  const totalSeñas    = EVENTOS.reduce((a,e)=>a+e.seña,0)
+  const proximos      = EVENTOS.filter(e=>e.estado!=='cancelado').length
+  const pendientes    = EVENTOS.filter(e=>e.estado==='pendiente'||e.estado==='cotizando').length
+  const ocupacion     = Math.round(EVENTOS.filter(e=>e.estado==='confirmado').length / (ESPACIOS.length * 4) * 100)
+
+  const kpiHtml = `<div class="kpis">
+    <div class="kpi" style="border-top:3px solid var(--pink)">
+      <div style="font-size:11px;color:var(--tx2)">Eventos este mes</div>
+      <div class="kv" style="color:var(--pink)">${proximos}</div>
+      <div class="kl">confirmados + pendientes</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ok)">
+      <div style="font-size:11px;color:var(--tx2)">Revenue confirmado</div>
+      <div class="kv" style="color:var(--ok)">${fmt(totalIngresos)}</div>
+      <div class="kl">eventos confirmados</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--gold)">
+      <div style="font-size:11px;color:var(--tx2)">Señas cobradas</div>
+      <div class="kv" style="color:var(--gold)">${fmt(totalSeñas)}</div>
+      <div class="kl">50% del total</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--warn)">
+      <div style="font-size:11px;color:var(--tx2)">Requieren atención</div>
+      <div class="kv" style="color:var(--warn)">${pendientes}</div>
+      <div class="kl">pendientes / cotizando</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ac)">
+      <div style="font-size:11px;color:var(--tx2)">Paquete + vendido</div>
+      <div class="kv" style="color:var(--ac);font-size:14px;margin-top:3px">Cumple Básico</div>
+      <div class="kl">28 eventos este año</div>
+    </div>
+  </div>`
+
+  const content = document.getElementById('main')
+  switch(activeTab) {
+    case 'agenda':   content.innerHTML = kpiHtml + renderAgenda();   break
+    case 'espacios': content.innerHTML = kpiHtml + renderEspacios(); break
+    case 'paquetes': content.innerHTML = kpiHtml + renderPaquetes(); break
+    case 'catering': content.innerHTML = kpiHtml + renderCatering(); break
+    case 'cotizar':  content.innerHTML = kpiHtml + renderCotizar();  break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  AGENDA
+// ══════════════════════════════════════════════════════════
+function renderAgenda() {
+  const esp = id => ESPACIOS.find(x=>x.id===id)
+  const pkg = id => PAQUETES.find(x=>x.id===id)
+
+  let html = `<div style="display:grid;grid-template-columns:1fr 320px;gap:14px">`
+
+  // Lista principal
+  html += '<div>'
+  html += `<div class="card">
+    <div class="card-head">
+      <span class="card-title">📅 Próximos eventos</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="toast('Exportando agenda...')">↓ Exportar</button>
+        <button class="btn btn-pink btn-sm" onclick="openNuevoEvento()">+ Nuevo evento</button>
+      </div>
+    </div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Evento</th><th>Espacio</th><th>Fecha y hora</th>
+        <th class="r">Personas</th><th class="r">Total</th><th>Estado</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${EVENTOS.map(e=>{
+          const espObj = esp(e.espacio)
+          const tp     = TIPO_EVENTO[e.tipo]
+          return `<tr onclick="openEventoDetail(${e.id})" style="cursor:pointer">
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:16px">${tp?.icon||'🎉'}</span>
+                <div>
+                  <div style="font-weight:600;color:var(--tx)">${e.nombre}</div>
+                  <div style="font-size:10px;color:var(--tx3)">${tp?.label} · ${e.contacto.split('·')[0].trim()}</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--tx2)">${espObj?.nombre||'—'}</td>
+            <td style="color:var(--tx2);font-size:11px">${e.fecha} · ${e.hora}hs</td>
+            <td class="r">${e.personas}</td>
+            <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--ok)">${fmt(e.total)}</td>
+            <td><span class="badge" style="background:${ESTADO_COLORS[e.estado]}18;color:${ESTADO_COLORS[e.estado]}">${e.estado}</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openEventoDetail(${e.id})">Ver</button></td>
+          </tr>`
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`
+  html += '</div>'
+
+  // Sidebar — ocupación y próximo evento
+  html += '<div>'
+
+  // Disponibilidad de espacios
+  html += '<div class="card" style="margin:0 0 14px">'
+  html += '<div class="card-head"><span class="card-title">🏛 Disponibilidad hoy</span></div>'
+  ESPACIOS.forEach(e => {
+    const eventosHoy = EVENTOS.filter(ev=>ev.espacio===e.id&&ev.fecha.includes('Jun 2025')&&ev.estado==='confirmado')
+    html += `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd)44">
+      <span style="font-size:18px">${e.icon}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.nombre}</div>
+        <div style="font-size:10px;color:var(--tx3)">${e.capacidad} personas · ${eventosHoy.length} eventos</div>
+      </div>
+      <span class="badge" style="background:${e.disponible?'var(--ok)15':'var(--err)15'};color:${e.disponible?'var(--ok)':'var(--err)'}">
+        ${e.disponible?'Libre':'Ocupado'}
+      </span>
+    </div>`
+  })
+  html += '</div>'
+
+  // Revenue por tipo
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head"><span class="card-title">📊 Revenue por tipo</span></div>'
+  html += '<div class="card-body">'
+  const byTipo = {}
+  EVENTOS.filter(e=>e.estado==='confirmado').forEach(e=>{byTipo[e.tipo]=(byTipo[e.tipo]||0)+e.total})
+  const maxTipo = Math.max(...Object.values(byTipo))
+  Object.entries(byTipo).sort((a,b)=>b[1]-a[1]).forEach(([tipo,total])=>{
+    const tp  = TIPO_EVENTO[tipo]
+    const pct = Math.round(total/maxTipo*100)
+    html += `<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:11px;color:var(--tx2)">${tp?.icon} ${tp?.label}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--ok)">${fmt(total)}</span>
+      </div>
+      <div style="background:var(--bd);border-radius:3px;height:5px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${tp?.color||'var(--ac)'};border-radius:3px"></div>
+      </div>
+    </div>`
+  })
+  html += '</div></div>'
+
+  html += '</div></div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  ESPACIOS
+// ══════════════════════════════════════════════════════════
+function renderEspacios() {
+  let html = '<div class="espacios-grid">'
+  ESPACIOS.forEach(e => {
+    const eventos = EVENTOS.filter(ev=>ev.espacio===e.id&&ev.estado==='confirmado').length
+    html += `<div class="espacio-card" onclick="openEspacioDetail(${e.id})">
+      <div class="ec-img" style="background:${e.colorBg}">
+        <span>${e.icon}</span>
+        ${!e.disponible?`<span class="ec-badge" style="background:var(--err)18;color:var(--err)">Reservado</span>`:`<span class="ec-badge" style="background:var(--ok)18;color:var(--ok)">Disponible</span>`}
+      </div>
+      <div class="ec-body">
+        <div class="ec-name" style="color:${e.color}">${e.nombre}</div>
+        <div class="ec-meta">${e.descripcion}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">
+          ${e.amenities.slice(0,3).map(a=>`<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:${e.colorBg};color:${e.color}">${a}</span>`).join('')}
+          ${e.amenities.length>3?`<span style="font-size:10px;color:var(--tx3)">+${e.amenities.length-3} más</span>`:''}
+        </div>
+      </div>
+      <div class="ec-stats">
+        <div class="ecs">
+          <div class="ecs-v" style="color:${e.color}">${e.capacidad}</div>
+          <div class="ecs-l">Personas</div>
+        </div>
+        <div class="ecs" style="border-left:1px solid var(--bd)">
+          <div class="ecs-v" style="color:var(--ok)">${fmt(e.precioJornada)}</div>
+          <div class="ecs-l">Jornada</div>
+        </div>
+        <div class="ecs" style="border-left:1px solid var(--bd)">
+          <div class="ecs-v" style="color:var(--gold)">${eventos}</div>
+          <div class="ecs-l">Eventos/mes</div>
+        </div>
+      </div>
+    </div>`
+  })
+  html += '</div>'
+
+  // Tabla de precios
+  html += `<div class="card">
+    <div class="card-head"><span class="card-title">💰 Tabla de precios</span>
+      <button class="btn btn-ghost btn-sm" onclick="toast('Precios actualizados')">✏ Editar precios</button>
+    </div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Espacio</th><th>Capacidad</th>
+        <th class="r">Precio/hora</th><th class="r">Jornada (8hs)</th>
+        <th class="r">Fin de semana</th><th>Estado</th>
+      </tr></thead>
+      <tbody>
+        ${ESPACIOS.map(e=>`<tr onclick="openEspacioDetail(${e.id})" style="cursor:pointer">
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:18px">${e.icon}</span>
+              <div>
+                <div style="font-weight:600">${e.nombre}</div>
+                <div style="font-size:10px;color:var(--tx3)">${e.m2}m² · ${e.tipo}</div>
+              </div>
+            </div>
+          </td>
+          <td>${e.capacidad} personas</td>
+          <td class="r" style="font-family:'DM Mono',monospace;font-weight:600">${fmt(e.precioHora)}</td>
+          <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--ok)">${fmt(e.precioJornada)}</td>
+          <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--gold)">${fmt(e.precioFinde)}</td>
+          <td><span class="badge" style="background:${e.disponible?'var(--ok)15':'var(--err)15'};color:${e.disponible?'var(--ok)':'var(--err)'}">
+            ${e.disponible?'Disponible':'Ocupado'}
+          </span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  PAQUETES
+// ══════════════════════════════════════════════════════════
+function renderPaquetes() {
+  let html = '<div class="paquetes-grid">'
+  PAQUETES.forEach(p => {
+    html += `<div class="pkg-card ${p.featured?'featured':''}" onclick="openPaqueteDetail(${p.id})">
+      ${p.featured?`<div style="position:absolute;top:0;left:0;right:0;height:3px;background:${p.colorAccent}"></div>`:''}
+      <div class="pkg-icon">${p.icon}</div>
+      <div class="pkg-name" style="color:${p.colorAccent}">${p.nombre}</div>
+      <div class="pkg-desc">${p.desc}</div>
+      <div style="margin-bottom:14px">
+        <div class="pkg-price" style="color:${p.colorAccent}">${fmt(p.precio)}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:2px">${p.duracion} · ${p.personas}</div>
+      </div>
+      ${p.incluye.map(i=>`<div class="pkg-feature">
+        <span style="color:${p.colorAccent};font-weight:700;flex-shrink:0">✓</span>
+        <span>${i}</span>
+      </div>`).join('')}
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;color:var(--tx3)">${p.vendidos} eventos este año</span>
+        <button class="btn btn-sm" style="background:${p.colorAccent}18;color:${p.colorAccent};border:1px solid ${p.colorAccent}33" onclick="event.stopPropagation();openCotizarConPaquete(${p.id})">Cotizar →</button>
+      </div>
+    </div>`
+  })
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  CATERING
+// ══════════════════════════════════════════════════════════
+function renderCatering() {
+  let html = '<div style="display:grid;grid-template-columns:1fr 300px;gap:14px">'
+  html += '<div>'
+
+  const cats = [
+    {key:'entradas',   label:'🥗 Entradas y picadas'},
+    {key:'principales',label:'🍽 Platos principales'},
+    {key:'postres',    label:'🍰 Postres y mesa dulce'},
+    {key:'bebidas',    label:'🥂 Bebidas y open bar'},
+  ]
+
+  cats.forEach(cat => {
+    html += `<div class="card" style="margin-bottom:14px">
+      <div class="card-head"><span class="card-title">${cat.label}</span></div>`
+    CATERING_MENU[cat.key].forEach(item => {
+      html += `<div class="catering-item" onclick="addToCart(${item.id})">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--tx)">${item.nombre}
+            ${item.veggie?'<span style="font-size:9px;background:var(--ok)15;color:var(--ok);border-radius:4px;padding:1px 5px;margin-left:4px">🌿 Veggie</span>':''}
+          </div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:1px">${item.desc}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:'DM Mono',monospace;font-weight:700;color:var(--ok)">${fmt(item.precio)}</div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:3px" onclick="event.stopPropagation();addToCart(${item.id})">+ Agregar</button>
+        </div>
+      </div>`
+    })
+    html += '</div>'
+  })
+  html += '</div>'
+
+  // Carrito lateral
+  html += `<div>
+    <div class="card" style="margin:0;position:sticky;top:20px">
+      <div class="card-head"><span class="card-title">🛒 Mi cotización</span>
+        <button class="btn btn-ghost btn-sm" onclick="clearCart()">Limpiar</button>
+      </div>
+      <div id="cart-items" style="min-height:80px;padding:10px 14px"></div>
+      <div style="padding:12px 14px;border-top:1px solid var(--bd)">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:12px">
+          <span>Total estimado</span>
+          <span id="cart-total" style="font-family:'DM Mono',monospace;color:var(--ok)">$0</span>
+        </div>
+        <button class="btn btn-pink" style="width:100%;justify-content:center" onclick="openCotizacionFinal()">
+          Solicitar cotización
+        </button>
+      </div>
+    </div>
+  </div>`
+
+  html += '</div>'
+  return html
+}
+
+// Carrito de catering
+let cart = []
+function addToCart(itemId) {
+  const item = Object.values(CATERING_MENU).flat().find(x=>x.id===itemId)
+  if (!item) return
+  const existing = cart.find(x=>x.id===itemId)
+  if (existing) existing.qty++
+  else cart.push({...item, qty:1})
+  renderCart()
+  toast('✓ ' + item.nombre + ' agregado')
+}
+function removeFromCart(itemId) {
+  cart = cart.filter(x=>x.id!==itemId)
+  renderCart()
+}
+function clearCart() { cart=[]; renderCart() }
+function renderCart() {
+  const el = document.getElementById('cart-items')
+  const tot = document.getElementById('cart-total')
+  if (!el) return
+  if (!cart.length) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--tx3);font-size:12px">Agregá items del menú</div>'
+    if (tot) tot.textContent = '$0'
+    return
+  }
+  el.innerHTML = cart.map(item=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)44;font-size:11px">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.nombre}</div>
+        <div style="color:var(--ok)">${fmt(item.precio * item.qty)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px">
+        <button onclick="changeQty(${item.id},-1)" style="width:20px;height:20px;border-radius:4px;border:1px solid var(--bd2);background:none;color:var(--tx);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">-</button>
+        <span style="font-family:'DM Mono',monospace;font-weight:600;min-width:16px;text-align:center">${item.qty}</span>
+        <button onclick="changeQty(${item.id},1)" style="width:20px;height:20px;border-radius:4px;border:1px solid var(--bd2);background:none;color:var(--tx);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">+</button>
+        <button onclick="removeFromCart(${item.id})" style="width:20px;height:20px;border-radius:4px;border:none;background:var(--err)15;color:var(--err);cursor:pointer;font-size:12px;margin-left:2px">✕</button>
+      </div>
+    </div>`).join('')
+  const total = cart.reduce((a,x)=>a+x.precio*x.qty,0)
+  if (tot) tot.textContent = fmt(total)
+}
+function changeQty(id, delta) {
+  const item = cart.find(x=>x.id===id)
+  if (!item) return
+  item.qty += delta
+  if (item.qty <= 0) cart = cart.filter(x=>x.id!==id)
+  renderCart()
+}
+
+// ══════════════════════════════════════════════════════════
+//  COTIZACIONES
+// ══════════════════════════════════════════════════════════
+function renderCotizar() {
+  const pendientes = EVENTOS.filter(e=>e.estado==='cotizando'||e.estado==='pendiente')
+  let html = ''
+
+  if (pendientes.length) {
+    html += `<div class="card" style="margin-bottom:14px">
+      <div class="card-head">
+        <span class="card-title" style="color:var(--warn)">⏳ Cotizaciones pendientes (${pendientes.length})</span>
+        <button class="btn btn-ghost btn-sm" onclick="toast('Enviando presupuestos masivos...')">Enviar todos</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Evento</th><th>Espacio</th><th>Fecha</th><th class="r">Personas</th><th class="r">Estimado</th><th></th></tr></thead>
+        <tbody>
+          ${pendientes.map(e=>{
+            const tp = TIPO_EVENTO[e.tipo]
+            const esp = ESPACIOS.find(x=>x.id===e.espacio)
+            return `<tr>
+              <td>
+                <div style="font-weight:600">${tp?.icon} ${e.nombre}</div>
+                <div style="font-size:10px;color:var(--tx3)">${e.contacto}</div>
+              </td>
+              <td style="color:var(--tx2)">${esp?.nombre}</td>
+              <td style="color:var(--tx2)">${e.fecha} · ${e.hora}hs</td>
+              <td class="r">${e.personas}</td>
+              <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--warn)">${fmt(e.total)}</td>
+              <td style="white-space:nowrap">
+                <button class="btn btn-ok btn-sm" onclick="confirmarEvento(${e.id})">✓ Confirmar</button>
+                <button class="btn btn-ghost btn-sm" onclick="openEventoDetail(${e.id})">Ver detalle</button>
+              </td>
+            </tr>`
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`
+  }
+
+  // Formulario de nueva cotización
+  html += `<div class="card">
+    <div class="card-head"><span class="card-title">📋 Nueva cotización rápida</span></div>
+    <div class="card-body">
+      <div class="frow">
+        <div>
+          <label class="flbl">Nombre del evento / cliente</label>
+          <input class="finp" id="cot-nombre" placeholder="Ej: Cumpleaños Sofía">
+        </div>
+        <div>
+          <label class="flbl">Tipo de evento</label>
+          <select class="fsel" id="cot-tipo">
+            ${Object.entries(TIPO_EVENTO).map(([k,v])=>`<option value="${k}">${v.icon} ${v.label}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div>
+          <label class="flbl">Espacio</label>
+          <select class="fsel" id="cot-espacio">
+            ${ESPACIOS.map(e=>`<option value="${e.id}">${e.icon} ${e.nombre} (hasta ${e.capacidad} personas)</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="flbl">Paquete base</label>
+          <select class="fsel" id="cot-paquete" onchange="updateCotEstimado()">
+            <option value="">Sin paquete</option>
+            ${PAQUETES.map(p=>`<option value="${p.id}">${p.icon} ${p.nombre} — ${fmt(p.precio)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="frow3">
+        <div>
+          <label class="flbl">Fecha</label>
+          <input type="date" class="finp" id="cot-fecha">
+        </div>
+        <div>
+          <label class="flbl">Hora</label>
+          <select class="fsel" id="cot-hora">
+            ${['10:00','12:00','14:00','16:00','18:00','19:00','20:00','21:00'].map(h=>`<option>${h}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="flbl">Cantidad de personas</label>
+          <input type="number" class="finp" id="cot-personas" placeholder="0" min="1" oninput="updateCotEstimado()">
+        </div>
+      </div>
+      <div>
+        <label class="flbl">Notas adicionales</label>
+        <textarea class="ftextarea" id="cot-notas" rows="2" placeholder="Decoración especial, restricciones alimentarias, solicitudes extras..."></textarea>
+      </div>
+      <!-- Estimado en tiempo real -->
+      <div id="cot-estimado" style="background:var(--ok)0a;border:1px solid var(--ok)22;border-radius:9px;padding:12px 14px;margin-bottom:10px;display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;font-weight:600;color:var(--ok)">Estimado del evento</span>
+          <span id="cot-total" style="font-family:'DM Mono',monospace;font-size:18px;font-weight:800;color:var(--ok)">$0</span>
+        </div>
+        <div id="cot-desglose" style="font-size:11px;color:var(--tx2);margin-top:5px"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="resetCotizacion()">Limpiar</button>
+        <button class="btn btn-ghost" onclick="saveCotizacion('pendiente')">Guardar como pendiente</button>
+        <button class="btn btn-pink" onclick="saveCotizacion('confirmado')">✓ Confirmar evento</button>
+      </div>
+    </div>
+  </div>`
+
+  const today = new Date().toISOString().slice(0,10)
+  setTimeout(()=>{ const el = document.getElementById('cot-fecha'); if(el) el.value=today }, 0)
+
+  return html
+}
+
+function updateCotEstimado() {
+  const pkgId = parseInt(document.getElementById('cot-paquete')?.value)||0
+  const personas = parseInt(document.getElementById('cot-personas')?.value)||0
+  const pkg = PAQUETES.find(x=>x.id===pkgId)
+  const cartTotal = cart.reduce((a,x)=>a+x.precio*x.qty, 0)
+  const total = (pkg?.precio||0) + cartTotal
+  const el = document.getElementById('cot-estimado')
+  const telEl = document.getElementById('cot-total')
+  const desEl = document.getElementById('cot-desglose')
+  if (!el||!telEl) return
+  if (total > 0) {
+    el.style.display = ''
+    telEl.textContent = fmt(total)
+    const lines = []
+    if (pkg) lines.push('Paquete '+pkg.nombre+': '+fmt(pkg.precio))
+    if (cartTotal>0) lines.push('Catering adicional: '+fmt(cartTotal))
+    if (desEl) desEl.textContent = lines.join(' · ')
+  } else {
+    el.style.display = 'none'
+  }
+}
+
+function saveCotizacion(estado) {
+  const nombre = document.getElementById('cot-nombre')?.value.trim()
+  if (!nombre) { toast('Ingresá el nombre del evento','warn'); return }
+  const pkgId  = parseInt(document.getElementById('cot-paquete')?.value)||0
+  const pkg    = PAQUETES.find(x=>x.id===pkgId)
+  const cartTotal = cart.reduce((a,x)=>a+x.precio*x.qty,0)
+  const total  = (pkg?.precio||0) + cartTotal
+  EVENTOS.push({
+    id:       EVENTOS.length+1,
+    tipo:     document.getElementById('cot-tipo')?.value||'social',
+    nombre,
+    espacio:  parseInt(document.getElementById('cot-espacio')?.value)||1,
+    paquete:  pkgId||null,
+    fecha:    document.getElementById('cot-fecha')?.value||'',
+    hora:     document.getElementById('cot-hora')?.value||'',
+    personas: parseInt(document.getElementById('cot-personas')?.value)||0,
+    estado,
+    total,
+    seña:     estado==='confirmado' ? Math.round(total/2) : 0,
+    contacto: 'Sin contacto',
+  })
+  cart = []
+  switchTab('agenda')
+  renderMain()
+  toast('✓ Evento "'+nombre+'" '+(estado==='confirmado'?'confirmado':'guardado como pendiente'))
+}
+
+function resetCotizacion() { renderMain() }
+
+function confirmarEvento(id) {
+  const e = EVENTOS.find(x=>x.id===id)
+  if (e) { e.estado='confirmado'; e.seña=Math.round(e.total/2) }
+  renderMain()
+  toast('✓ Evento confirmado')
+}
+
+function openCotizarConPaquete(pkgId) {
+  switchTab('cotizar')
+  setTimeout(()=>{
+    const sel = document.getElementById('cot-paquete')
+    if (sel) { sel.value=pkgId; updateCotEstimado() }
+  }, 100)
+}
+function openCotizacionFinal() {
+  if (!cart.length) { toast('Agregá items al carrito primero','warn'); return }
+  switchTab('cotizar')
+  setTimeout(()=>updateCotEstimado(), 100)
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════════
+function openEventoDetail(id) {
+  const e   = EVENTOS.find(x=>x.id===id)
+  if (!e) return
+  const esp = ESPACIOS.find(x=>x.id===e.espacio)
+  const pkg = PAQUETES.find(x=>x.id===e.paquete)
+  const tp  = TIPO_EVENTO[e.tipo]
+  const restante = e.total - e.seña
+
+  showModal(`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="font-size:32px">${tp?.icon||'🎉'}</div>
+      <div>
+        <div class="modal-title" style="margin-bottom:2px">${e.nombre}</div>
+        <div style="font-size:12px;color:var(--tx2)">${tp?.label} · ${e.fecha} · ${e.hora}hs</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {l:'Espacio',   v:esp?.nombre||'—', c:'var(--ac)'},
+        {l:'Personas',  v:e.personas,        c:'var(--tx)'},
+        {l:'Estado',    v:e.estado,          c:ESTADO_COLORS[e.estado]},
+        {l:'Total',     v:fmt(e.total),      c:'var(--ok)'},
+        {l:'Seña',      v:fmt(e.seña),       c:'var(--gold)'},
+        {l:'Restante',  v:fmt(restante),     c:restante>0?'var(--warn)':'var(--ok)'},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:9px;text-align:center">
+        <div style="font-size:13px;font-weight:700;font-family:'Syne',sans-serif;color:${s.c}">${s.v}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+    ${pkg?`<div style="background:var(--pink)0a;border:1px solid var(--pink)22;border-radius:8px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--pink);margin-bottom:3px">Paquete: ${pkg.nombre}</div>
+      <div style="font-size:11px;color:var(--tx2)">${pkg.incluye.slice(0,3).join(' · ')}</div>
+    </div>`:''}
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Contacto</div>
+    <div style="background:var(--s2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--tx2);margin-bottom:14px">${e.contacto}</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      ${e.estado!=='confirmado'?`<button class="btn btn-ok btn-sm" onclick="confirmarEvento(${e.id});closeModal()">✓ Confirmar</button>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="toast('Enviando detalle por WhatsApp...')">📱 Enviar detalle</button>
+      ${restante>0?`<button class="btn btn-pink" onclick="closeModal();toast('Registrando cobro restante de ${fmt(restante)}')">💳 Cobrar saldo</button>`:''}
+    </div>
+  `)
+}
+
+function openEspacioDetail(id) {
+  const e = ESPACIOS.find(x=>x.id===id)
+  if (!e) return
+  showModal(`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:48px;margin-bottom:8px">${e.icon}</div>
+      <div class="modal-title" style="color:${e.color}">${e.nombre}</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:3px">${e.m2}m² · hasta ${e.capacidad} personas</div>
+    </div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:14px;line-height:1.6">${e.descripcion}</div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Amenities incluidos</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">
+      ${e.amenities.map(a=>`<span style="font-size:11px;padding:3px 10px;border-radius:7px;background:${e.colorBg};color:${e.color}">✓ ${a}</span>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {l:'Por hora',     v:fmt(e.precioHora)},
+        {l:'Jornada 8hs',  v:fmt(e.precioJornada)},
+        {l:'Fin de semana', v:fmt(e.precioFinde)},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ok)">${s.v}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+    ${!e.disponible?`<div style="background:var(--warn)0a;border:1px solid var(--warn)22;border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:var(--warn)">
+      ⚠ Próxima disponibilidad: ${e.proximaDisponibilidad}
+    </div>`:''}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-pink" onclick="closeModal();openNuevoEvento(${id})">Reservar este espacio</button>
+    </div>
+  `)
+}
+
+function openPaqueteDetail(id) {
+  const p = PAQUETES.find(x=>x.id===id)
+  if (!p) return
+  showModal(`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:48px;margin-bottom:8px">${p.icon}</div>
+      <div class="modal-title" style="color:${p.colorAccent}">${p.nombre}</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:3px">${p.duracion} · ${p.personas}</div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:${p.colorAccent};text-align:center;margin-bottom:14px">${fmt(p.precio)}</div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Incluye</div>
+    <div style="margin-bottom:14px">
+      ${p.incluye.map(i=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)44;font-size:12px">
+        <span style="color:${p.colorAccent};font-weight:700">✓</span><span>${i}</span>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px">Opcionales (adicional)</div>
+    <div style="margin-bottom:14px">
+      ${p.opcionales.map(o=>`<div style="font-size:11px;color:var(--tx3);padding:3px 0">· ${o}</div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-pink" onclick="closeModal();openCotizarConPaquete(${p.id})">Cotizar con este paquete →</button>
+    </div>
+  `)
+}
+
+function openNuevoEvento(espacioPresel) {
+  showModal(`
+    <div class="modal-title">🎉 Nuevo evento</div>
+    <div class="modal-sub">Completá los datos básicos — podés refinar la cotización después</div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Nombre del evento</label>
+        <input class="finp" id="ne-nombre" placeholder="Ej: Cumpleaños Valentina">
+      </div>
+      <div>
+        <label class="flbl">Tipo</label>
+        <select class="fsel" id="ne-tipo">
+          ${Object.entries(TIPO_EVENTO).map(([k,v])=>`<option value="${k}">${v.icon} ${v.label}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Espacio</label>
+        <select class="fsel" id="ne-espacio">
+          ${ESPACIOS.map(e=>`<option value="${e.id}" ${espacioPresel===e.id?'selected':''}>${e.icon} ${e.nombre}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Paquete</label>
+        <select class="fsel" id="ne-paquete">
+          <option value="">Sin paquete</option>
+          ${PAQUETES.map(p=>`<option value="${p.id}">${p.icon} ${p.nombre}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="frow3">
+      <div><label class="flbl">Fecha</label><input type="date" class="finp" id="ne-fecha"></div>
+      <div><label class="flbl">Hora</label>
+        <select class="fsel" id="ne-hora">
+          ${['10:00','12:00','14:00','16:00','18:00','19:00','20:00','21:00'].map(h=>`<option>${h}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="flbl">Personas</label><input type="number" class="finp" id="ne-personas" placeholder="0" min="1"></div>
+    </div>
+    <div><label class="flbl">Contacto</label><input class="finp" id="ne-contacto" placeholder="Nombre · teléfono"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-ghost" onclick="saveNuevoEvento('pendiente')">Guardar pendiente</button>
+      <button class="btn btn-pink" onclick="saveNuevoEvento('confirmado')">✓ Confirmar</button>
+    </div>
+  `)
+  const today = new Date().toISOString().slice(0,10)
+  document.getElementById('ne-fecha').value = today
+}
+
+function saveNuevoEvento(estado) {
+  const nombre = document.getElementById('ne-nombre')?.value.trim()
+  if (!nombre) { toast('Ingresá el nombre','warn'); return }
+  const pkgId  = parseInt(document.getElementById('ne-paquete')?.value)||0
+  const pkg    = PAQUETES.find(x=>x.id===pkgId)
+  EVENTOS.push({
+    id:       EVENTOS.length+1,
+    tipo:     document.getElementById('ne-tipo')?.value||'social',
+    nombre,
+    espacio:  parseInt(document.getElementById('ne-espacio')?.value)||1,
+    paquete:  pkgId||null,
+    fecha:    document.getElementById('ne-fecha')?.value||'',
+    hora:     document.getElementById('ne-hora')?.value||'',
+    personas: parseInt(document.getElementById('ne-personas')?.value)||0,
+    estado,
+    total:    pkg?.precio||0,
+    seña:     estado==='confirmado'?Math.round((pkg?.precio||0)/2):0,
+    contacto: document.getElementById('ne-contacto')?.value.trim()||'Sin contacto',
+  })
+  closeModal(); renderMain()
+  toast('✓ Evento "'+nombre+'" '+(estado==='confirmado'?'confirmado':'guardado'))
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html
+  document.getElementById('modal').style.display  = 'flex'
+}
+function closeModal() { document.getElementById('modal').style.display='none' }
+
+function toast(msg,type='success') {
+  const cols={success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t=document.createElement('div');t.className='toast'
+  t.innerHTML='<span style="color:'+(cols[type]||cols.success)+'">●</span> '+msg
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2600)
+}
+function toggleTheme() {
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme',h.getAttribute('data-theme'))
+}
+const st=localStorage.getItem('shos-theme')
+if(st) document.documentElement.setAttribute('data-theme',st)
+
+renderMain()
+</script>
+</body>
+</html>

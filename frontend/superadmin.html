@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — SuperAdmin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#04060c;--s1:#080c16;--s2:#0d1120;--s3:#111828;
+  --bd:#182030;--bd2:#1e2a40;--bd3:#2a3858;
+  --tx:#dde3f4;--tx2:#7a8db0;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;--info:#38bdf8;
+  --purple:#7c3aed;--purple2:#9d5cf0;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 14px #00000066;
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#ffffff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--info:#0284c7;
+  --purple:#7c3aed;--purple2:#9d5cf0;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+/* TOPBAR */
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.sa-badge{display:flex;align-items:center;gap:8px;background:var(--purple)18;border:1px solid var(--purple)44;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--purple2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--purple),#5b7fff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;font-family:'Syne',sans-serif}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--purple);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+/* LAYOUT */
+.layout{display:flex;height:calc(100vh - 49px);overflow:hidden}
+.snav{width:210px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);overflow-y:auto;padding:10px 8px}
+.snav-sec{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;padding:8px 10px 4px;margin-top:6px}
+.snav-sec:first-child{margin-top:0}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--tx2);transition:all .13s}
+.ni:hover{background:var(--s2);color:var(--tx)}
+.ni.on{background:var(--purple)12;color:var(--purple2);font-weight:500}
+.ni-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.ni-badge{margin-left:auto;font-size:10px;background:var(--purple)20;color:var(--purple2);border-radius:10px;padding:1px 6px;font-weight:600}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:22px 26px}
+.page-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--tx);margin-bottom:3px}
+.page-sub{font-size:12px;color:var(--tx2);margin-bottom:20px}
+
+/* GLOBAL KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-top:6px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+.kt{font-size:11px;margin-top:3px}
+
+/* CLUBS GRID */
+.clubs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:20px}
+.club-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .14s,transform .14s;cursor:pointer}
+.club-card:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.club-card-head{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bd)}
+.club-avatar{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.club-name{font-size:14px;font-weight:600;font-family:'Syne',sans-serif;color:var(--tx)}
+.club-meta{font-size:11px;color:var(--tx3);margin-top:2px}
+.plan-badge{font-size:10px;font-weight:700;border-radius:6px;padding:2px 8px;margin-left:auto}
+.plan-free{background:#1a2030;color:#4a5878}
+.plan-saas{background:#0d1e3d;color:#5b7fff}
+.plan-partner{background:#1a0d33;color:#a855f7}
+.plan-enterprise{background:#0d2a1a;color:#2ecc71}
+[data-theme="light"] .plan-free{background:#f0f3fb;color:#9aaac8}
+[data-theme="light"] .plan-saas{background:#eef4ff;color:#3d63f0}
+[data-theme="light"] .plan-partner{background:#f5f0ff;color:#7c3aed}
+[data-theme="light"] .plan-enterprise{background:#f0fdf4;color:#16a34a}
+.club-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--bd)}
+.cs{padding:10px 12px;text-align:center;border-right:1px solid var(--bd)}
+.cs:last-child{border-right:none}
+.cs-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--tx)}
+.cs-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.club-modules{display:flex;gap:4px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--bd)}
+.mod-tag{font-size:9px;font-weight:600;border-radius:5px;padding:2px 7px}
+.mod-on{background:var(--ok)15;color:var(--ok)}
+.mod-off{background:var(--bd);color:var(--tx3)}
+.club-status-bar{height:3px}
+
+/* TABLA */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl th.r{text-align:right}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--bd)55;vertical-align:middle}
+.tbl tr:hover td{background:var(--s2)}
+.tbl tr:last-child td{border-bottom:none}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fi .15s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:560px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:18px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--purple)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* MODULES GRID EN MODAL */
+.mod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:14px}
+.mod-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;transition:all .13s;user-select:none}
+.mod-item.on{border-color:var(--ok)55;background:var(--ok)0c}
+.mod-item-icon{font-size:16px;flex-shrink:0}
+.mod-item-info{flex:1}
+.mod-item-name{font-size:12px;font-weight:500;color:var(--tx)}
+.mod-item-desc{font-size:10px;color:var(--tx3);margin-top:1px}
+.mod-item-tog{width:28px;height:16px;border-radius:8px;background:var(--bd2);position:relative;flex-shrink:0;transition:background .15s}
+.mod-item.on .mod-item-tog{background:var(--ok)}
+.mod-item-tog::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .15s}
+.mod-item.on .mod-item-tog::after{transform:translateX(12px)}
+
+/* CHARTS */
+.mini-bar{display:flex;align-items:flex-end;gap:2px;height:40px}
+.mb{flex:1;border-radius:2px 2px 0 0;min-height:3px;transition:height .4s}
+
+/* BILLING */
+.bill-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:10px}
+.bill-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd)55;font-size:12px}
+.bill-row:last-child{border-bottom:none}
+
+/* TOGGLE */
+.tog{width:36px;height:20px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tog.on{background:var(--ok)}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog.on::after{transform:translateX(16px)}
+
+/* BTNS */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-sa{background:var(--purple);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--ok)15;color:var(--ok);border:1px solid var(--ok)33}
+.btn-err{background:var(--err)15;color:var(--err);border:1px solid var(--err)33}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.top-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif}
+.card-body{padding:16px}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">SA</div>
+  <div><div class="ln">Sport Hub OS</div><div style="font-size:10px;color:var(--tx3)">Panel SuperAdmin</div></div>
+  <div class="sa-badge">🔐 SuperAdmin · Anthropic Inc.</div>
+  <div class="top-right">
+    <button class="btn btn-sa" onclick="openNewClub()">+ Nuevo club</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="snav" id="snav"></nav>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+// PLANS es mutable — el SuperAdmin puede editarlos
+const PLANS = {
+  free: {
+    id:'free', label:'Free', color:'plan-free', price:0, revenueShare:0,
+    desc:'Hasta 1 cancha, sin agente IA',
+    highlight:'Para probar el sistema',
+    modules:['reservas','caja'],
+    limits:{ spaces:1, players:50, bookingsMonth:100 },
+    support:'Solo documentación',
+    badge:'', active:true,
+  },
+  saas: {
+    id:'saas', label:'SaaS', color:'plan-saas', price:29900, revenueShare:0,
+    desc:'Módulos base · soporte email',
+    highlight:'El más popular',
+    modules:['reservas','caja','jugadores','tienda','agente_ia'],
+    limits:{ spaces:10, players:500, bookingsMonth:2000 },
+    support:'Email · respuesta 24hs',
+    badge:'⭐ Popular', active:true,
+  },
+  partner: {
+    id:'partner', label:'Partner', color:'plan-partner', price:0, revenueShare:8,
+    desc:'Revenue share · sin mensualidad',
+    highlight:'Sin costo fijo inicial',
+    modules:['reservas','caja','jugadores','tienda','agente_ia','clases'],
+    limits:{ spaces:20, players:1000, bookingsMonth:5000 },
+    support:'Email + WhatsApp · respuesta 12hs',
+    badge:'🤝 Partner', active:true,
+  },
+  enterprise: {
+    id:'enterprise', label:'Enterprise', color:'plan-enterprise', price:89900, revenueShare:0,
+    desc:'Todo incluido · soporte dedicado',
+    highlight:'Para grandes complejos',
+    modules:['reservas','caja','jugadores','tienda','agente_ia','clases','membresias','torneos','publicidad','multi_sede'],
+    limits:{ spaces:999, players:999999, bookingsMonth:999999 },
+    support:'Soporte dedicado 24/7 · onboarding presencial',
+    badge:'🏆 Enterprise', active:true,
+  },
+}
+
+const ALL_MODULES = [
+  { id:'reservas',    icon:'📅', name:'Reservas',         desc:'Canchas · clases · espacios' },
+  { id:'caja',        icon:'💰', name:'Caja diaria',      desc:'Ingresos · egresos · cierre' },
+  { id:'jugadores',   icon:'👤', name:'Jugadores / CRM',  desc:'Fichas · mensajes · mapa' },
+  { id:'tienda',      icon:'🛍', name:'Tienda',           desc:'Stock · ventas · análisis' },
+  { id:'agente_ia',   icon:'🤖', name:'Agente IA',        desc:'WhatsApp inteligente' },
+  { id:'clases',      icon:'🎓', name:'Clases / academia',desc:'Profesores · inscripción' },
+  { id:'membresias',  icon:'⭐', name:'Membresías',       desc:'Planes · cuotas' },
+  { id:'torneos',     icon:'🏆', name:'Torneos',          desc:'Fixture · inscripción' },
+  { id:'publicidad',  icon:'📢', name:'Publicidad',       desc:'AdSpaces · métricas' },
+  { id:'multi_sede',  icon:'🌐', name:'Multi-sede',       desc:'Varios complejos' },
+]
+
+const CLUBS = [
+  {
+    id:1, name:'Sport Hub Norte', city:'Palermo, CABA', emoji:'🏟', color:'#5b7fff',
+    plan:'partner', active:true, since:'Mar 2024',
+    contact:'Martín García', phone:'11-4500-1234', email:'martin@sporthubos.app',
+    modules:['reservas','caja','jugadores','tienda','agente_ia','clases'],
+    players:142, bookingsMonth:384, revenueMonth:1240000, revenueShare:8,
+    monthlyFee:0, debt:0,
+    weekRevenue:[84,72,91,68,105,138,124],
+    onboardingDone:true, lastActivity:'hace 2 horas',
+  },
+  {
+    id:2, name:'Fútbol Arena GBA', city:'Quilmes, GBA', emoji:'⚽', color:'#22c55e',
+    plan:'saas', active:true, since:'Jun 2024',
+    contact:'Laura Pérez', phone:'11-2233-4455', email:'laura@futbolaena.com',
+    modules:['reservas','caja','jugadores','agente_ia'],
+    players:89, bookingsMonth:210, revenueMonth:680000, revenueShare:0,
+    monthlyFee:29900, debt:29900,
+    weekRevenue:[55,61,48,72,90,110,88],
+    onboardingDone:true, lastActivity:'hace 1 día',
+  },
+  {
+    id:3, name:'Pádel & Wellness', city:'San Isidro, GBA', emoji:'🧘', color:'#06b6d4',
+    plan:'enterprise', active:true, since:'Ene 2024',
+    contact:'Roberto Silva', phone:'11-5566-7788', email:'roberto@padelelwellness.com',
+    modules:['reservas','caja','jugadores','tienda','agente_ia','clases','membresias','torneos'],
+    players:234, bookingsMonth:612, revenueMonth:2180000, revenueShare:0,
+    monthlyFee:89900, debt:0,
+    weekRevenue:[180,165,200,155,220,290,240],
+    onboardingDone:true, lastActivity:'hace 30 min',
+  },
+  {
+    id:4, name:'CrossFit Belgrano', city:'Belgrano, CABA', emoji:'💪', color:'#ef4444',
+    plan:'saas', active:true, since:'Sep 2024',
+    contact:'Ana Torres', phone:'11-7788-9900', email:'ana@crossfitbelgrano.com',
+    modules:['reservas','caja','jugadores','clases'],
+    players:67, bookingsMonth:145, revenueMonth:420000, revenueShare:0,
+    monthlyFee:29900, debt:0,
+    weekRevenue:[40,38,45,35,52,65,50],
+    onboardingDone:true, lastActivity:'hace 4 horas',
+  },
+  {
+    id:5, name:'Club Deportivo Sur', city:'Lomas de Zamora, GBA', emoji:'🏟', color:'#f97316',
+    plan:'free', active:true, since:'Nov 2024',
+    contact:'Carlos Méndez', phone:'11-9900-1122', email:'carlos@clubsur.com',
+    modules:['reservas','caja'],
+    players:28, bookingsMonth:54, revenueMonth:0, revenueShare:0,
+    monthlyFee:0, debt:0,
+    weekRevenue:[12,8,15,10,18,22,16],
+    onboardingDone:false, lastActivity:'hace 5 días',
+  },
+  {
+    id:6, name:'Tennis Club Palermo', city:'Palermo, CABA', emoji:'🎾', color:'#f59e0b',
+    plan:'saas', active:false, since:'Ago 2024',
+    contact:'Sofía Ramírez', phone:'11-3344-5566', email:'sofia@tennispalermo.com',
+    modules:['reservas','caja','jugadores'],
+    players:45, bookingsMonth:0, revenueMonth:0, revenueShare:0,
+    monthlyFee:29900, debt:59800,
+    weekRevenue:[0,0,0,0,0,0,0],
+    onboardingDone:true, lastActivity:'hace 22 días',
+  },
+]
+
+let activeSection = 'dashboard'
+let editingClubId = null
+
+const fmt = n => {
+  if (n >= 1000000) return '$'+(n/1000000).toFixed(1)+'M'
+  if (n >= 1000)    return '$'+(n/1000).toFixed(0)+'k'
+  return '$'+n.toLocaleString()
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+const NAV = [
+  { section:'Vista global' },
+  { id:'dashboard',  icon:'📊', label:'Dashboard',          badge:null },
+  { id:'clubs',      icon:'🏟', label:'Clubs',              badge:()=>CLUBS.length },
+  { id:'analytics',  icon:'📈', label:'Analytics',          badge:null },
+  { section:'Ventas' },
+  { id:'billing',    icon:'💳', label:'Facturación',        badge:()=>{ const d=CLUBS.filter(c=>c.debt>0).length; return d||null } },
+  { id:'modules',    icon:'⚡', label:'Planes y módulos',   badge:null },
+  { id:'churn',      icon:'🚨', label:'Alertas de churn',   badge:()=>{ const n=getChurnRisk().length; return n||null } },
+  { id:'discounts',  icon:'🎁', label:'Descuentos y cupones',badge:null },
+  { section:'Comunicación' },
+  { id:'broadcast',  icon:'📢', label:'Mensajes a clubs',   badge:null },
+  { section:'Sistema' },
+  { id:'activity',   icon:'🔔', label:'Actividad reciente', badge:null },
+  { id:'healthmap',  icon:'❤️', label:'Health scores',      badge:()=>{ const n=CLUBS.filter(c=>calcHealth(c)<40).length; return n||null } },
+  { id:'api',        icon:'🔌', label:'API & integraciones',badge:null },
+]
+
+function renderNav() {
+  document.getElementById('snav').innerHTML = NAV.map(item => {
+    if (item.section) return `<div class="snav-sec">${item.section}</div>`
+    const badge = item.badge?.()
+    return `<div class="ni ${activeSection===item.id?'on':''}" onclick="goTo('${item.id}')">
+      <span class="ni-icon">${item.icon}</span>
+      <span style="flex:1">${item.label}</span>
+      ${badge?`<span class="ni-badge">${badge}</span>`:''}
+    </div>`
+  }).join('')
+}
+
+function goTo(id) { activeSection=id; renderNav(); renderContent() }
+
+// ══════════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════════
+function renderContent() {
+  switch(activeSection) {
+    case 'dashboard': renderDashboard(); break
+    case 'clubs':     renderClubs();     break
+    case 'billing':   renderBilling();   break
+    case 'modules':   renderModules();   break
+    case 'analytics': renderAnalytics(); break
+    case 'churn':     renderChurn();     break
+    case 'discounts': renderDiscounts(); break
+    case 'broadcast': renderBroadcast(); break
+    case 'healthmap': renderHealthMap(); break
+    case 'activity':  renderActivity();  break
+    case 'api':       renderAPI();       break
+    default:          renderDashboard()
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════════
+function renderDashboard() {
+  const activeClubs    = CLUBS.filter(c=>c.active).length
+  const totalPlayers   = CLUBS.reduce((a,c)=>a+c.players,0)
+  const totalBookings  = CLUBS.reduce((a,c)=>a+c.bookingsMonth,0)
+  const totalRevenue   = CLUBS.reduce((a,c)=>a+c.revenueMonth,0)
+  const mrr            = CLUBS.reduce((a,c)=>a+(c.monthlyFee||0),0)
+  const totalDebt      = CLUBS.reduce((a,c)=>a+c.debt,0)
+  const revenueShare   = CLUBS.reduce((a,c)=>a+Math.round(c.revenueMonth*c.revenueShare/100),0)
+  const saasIncome     = mrr + revenueShare
+
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">Dashboard global</div>
+    <div class="page-sub">Vista consolidada de todos los complejos en tiempo real</div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi" style="border-top:3px solid var(--purple)">
+        <div style="font-size:11px;color:var(--tx2)">Clubs activos</div>
+        <div class="kv" style="color:var(--purple2)">${activeClubs}</div>
+        <div class="kl">de ${CLUBS.length} totales</div>
+        <div class="kt" style="color:var(--ok)">↑ +2 este mes</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid var(--ok)">
+        <div style="font-size:11px;color:var(--tx2)">Jugadores totales</div>
+        <div class="kv" style="color:var(--ok)">${totalPlayers.toLocaleString()}</div>
+        <div class="kl">en todos los clubs</div>
+        <div class="kt" style="color:var(--ok)">↑ +34 esta semana</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid var(--ac)">
+        <div style="font-size:11px;color:var(--tx2)">Reservas del mes</div>
+        <div class="kv" style="color:var(--ac)">${totalBookings.toLocaleString()}</div>
+        <div class="kl">en todos los clubs</div>
+        <div class="kt" style="color:var(--ok)">↑ +12%</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid var(--warn)">
+        <div style="font-size:11px;color:var(--tx2)">MRR plataforma</div>
+        <div class="kv" style="color:var(--warn)">${fmt(saasIncome)}</div>
+        <div class="kl">SaaS + revenue share</div>
+        <div class="kt" style="color:var(--ok)">↑ +18%</div>
+      </div>
+      <div class="kpi" style="border-top:3px solid ${totalDebt>0?'var(--err)':'var(--ok)'}">
+        <div style="font-size:11px;color:var(--tx2)">Deuda acumulada</div>
+        <div class="kv" style="color:${totalDebt>0?'var(--err)':'var(--ok)'}">${fmt(totalDebt)}</div>
+        <div class="kl">${CLUBS.filter(c=>c.debt>0).length} clubs con deuda</div>
+      </div>
+    </div>
+
+    <!-- Ranking de clubs + alertas -->
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:14px">
+
+      <!-- Ranking -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Clubs por revenue este mes</span>
+          <button class="btn btn-ghost btn-sm" onclick="goTo('clubs')">Ver todos →</button>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Club</th><th>Plan</th>
+            <th class="r">Revenue</th><th class="r">Bookings</th><th class="r">Fee plataforma</th><th></th>
+          </tr></thead>
+          <tbody>
+            ${[...CLUBS].sort((a,b)=>b.revenueMonth-a.revenueMonth).map((c,i)=>{
+              const fee = c.monthlyFee + Math.round(c.revenueMonth*c.revenueShare/100)
+              return `<tr onclick="openClubDetail(${c.id})" style="cursor:pointer">
+                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--tx3)">${['🥇','🥈','🥉','4°','5°','6°'][i]||i+1}</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:28px;height:28px;border-radius:7px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:14px">${c.emoji}</div>
+                    <div>
+                      <div style="font-weight:500;color:var(--tx)">${c.name}</div>
+                      <div style="font-size:10px;color:var(--tx3)">${c.city}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="plan-badge ${PLANS[c.plan].color}">${PLANS[c.plan].label}</span></td>
+                <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:${c.revenueMonth>0?'var(--ok)':'var(--tx3)'}">${fmt(c.revenueMonth)}</td>
+                <td class="r" style="color:var(--tx2)">${c.bookingsMonth}</td>
+                <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--warn)">${fmt(fee)}</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openClubDetail(${c.id})">→</button></td>
+              </tr>`
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sidebar derecho -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <!-- Distribución de planes -->
+        <div class="card" style="margin:0">
+          <div class="card-head"><span class="card-title">Distribución de planes</span></div>
+          <div class="card-body" style="padding:12px 16px">
+            ${Object.entries(PLANS).map(([id,plan])=>{
+              const count = CLUBS.filter(c=>c.plan===id).length
+              if (!count) return ''
+              const pct = Math.round(count/CLUBS.length*100)
+              return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span class="plan-badge ${plan.color}" style="min-width:64px;text-align:center">${plan.label}</span>
+                <div style="flex:1;background:var(--bd);border-radius:3px;height:14px;overflow:hidden">
+                  <div style="width:${pct}%;height:100%;background:var(--bd3);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--tx2)">${count} club${count>1?'s':''}</div>
+                </div>
+                <span style="font-size:11px;color:var(--tx3);width:28px;text-align:right">${pct}%</span>
+              </div>`
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Alertas -->
+        <div class="card" style="margin:0">
+          <div class="card-head"><span class="card-title">🚨 Alertas</span></div>
+          <div style="padding:0">
+            ${CLUBS.filter(c=>c.debt>0||!c.active||!c.onboardingDone).map(c=>`
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--bd)55;font-size:12px">
+                <span style="font-size:14px">${!c.active?'🔴':c.debt>0?'🟡':'🔵'}</span>
+                <div style="flex:1">
+                  <div style="font-weight:500">${c.name}</div>
+                  <div style="font-size:10px;color:var(--tx3)">
+                    ${!c.active?'Club inactivo':c.debt>0?'Deuda: '+fmt(c.debt):'Onboarding incompleto'}
+                  </div>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="openClubDetail(${c.id})">Ver</button>
+              </div>`).join('') || '<div style="padding:12px 14px;font-size:12px;color:var(--tx3)">Sin alertas activas ✓</div>'}
+          </div>
+        </div>
+
+        <!-- Ingresos plataforma breakdown -->
+        <div class="card" style="margin:0">
+          <div class="card-head"><span class="card-title">Ingresos plataforma</span></div>
+          <div class="card-body" style="padding:12px 16px">
+            ${[
+              { label:'Mensualidades SaaS', val: mrr, color:'var(--ac)' },
+              { label:'Revenue share', val: revenueShare, color:'var(--purple2)' },
+              { label:'Total mes', val: saasIncome, color:'var(--warn)', bold:true },
+            ].map(i=>`<div class="bill-row" style="${i.bold?'font-weight:700':''}">
+              <span style="color:${i.bold?'var(--tx)':'var(--tx2)'}">${i.label}</span>
+              <span style="font-family:'DM Mono',monospace;font-weight:600;color:${i.color}">${fmt(i.val)}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  CLUBS
+// ══════════════════════════════════════════════════════════
+function renderClubs() {
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">Todos los clubs</div>
+    <div class="page-sub">${CLUBS.length} complejos registrados · ${CLUBS.filter(c=>c.active).length} activos</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      ${['Todos','Activos','Inactivos','Con deuda','Free','SaaS','Partner','Enterprise'].map(f=>`
+        <div class="btn btn-ghost btn-sm" onclick="filterClubs('${f}')" id="fcl-${f.replace(' ','')}">${f}</div>`).join('')}
+    </div>
+
+    <div class="clubs-grid" id="clubs-grid">
+      ${CLUBS.map(c=>buildClubCard(c)).join('')}
+    </div>
+  `
+}
+
+function filterClubs(f) {
+  const grid = document.getElementById('clubs-grid')
+  let shown = CLUBS
+  if (f==='Activos')    shown=CLUBS.filter(c=>c.active)
+  if (f==='Inactivos')  shown=CLUBS.filter(c=>!c.active)
+  if (f==='Con deuda')  shown=CLUBS.filter(c=>c.debt>0)
+  if (['Free','SaaS','Partner','Enterprise'].includes(f)) shown=CLUBS.filter(c=>c.plan===f.toLowerCase())
+  grid.innerHTML = shown.map(c=>buildClubCard(c)).join('')
+}
+
+function buildClubCard(c) {
+  const fee = c.monthlyFee + Math.round(c.revenueMonth*(c.revenueShare||0)/100)
+  const maxW = Math.max(...c.weekRevenue,1)
+  return `<div class="club-card" onclick="openClubDetail(${c.id})">
+    <div class="club-status-bar" style="background:${c.active?'var(--ok)':'var(--err)'}"></div>
+    <div class="club-card-head">
+      <div class="club-avatar" style="background:${c.color}22">${c.emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div class="club-name">${c.name}</div>
+        <div class="club-meta">${c.city} · ${c.lastActivity}</div>
+      </div>
+      <span class="plan-badge ${PLANS[c.plan].color}">${PLANS[c.plan].label}</span>
+    </div>
+    <div class="club-stats">
+      <div class="cs"><div class="cs-val">${c.players}</div><div class="cs-lbl">Jugadores</div></div>
+      <div class="cs"><div class="cs-val">${c.bookingsMonth}</div><div class="cs-lbl">Reservas</div></div>
+      <div class="cs"><div class="cs-val" style="color:${c.revenueMonth>0?'var(--ok)':'var(--tx3)'}">${fmt(c.revenueMonth)}</div><div class="cs-lbl">Revenue</div></div>
+      <div class="cs">
+        <div class="mini-bar">${c.weekRevenue.map(v=>`<div class="mb" style="height:${Math.round(v/maxW*36)+4}px;background:${c.active?c.color+'cc':'var(--bd2)'}"></div>`).join('')}</div>
+        <div class="cs-lbl">7 días</div>
+      </div>
+    </div>
+    <div class="club-modules">
+      ${ALL_MODULES.map(m=>`<span class="mod-tag ${c.modules.includes(m.id)?'mod-on':'mod-off'}">${m.icon} ${m.name}</span>`).join('')}
+    </div>
+    ${c.debt>0?`<div style="padding:7px 14px;background:var(--err)0c;border-top:1px solid var(--err)22;font-size:11px;color:var(--err);display:flex;align-items:center;justify-content:space-between">
+      <span>⚠ Deuda: ${fmt(c.debt)}</span>
+      <button class="btn btn-err btn-sm" onclick="event.stopPropagation();sendDebtAlert(${c.id})">Enviar aviso</button>
+    </div>`:''}
+  </div>`
+}
+
+// ══════════════════════════════════════════════════════════
+//  DETALLE DE CLUB (modal)
+// ══════════════════════════════════════════════════════════
+function openClubDetail(id) {
+  const c = CLUBS.find(x=>x.id===id)
+  if (!c) return
+  editingClubId = id
+  const fee = c.monthlyFee + Math.round(c.revenueMonth*(c.revenueShare||0)/100)
+
+  showModal(`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:48px;height:48px;border-radius:12px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:24px">${c.emoji}</div>
+      <div style="flex:1">
+        <div class="modal-title" style="margin-bottom:2px">${c.name}</div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <span class="plan-badge ${PLANS[c.plan].color}">${PLANS[c.plan].label}</span>
+          <span style="font-size:11px;color:var(--tx3)">${c.city} · Desde ${c.since}</span>
+          <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:${c.active?'var(--ok)15':'var(--err)15'};color:${c.active?'var(--ok)':'var(--err)'};">${c.active?'Activo':'Inactivo'}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats rápidas -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+      ${[
+        {label:'Jugadores',  val:c.players,       color:'var(--ac)'},
+        {label:'Reservas',   val:c.bookingsMonth,  color:'var(--info)'},
+        {label:'Revenue',    val:fmt(c.revenueMonth), color:'var(--ok)'},
+        {label:'Fee plataforma', val:fmt(fee),     color:'var(--warn)'},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:${s.color}">${s.val}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">${s.label}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- Módulos activos -->
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Módulos habilitados</div>
+    <div class="mod-grid" id="mod-grid-${c.id}">
+      ${ALL_MODULES.map(m=>`
+        <div class="mod-item ${c.modules.includes(m.id)?'on':''}" id="mod-${c.id}-${m.id}"
+          onclick="toggleModule(${c.id},'${m.id}')">
+          <span class="mod-item-icon">${m.icon}</span>
+          <div class="mod-item-info">
+            <div class="mod-item-name">${m.name}</div>
+            <div class="mod-item-desc">${m.desc}</div>
+          </div>
+          <div class="mod-item-tog"></div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Plan y facturación -->
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Plan y facturación</div>
+    <div class="frow3" style="margin-bottom:10px">
+      <div>
+        <label class="flbl">Plan</label>
+        <select class="fsel" id="det-plan" style="margin:0">
+          ${Object.entries(PLANS).map(([id,p])=>`<option value="${id}" ${c.plan===id?'selected':''}>${p.label} — ${p.desc.split('·')[0]}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Mensualidad ($)</label>
+        <input type="number" class="finp" id="det-fee" value="${c.monthlyFee}" style="margin:0">
+      </div>
+      <div>
+        <label class="flbl">Revenue share (%)</label>
+        <input type="number" class="finp" id="det-share" value="${c.revenueShare}" min="0" max="30" style="margin:0">
+      </div>
+    </div>
+
+    ${c.debt>0?`<div style="background:var(--err)10;border:1px solid var(--err)33;border-radius:8px;padding:10px 13px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:12px">
+      <span>💰 Deuda pendiente: <strong style="color:var(--err)">${fmt(c.debt)}</strong></span>
+      <button class="btn btn-err btn-sm" onclick="sendDebtAlert(${c.id})">Enviar aviso por email</button>
+    </div>`:''}
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-err btn-sm" onclick="toggleClubActive(${c.id})">${c.active?'Suspender acceso':'Reactivar acceso'}</button>
+      <button class="btn btn-sa" onclick="saveClubDetail(${c.id})">Guardar cambios</button>
+    </div>
+  `)
+}
+
+function toggleModule(clubId, modId) {
+  const c = CLUBS.find(x=>x.id===clubId)
+  if (!c) return
+  const idx = c.modules.indexOf(modId)
+  if (idx>=0) c.modules.splice(idx,1)
+  else c.modules.push(modId)
+  const el = document.getElementById(`mod-${clubId}-${modId}`)
+  if (el) el.classList.toggle('on', c.modules.includes(modId))
+}
+
+function saveClubDetail(id) {
+  const c = CLUBS.find(x=>x.id===id)
+  if (!c) return
+  c.plan       = document.getElementById('det-plan')?.value  || c.plan
+  c.monthlyFee = parseInt(document.getElementById('det-fee')?.value)   || 0
+  c.revenueShare= parseFloat(document.getElementById('det-share')?.value) || 0
+  closeModal()
+  toast(`✓ ${c.name} actualizado`)
+  renderContent()
+}
+
+function toggleClubActive(id) {
+  const c = CLUBS.find(x=>x.id===id)
+  if (!c) return
+  c.active = !c.active
+  closeModal()
+  toast(`${c.name}: ${c.active?'reactivado':'suspendido'}`, c.active?'success':'warn')
+  renderContent()
+}
+
+// ══════════════════════════════════════════════════════════
+//  NUEVO CLUB
+// ══════════════════════════════════════════════════════════
+function openNewClub() {
+  showModal(`
+    <div class="modal-title">Nuevo club</div>
+    <div class="modal-sub">Creá el acceso para un nuevo complejo</div>
+    <div class="frow">
+      <div><label class="flbl">Nombre del complejo</label><input class="finp" id="nc-name" placeholder="Ej: Club Deportivo Norte"></div>
+      <div><label class="flbl">Ciudad</label><input class="finp" id="nc-city" placeholder="Ej: Palermo, CABA"></div>
+    </div>
+    <div class="frow">
+      <div><label class="flbl">Contacto</label><input class="finp" id="nc-contact" placeholder="Nombre del responsable"></div>
+      <div><label class="flbl">Email</label><input class="finp" id="nc-email" placeholder="email@complejo.com"></div>
+    </div>
+    <div class="frow">
+      <div><label class="flbl">Teléfono</label><input class="finp" id="nc-phone" placeholder="11-xxxx-xxxx"></div>
+      <div>
+        <label class="flbl">Plan inicial</label>
+        <select class="fsel" id="nc-plan">
+          ${Object.entries(PLANS).map(([id,p])=>`<option value="${id}">${p.label} — ${id==='free'?'Gratis':id==='partner'?'Revenue share':fmt(p.price)+'/mes'}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin:10px 0 8px">Módulos iniciales</div>
+    <div class="mod-grid" id="new-mod-grid">
+      ${ALL_MODULES.map(m=>`
+        <div class="mod-item ${['reservas','caja','jugadores'].includes(m.id)?'on':''}" id="nm-${m.id}"
+          onclick="this.classList.toggle('on')">
+          <span class="mod-item-icon">${m.icon}</span>
+          <div class="mod-item-info">
+            <div class="mod-item-name">${m.name}</div>
+            <div class="mod-item-desc">${m.desc}</div>
+          </div>
+          <div class="mod-item-tog"></div>
+        </div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-sa" onclick="saveNewClub()">Crear club y enviar acceso</button>
+    </div>
+  `)
+}
+
+function saveNewClub() {
+  const name = document.getElementById('nc-name')?.value.trim()
+  if (!name) { toast('Ingresá el nombre','warn'); return }
+  const modules = ALL_MODULES
+    .filter(m=>document.getElementById('nm-'+m.id)?.classList.contains('on'))
+    .map(m=>m.id)
+  const newClub = {
+    id: CLUBS.length+1,
+    name,
+    city:    document.getElementById('nc-city')?.value || '',
+    emoji:'🏟', color:'#5b7fff',
+    plan:    document.getElementById('nc-plan')?.value || 'saas',
+    active:true, since: new Date().toLocaleDateString('es-AR',{month:'short',year:'numeric'}),
+    contact: document.getElementById('nc-contact')?.value || '',
+    phone:   document.getElementById('nc-phone')?.value || '',
+    email:   document.getElementById('nc-email')?.value || '',
+    modules, players:0, bookingsMonth:0, revenueMonth:0,
+    revenueShare:0, monthlyFee:29900, debt:0,
+    weekRevenue:[0,0,0,0,0,0,0],
+    onboardingDone:false, lastActivity:'Recién creado',
+  }
+  CLUBS.push(newClub)
+  closeModal()
+  toast(`✓ ${name} creado · Link de acceso enviado por email`)
+  renderContent()
+  renderNav()
+}
+
+// ══════════════════════════════════════════════════════════
+//  FACTURACIÓN
+// ══════════════════════════════════════════════════════════
+function renderBilling() {
+  const totalMRR   = CLUBS.reduce((a,c)=>a+(c.monthlyFee||0),0)
+  const totalShare = CLUBS.reduce((a,c)=>a+Math.round(c.revenueMonth*(c.revenueShare||0)/100),0)
+  const totalDebt  = CLUBS.reduce((a,c)=>a+c.debt,0)
+
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">Facturación</div>
+    <div class="page-sub">Estado de pagos y revenue de la plataforma</div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+      ${[
+        {label:'MRR mensualidades', val:fmt(totalMRR),   color:'var(--ac)',     sub:CLUBS.filter(c=>c.monthlyFee>0).length+' clubs pagantes'},
+        {label:'Revenue share',     val:fmt(totalShare), color:'var(--purple2)',sub:'Este mes'},
+        {label:'Deuda total',       val:fmt(totalDebt),  color:totalDebt>0?'var(--err)':'var(--ok)', sub:CLUBS.filter(c=>c.debt>0).length+' clubs morosos'},
+      ].map(k=>`<div class="card" style="margin:0">
+        <div class="card-body">
+          <div style="font-size:11px;color:var(--tx2)">${k.label}</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:${k.color};margin:5px 0 3px">${k.val}</div>
+          <div style="font-size:11px;color:var(--tx3)">${k.sub}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Estado de cuenta por club</span>
+        <button class="btn btn-ghost btn-sm" onclick="toast('Exportando estado de cuenta...')">↓ Exportar</button>
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th>Club</th><th>Plan</th><th class="r">Mensualidad</th>
+          <th class="r">Revenue share</th><th class="r">Total mes</th>
+          <th class="r">Deuda</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${CLUBS.map(c=>{
+            const share = Math.round(c.revenueMonth*(c.revenueShare||0)/100)
+            const total = (c.monthlyFee||0) + share
+            return `<tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:7px">
+                  <span style="font-size:16px">${c.emoji}</span>
+                  <div>
+                    <div style="font-weight:500">${c.name}</div>
+                    <div style="font-size:10px;color:var(--tx3)">${c.city}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="plan-badge ${PLANS[c.plan].color}">${PLANS[c.plan].label}</span></td>
+              <td class="r" style="font-family:'DM Mono',monospace">${c.monthlyFee?fmt(c.monthlyFee):'—'}</td>
+              <td class="r" style="font-family:'DM Mono',monospace">${share?fmt(share)+' ('+c.revenueShare+'%)':'—'}</td>
+              <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:${total>0?'var(--warn)':'var(--tx3)'}">${total?fmt(total):'—'}</td>
+              <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:${c.debt>0?'var(--err)':'var(--ok)'}">${c.debt?fmt(c.debt):'✓'}</td>
+              <td>
+                <span style="font-size:10px;border-radius:8px;padding:2px 8px;background:${c.active?'var(--ok)15':'var(--err)15'};color:${c.active?'var(--ok)':'var(--err)'}">
+                  ${c.active?'Al día':'Inactivo'}
+                </span>
+              </td>
+              <td>
+                ${c.debt>0?`<button class="btn btn-err btn-sm" onclick="sendDebtAlert(${c.id})">Cobrar</button>`:''}
+                <button class="btn btn-ghost btn-sm" onclick="openClubDetail(${c.id})">Editar</button>
+              </td>
+            </tr>`
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="border-top:2px solid var(--bd2)">
+            <td colspan="4" style="padding:10px 12px;font-weight:700;font-family:'Syne',sans-serif">TOTAL</td>
+            <td class="r" style="font-family:'DM Mono',monospace;font-weight:700;color:var(--warn);font-size:14px">${fmt(totalMRR+totalShare)}</td>
+            <td class="r" style="font-family:'DM Mono',monospace;font-weight:700;color:${totalDebt>0?'var(--err)':'var(--ok)'}">${totalDebt?fmt(totalDebt):'$0'}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  MÓDULOS Y PLANES
+// ══════════════════════════════════════════════════════════
+function renderModules() {
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">Planes y módulos</div>
+    <div class="page-sub">Diseñá tus propios planes de venta. Cada plan define precio, módulos, límites y nivel de soporte.</div>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px">
+      <button class="btn btn-ghost btn-sm" onclick="toast('Próximamente: duplicar plan','warn')">📋 Duplicar plan</button>
+      <button class="btn btn-sa" onclick="openNewPlan()">+ Crear plan personalizado</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px">
+      ${Object.entries(PLANS).map(([planId,plan])=>{
+        const clubCount = CLUBS.filter(c=>c.plan===planId).length
+        const priceStr  = plan.price===0 && plan.revenueShare>0
+          ? plan.revenueShare+'% del revenue'
+          : plan.price===0 ? 'Gratis' : fmt(plan.price)+'/mes'
+        return `
+        <div class="card" style="margin:0;${!plan.active?'opacity:.6':''}">
+          <div class="card-head" style="flex-wrap:wrap;gap:6px">
+            <div style="display:flex;align-items:center;gap:8px;flex:1">
+              <span class="plan-badge ${plan.color}">${plan.label}</span>
+              ${plan.badge?`<span style="font-size:11px;color:var(--tx2)">${plan.badge}</span>`:''}
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:700;color:var(--warn)">${priceStr}</span>
+              <button class="btn btn-ghost btn-sm" onclick="openEditPlan('${planId}')">✏ Editar</button>
+            </div>
+          </div>
+
+          <!-- Highlight + clubs -->
+          <div style="padding:10px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:12px;color:var(--tx2);font-style:italic">${plan.highlight}</span>
+            <span style="font-size:11px;background:var(--s2);border-radius:8px;padding:2px 9px;color:var(--tx3)">${clubCount} club${clubCount!==1?'s':''}</span>
+          </div>
+
+          <!-- Módulos -->
+          <div style="padding:10px 16px;border-bottom:1px solid var(--bd)">
+            <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Módulos incluidos</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              ${ALL_MODULES.map(m=>`
+                <span style="font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;
+                  background:${plan.modules.includes(m.id)?'var(--ok)15':'var(--bd)'};
+                  color:${plan.modules.includes(m.id)?'var(--ok)':'var(--tx3)'}">
+                  ${m.icon} ${m.name}
+                </span>`).join('')}
+            </div>
+          </div>
+
+          <!-- Límites -->
+          <div style="padding:10px 16px;border-bottom:1px solid var(--bd)">
+            <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Límites</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">
+              ${[
+                {label:'Espacios',  val: plan.limits.spaces===999?'Ilimitado':plan.limits.spaces},
+                {label:'Jugadores', val: plan.limits.players>=999999?'Ilimitado':plan.limits.players.toLocaleString()},
+                {label:'Reservas/mes', val: plan.limits.bookingsMonth>=999999?'Ilimitado':plan.limits.bookingsMonth.toLocaleString()},
+              ].map(l=>`<div style="background:var(--s2);border-radius:7px;padding:7px 6px">
+                <div style="font-size:13px;font-weight:700;font-family:'Syne',sans-serif;color:var(--tx)">${l.val}</div>
+                <div style="font-size:9px;color:var(--tx3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">${l.label}</div>
+              </div>`).join('')}
+            </div>
+          </div>
+
+          <!-- Soporte -->
+          <div style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11px;color:var(--tx2)">🎧 ${plan.support}</span>
+            <div class="tog ${plan.active?'on':''}" title="${plan.active?'Plan activo':'Plan inactivo'}"
+              onclick="PLANS['${planId}'].active=!PLANS['${planId}'].active;renderModules()"></div>
+          </div>
+        </div>`
+      }).join('')}
+    </div>
+
+    <div style="background:var(--purple)0c;border:1px solid var(--purple)33;border-radius:10px;padding:12px 16px;font-size:12px;color:var(--tx2);line-height:1.6">
+      💡 <strong style="color:var(--tx)">Cómo funciona:</strong> Estos son los planes base. Al crear un club podés asignarle cualquier plan. Luego desde la ficha de cada club podés sobreescribir módulos individuales sin cambiar el plan. Los cambios de precio acá son comerciales — no modifican lo que ya están pagando los clubs existentes.
+    </div>
+  `
+}
+
+// ── Editor de plan ────────────────────────────────────────
+function openEditPlan(planId) {
+  const plan = PLANS[planId]
+  if (!plan) return
+  _editingPlanId = planId
+  showModal(buildPlanModal(plan, false))
+}
+
+function openNewPlan() {
+  _editingPlanId = null
+  const blank = {
+    id:'', label:'', color:'plan-saas', price:0, revenueShare:0,
+    desc:'', highlight:'', modules:['reservas','caja'],
+    limits:{ spaces:5, players:200, bookingsMonth:500 },
+    support:'Email', badge:'', active:true,
+  }
+  showModal(buildPlanModal(blank, true))
+}
+
+let _editingPlanId = null
+
+function buildPlanModal(plan, isNew) {
+  const COLORS_OPTS = [
+    {id:'plan-free',       label:'Gris',     sample:'#4a5878'},
+    {id:'plan-saas',       label:'Azul',     sample:'#5b7fff'},
+    {id:'plan-partner',    label:'Violeta',  sample:'#a855f7'},
+    {id:'plan-enterprise', label:'Verde',    sample:'#2ecc71'},
+  ]
+  return `
+    <div class="modal-title">${isNew?'Crear plan':'Editar plan: '+plan.label}</div>
+    <div class="modal-sub">Los módulos y límites aplican a todos los clubs nuevos en este plan</div>
+
+    <div class="frow">
+      <div>
+        <label class="flbl">Nombre del plan</label>
+        <input class="finp" id="pl-label" value="${plan.label}" placeholder="Ej: Pro, Business, Starter...">
+      </div>
+      <div>
+        <label class="flbl">Badge / etiqueta</label>
+        <input class="finp" id="pl-badge" value="${plan.badge||''}" placeholder="Ej: ⭐ Popular">
+      </div>
+    </div>
+
+    <div>
+      <label class="flbl">Descripción corta</label>
+      <input class="finp" id="pl-desc" value="${plan.desc}" placeholder="Módulos incluidos · nivel de soporte">
+    </div>
+    <div>
+      <label class="flbl">Frase de venta (highlight)</label>
+      <input class="finp" id="pl-highlight" value="${plan.highlight||''}" placeholder="Ej: El más elegido por complejos medianos">
+    </div>
+
+    <div class="frow3">
+      <div>
+        <label class="flbl">Precio mensual ($)</label>
+        <input type="number" class="finp" id="pl-price" value="${plan.price}" min="0" oninput="updatePricePreview()">
+      </div>
+      <div>
+        <label class="flbl">Revenue share (%)</label>
+        <input type="number" class="finp" id="pl-share" value="${plan.revenueShare}" min="0" max="30" step="0.5" oninput="updatePricePreview()">
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end">
+        <div id="pl-price-preview" style="padding:9px 12px;background:var(--s2);border-radius:8px;font-size:12px;color:var(--warn);font-weight:600;font-family:'DM Mono',monospace;margin-bottom:10px;text-align:center">
+          ${plan.price>0?fmt(plan.price)+'/mes':plan.revenueShare>0?plan.revenueShare+'% revenue':'Gratis'}
+        </div>
+      </div>
+    </div>
+
+    <label class="flbl">Color del badge</label>
+    <div style="display:flex;gap:7px;margin-bottom:12px">
+      ${COLORS_OPTS.map(c=>`
+        <div onclick="this.parentElement.querySelectorAll('[data-colopt]').forEach(x=>x.style.outline='none');this.style.outline='2px solid var(--purple)'"
+          data-colopt="${c.id}" id="colopt-${c.id}"
+          style="display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;border:1px solid var(--bd2);cursor:pointer;font-size:11px;${plan.color===c.id?'outline:2px solid var(--purple)':''}">
+          <span style="color:${c.sample};font-weight:700">${c.label}</span>
+        </div>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+      <div>
+        <label class="flbl">Límite espacios</label>
+        <input type="number" class="finp" id="pl-lim-spaces" value="${plan.limits.spaces===999?'':plan.limits.spaces}" placeholder="999 = ilimitado">
+      </div>
+      <div>
+        <label class="flbl">Límite jugadores</label>
+        <input type="number" class="finp" id="pl-lim-players" value="${plan.limits.players>=999999?'':plan.limits.players}" placeholder="∞ = ilimitado">
+      </div>
+      <div>
+        <label class="flbl">Límite reservas/mes</label>
+        <input type="number" class="finp" id="pl-lim-bookings" value="${plan.limits.bookingsMonth>=999999?'':plan.limits.bookingsMonth}" placeholder="∞ = ilimitado">
+      </div>
+    </div>
+
+    <label class="flbl">Nivel de soporte</label>
+    <select class="fsel" id="pl-support">
+      ${[
+        'Solo documentación',
+        'Email · respuesta 48hs',
+        'Email · respuesta 24hs',
+        'Email + WhatsApp · respuesta 12hs',
+        'Soporte prioritario · respuesta 4hs',
+        'Soporte dedicado 24/7 · onboarding presencial',
+      ].map(s=>`<option value="${s}" ${plan.support===s?'selected':''}>${s}</option>`).join('')}
+    </select>
+
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Módulos incluidos</div>
+    <div class="mod-grid" id="pl-mod-grid">
+      ${ALL_MODULES.map(m=>`
+        <div class="mod-item ${plan.modules.includes(m.id)?'on':''}" id="plm-${m.id}"
+          onclick="this.classList.toggle('on')">
+          <span class="mod-item-icon">${m.icon}</span>
+          <div class="mod-item-info">
+            <div class="mod-item-name">${m.name}</div>
+            <div class="mod-item-desc">${m.desc}</div>
+          </div>
+          <div class="mod-item-tog"></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      ${!isNew?`<button class="btn btn-err btn-sm" onclick="deletePlan('${plan.id}')">Eliminar plan</button>`:''}
+      <button class="btn btn-sa" onclick="savePlan(${isNew})">
+        ${isNew?'Crear plan':'Guardar cambios'}
+      </button>
+    </div>
+  `
+}
+
+function updatePricePreview() {
+  const price = parseFloat(document.getElementById('pl-price')?.value)||0
+  const share = parseFloat(document.getElementById('pl-share')?.value)||0
+  const el    = document.getElementById('pl-price-preview')
+  if (!el) return
+  el.textContent = price>0 ? fmt(price)+'/mes' : share>0 ? share+'% del revenue' : 'Gratis'
+}
+
+function savePlan(isNew) {
+  const label = document.getElementById('pl-label')?.value.trim()
+  if (!label) { toast('Ingresá el nombre del plan','warn'); return }
+
+  const selColor = document.querySelector('[data-colopt][style*="outline: 2px"]')?.getAttribute('data-colopt') || 'plan-saas'
+  const modules  = ALL_MODULES.filter(m=>document.getElementById('plm-'+m.id)?.classList.contains('on')).map(m=>m.id)
+  const limSpaces   = parseInt(document.getElementById('pl-lim-spaces')?.value)   || 999
+  const limPlayers  = parseInt(document.getElementById('pl-lim-players')?.value)  || 999999
+  const limBookings = parseInt(document.getElementById('pl-lim-bookings')?.value) || 999999
+
+  const data = {
+    label,
+    badge:      document.getElementById('pl-badge')?.value.trim()    || '',
+    desc:       document.getElementById('pl-desc')?.value.trim()     || '',
+    highlight:  document.getElementById('pl-highlight')?.value.trim()|| '',
+    price:      parseFloat(document.getElementById('pl-price')?.value)||0,
+    revenueShare: parseFloat(document.getElementById('pl-share')?.value)||0,
+    color:      selColor,
+    support:    document.getElementById('pl-support')?.value         || 'Email',
+    modules, active: true,
+    limits:{ spaces:limSpaces, players:limPlayers, bookingsMonth:limBookings },
+  }
+
+  if (isNew) {
+    const newId = label.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')+'_'+Date.now()
+    PLANS[newId] = { id:newId, ...data }
+    toast(`✓ Plan "${label}" creado`)
+  } else {
+    Object.assign(PLANS[_editingPlanId], data)
+    toast(`✓ Plan "${label}" actualizado`)
+  }
+  closeModal()
+  renderModules()
+}
+
+function deletePlan(planId) {
+  const clubsInPlan = CLUBS.filter(c=>c.plan===planId).length
+  if (clubsInPlan>0) {
+    toast(`No podés eliminar — hay ${clubsInPlan} clubs en este plan`,'warn')
+    return
+  }
+  delete PLANS[planId]
+  closeModal()
+  renderModules()
+  toast('Plan eliminado','warn')
+}
+
+// ══════════════════════════════════════════════════════════
+//  ACTIVIDAD
+// ══════════════════════════════════════════════════════════
+function renderActivity() {
+  const events = [
+    {time:'hace 30 min', club:'Pádel & Wellness', event:'Nueva reserva',   detail:'Pádel 1 — Sofía R. 20:00hs',  icon:'📅', color:'var(--ok)'},
+    {time:'hace 1 hora', club:'Sport Hub Norte',  event:'Venta tienda',    detail:'Paleta HEAD — $85.000',          icon:'🛍', color:'var(--ac)'},
+    {time:'hace 2 horas',club:'Sport Hub Norte',  event:'Nuevo jugador',   detail:'Lucas Martínez · Pádel 4ª',     icon:'👤', color:'var(--info)'},
+    {time:'hace 3 horas',club:'CrossFit Belgrano',event:'Clase completa',  detail:'Crossfit 18hs · 15/15 alumnos', icon:'💪', color:'var(--warn)'},
+    {time:'hace 4 horas',club:'Fútbol Arena GBA', event:'Caja cerrada',    detail:'Resultado: $84.200',             icon:'💰', color:'var(--ok)'},
+    {time:'hace 1 día',  club:'Tennis Club',      event:'Club inactivo',   detail:'Sin actividad por 22 días',     icon:'🔴', color:'var(--err)'},
+    {time:'hace 2 días', club:'Club Dep. Sur',    event:'Onboarding pend.',detail:'No completó la configuración',  icon:'🔵', color:'var(--purple2)'},
+    {time:'hace 5 días', club:'Pádel & Wellness', event:'Torneo creado',   detail:'Copa Padel Junio · 24 equipos', icon:'🏆', color:'var(--warn)'},
+  ]
+
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">Actividad reciente</div>
+    <div class="page-sub">Eventos en tiempo real de todos los complejos</div>
+
+    <div class="card">
+      ${events.map(e=>`
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bd)55;transition:background .12s" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+          <div style="font-size:18px;width:32px;text-align:center;flex-shrink:0;margin-top:1px">${e.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">
+              <span style="font-size:12px;font-weight:600;color:var(--tx)">${e.event}</span>
+              <span style="font-size:11px;color:var(--tx3)">·</span>
+              <span style="font-size:11px;color:${e.color};font-weight:500">${e.club}</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx2)">${e.detail}</div>
+          </div>
+          <div style="font-size:10px;color:var(--tx3);flex-shrink:0;white-space:nowrap;margin-top:2px">${e.time}</div>
+        </div>`).join('')}
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  API
+// ══════════════════════════════════════════════════════════
+function renderAPI() {
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">API & Integraciones</div>
+    <div class="page-sub">Credenciales y webhooks para conectar Sport Hub OS con sistemas externos</div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">🔑 API Keys por club</span></div>
+      <table class="tbl">
+        <thead><tr><th>Club</th><th>API Key</th><th>Permisos</th><th>Último uso</th><th></th></tr></thead>
+        <tbody>
+          ${CLUBS.filter(c=>c.active).map(c=>`<tr>
+            <td>${c.emoji} <strong>${c.name}</strong></td>
+            <td><code style="font-family:'DM Mono',monospace;font-size:11px;background:var(--s2);padding:2px 7px;border-radius:4px;color:var(--ac)">shos_${c.id}_${Math.random().toString(36).slice(2,10)}••••</code></td>
+            <td style="color:var(--tx2);font-size:11px">Reservas · Jugadores · Caja</td>
+            <td style="color:var(--tx3);font-size:11px">${['hace 2 min','hace 1h','hace 3h','ayer','hace 3 días'][c.id%5]}</td>
+            <td>
+              <button class="btn btn-ghost btn-sm" onclick="toast('API Key copiada al portapapeles')">Copiar</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('API Key regenerada')">Regenerar</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">🔌 Webhooks activos</span></div>
+      <div class="card-body">
+        ${[
+          {event:'booking.created',    url:'https://n8n.sporthubos.app/webhook/booking',   status:'activo'},
+          {event:'player.registered',  url:'https://n8n.sporthubos.app/webhook/player',    status:'activo'},
+          {event:'payment.received',   url:'https://n8n.sporthubos.app/webhook/payment',   status:'activo'},
+          {event:'agent.message',      url:'https://wa-bridge.sporthubos.app/incoming',    status:'activo'},
+        ].map(w=>`<div class="bill-row">
+          <div>
+            <div style="font-size:12px;font-weight:500;font-family:'DM Mono',monospace;color:var(--ac)">${w.event}</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">${w.url}</div>
+          </div>
+          <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:var(--ok)15;color:var(--ok)">${w.status}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function sendDebtAlert(id) {
+  const c = CLUBS.find(x=>x.id===id)
+  if (!c) return
+  toast(`✉ Aviso de deuda enviado a ${c.email}`)
+}
+
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html
+  document.getElementById('modal').style.display  = 'flex'
+}
+function closeModal() { document.getElementById('modal').style.display = 'none' }
+
+function toast(msg, type='success') {
+  const cols = {success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t = document.createElement('div'); t.className='toast'
+  t.innerHTML = `<span style="color:${cols[type]||cols.success}">●</span> ${msg}`
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2800)
+}
+
+function toggleTheme() {
+  const h = document.documentElement
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme', h.getAttribute('data-theme'))
+}
+const st = localStorage.getItem('shos-theme')
+if (st) document.documentElement.setAttribute('data-theme', st)
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS DE DATOS
+// ══════════════════════════════════════════════════════════
+function calcHealth(c) {
+  let score = 100
+  if (!c.active)          score -= 40
+  if (!c.onboardingDone)  score -= 20
+  if (c.debt > 0)         score -= 15
+  const daysSince = c.lastActivity.includes('día') ? parseInt(c.lastActivity) || 1 :
+                    c.lastActivity.includes('hora') ? 0 :
+                    c.lastActivity.includes('min')  ? 0 : 30
+  if (daysSince > 14) score -= 20
+  else if (daysSince > 7) score -= 10
+  if (c.bookingsMonth === 0 && c.active) score -= 15
+  return Math.max(0, Math.min(100, score))
+}
+
+function healthColor(score) {
+  if (score >= 70) return 'var(--ok)'
+  if (score >= 40) return 'var(--warn)'
+  return 'var(--err)'
+}
+
+function getChurnRisk() {
+  return CLUBS.filter(c => calcHealth(c) < 50 && c.active)
+}
+
+// Datos de analytics mensuales simulados
+const MONTHLY = [
+  { month:'Ene', clubs:3, revenue:1200000, players:280, bookings:580 },
+  { month:'Feb', clubs:3, revenue:1340000, players:312, bookings:620 },
+  { month:'Mar', clubs:4, revenue:1680000, players:380, bookings:780 },
+  { month:'Abr', clubs:4, revenue:1820000, players:420, bookings:850 },
+  { month:'May', clubs:5, revenue:2100000, players:490, bookings:1020 },
+  { month:'Jun', clubs:6, revenue:2520000, players:605, bookings:1405 },
+]
+
+const DISCOUNTS = [
+  { id:1, code:'LANZAMIENTO', pct:50, months:3, uses:2, maxUses:10, expires:'31/07/2025', active:true },
+  { id:2, code:'PARTNER2025', pct:100, months:1, uses:1, maxUses:5,  expires:'30/06/2025', active:true },
+  { id:3, code:'VERANO',      pct:25, months:2, uses:5, maxUses:20, expires:'28/02/2025', active:false },
+]
+
+const BROADCASTS = [
+  { id:1, subject:'Nueva función: Agente IA disponible para todos', sent:'15 Jun', opens:5, total:6, type:'feature' },
+  { id:2, subject:'Recordatorio: Renovación mensual SaaS',           sent:'1 Jun',  opens:3, total:4, type:'billing' },
+  { id:3, subject:'Invitación a webinar: Cómo aumentar reservas',    sent:'20 May', opens:4, total:6, type:'promo' },
+]
+
+// ══════════════════════════════════════════════════════════
+//  ANALYTICS
+// ══════════════════════════════════════════════════════════
+function renderAnalytics() {
+  const maxRev = Math.max(...MONTHLY.map(m=>m.revenue))
+  const maxBk  = Math.max(...MONTHLY.map(m=>m.bookings))
+  const growthRev = Math.round((MONTHLY[5].revenue - MONTHLY[0].revenue) / MONTHLY[0].revenue * 100)
+  const growthPlayers = Math.round((MONTHLY[5].players - MONTHLY[0].players) / MONTHLY[0].players * 100)
+
+  // Módulos más usados en toda la red
+  const modUsage = ALL_MODULES.map(m=>({
+    ...m, count: CLUBS.filter(c=>c.modules.includes(m.id)).length
+  })).sort((a,b)=>b.count-a.count)
+
+  // Deportes más reservados (simulado)
+  const sports = [
+    {name:'Pádel', pct:42, color:'#5b7fff'},
+    {name:'Fútbol', pct:28, color:'#22c55e'},
+    {name:'Crossfit', pct:14, color:'#ef4444'},
+    {name:'Tenis', pct:9, color:'#f59e0b'},
+    {name:'Yoga', pct:7, color:'#06b6d4'},
+  ]
+
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">Analytics de la plataforma</div>
+    <div class="page-sub">Tendencias y métricas de toda la red de clubs · últimos 6 meses</div>
+
+    <!-- KPIs de crecimiento -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+      ${[
+        {label:'Crecimiento revenue', val:'+'+growthRev+'%', sub:'Ene → Jun', color:'var(--ok)'},
+        {label:'Crecimiento jugadores', val:'+'+growthPlayers+'%', sub:'Ene → Jun', color:'var(--ac)'},
+        {label:'Nuevos clubs', val:'+3', sub:'Estos 6 meses', color:'var(--purple2)'},
+        {label:'Reservas totales', val:MONTHLY.reduce((a,m)=>a+m.bookings,0).toLocaleString(), sub:'Últimos 6 meses', color:'var(--info)'},
+      ].map(k=>`<div class="card" style="margin:0">
+        <div class="card-body" style="padding:12px 14px">
+          <div style="font-size:11px;color:var(--tx2)">${k.label}</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:${k.color};margin:4px 0 2px">${k.val}</div>
+          <div style="font-size:10px;color:var(--tx3)">${k.sub}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+
+      <!-- Revenue mensual -->
+      <div class="card" style="margin:0">
+        <div class="card-head"><span class="card-title">Revenue mensual — plataforma</span></div>
+        <div style="padding:14px 16px">
+          <div style="display:flex;align-items:flex-end;gap:6px;height:100px;margin-bottom:8px">
+            ${MONTHLY.map((m,i)=>{
+              const h = Math.round(m.revenue/maxRev*90)+8
+              const isLast = i===MONTHLY.length-1
+              return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="font-size:8px;color:var(--tx3)">${fmt(m.revenue)}</div>
+                <div style="width:100%;height:${h}px;background:${isLast?'var(--warn)':'var(--bd2)'};border-radius:4px 4px 0 0;${isLast?'box-shadow:0 0 8px var(--warn)44':''}"></div>
+                <div style="font-size:9px;color:${isLast?'var(--warn)':'var(--tx3)'};font-weight:${isLast?700:400}">${m.month}</div>
+              </div>`
+            }).join('')}
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--tx3)">
+            Total acumulado: <strong style="color:var(--warn)">${fmt(MONTHLY.reduce((a,m)=>a+m.revenue,0))}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservas mensuales -->
+      <div class="card" style="margin:0">
+        <div class="card-head"><span class="card-title">Reservas totales en la red</span></div>
+        <div style="padding:14px 16px">
+          <div style="display:flex;align-items:flex-end;gap:6px;height:100px;margin-bottom:8px">
+            ${MONTHLY.map((m,i)=>{
+              const h = Math.round(m.bookings/maxBk*90)+8
+              const isLast = i===MONTHLY.length-1
+              return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="font-size:8px;color:var(--tx3)">${m.bookings}</div>
+                <div style="width:100%;height:${h}px;background:${isLast?'var(--ac)':'var(--bd2)'};border-radius:4px 4px 0 0"></div>
+                <div style="font-size:9px;color:${isLast?'var(--ac)':'var(--tx3)'};font-weight:${isLast?700:400}">${m.month}</div>
+              </div>`
+            }).join('')}
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--tx3)">
+            Promedio mensual: <strong style="color:var(--ac)">${Math.round(MONTHLY.reduce((a,m)=>a+m.bookings,0)/6)}</strong> reservas
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+      <!-- Módulos más usados -->
+      <div class="card" style="margin:0">
+        <div class="card-head"><span class="card-title">Módulos más adoptados</span></div>
+        <div style="padding:12px 16px">
+          ${modUsage.map(m=>{
+            const pct = Math.round(m.count/CLUBS.length*100)
+            return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:14px;width:22px">${m.icon}</span>
+              <span style="font-size:11px;color:var(--tx2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.name}</span>
+              <div style="width:80px;background:var(--bd);border-radius:3px;height:14px;overflow:hidden;flex-shrink:0">
+                <div style="width:${pct}%;height:100%;background:var(--ac);border-radius:3px;display:flex;align-items:center;justify-content:center">
+                  ${pct>20?`<span style="font-size:9px;color:#fff">${pct}%</span>`:''}
+                </div>
+              </div>
+              <span style="font-size:11px;color:var(--tx3);width:20px;text-align:right">${m.count}</span>
+            </div>`
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Deportes más reservados -->
+      <div class="card" style="margin:0">
+        <div class="card-head"><span class="card-title">Deportes más reservados</span></div>
+        <div style="padding:14px 16px">
+          ${sports.map(s=>`
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="font-size:11px;color:var(--tx2);width:70px">${s.name}</span>
+              <div style="flex:1;background:var(--bd);border-radius:4px;height:18px;overflow:hidden">
+                <div style="width:${s.pct}%;height:100%;background:${s.color};border-radius:4px;display:flex;align-items:center;padding-left:7px">
+                  <span style="font-size:10px;font-weight:600;color:#fff">${s.pct}%</span>
+                </div>
+              </div>
+            </div>`).join('')}
+
+          <!-- Funnel IA -->
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)">
+            <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:8px">Funnel conversión agente IA</div>
+            ${[
+              {label:'Mensajes recibidos', val:1240, pct:100, color:'var(--bd2)'},
+              {label:'Consultas procesadas', val:1180, pct:95, color:'var(--ac)'},
+              {label:'Disponibilidad consultada', val:820, pct:66, color:'var(--info)'},
+              {label:'Reservas iniciadas', val:410, pct:33, color:'var(--warn)'},
+              {label:'Reservas confirmadas', val:312, pct:25, color:'var(--ok)'},
+            ].map(f=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+              <span style="font-size:10px;color:var(--tx3);width:140px;flex-shrink:0">${f.label}</span>
+              <div style="flex:1;background:var(--bd);border-radius:3px;height:12px;overflow:hidden">
+                <div style="width:${f.pct}%;height:100%;background:${f.color};border-radius:3px"></div>
+              </div>
+              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--tx2);width:30px;text-align:right">${f.val}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAPA DE CALOR DE HORARIOS -->
+    <div class="card" style="margin-top:14px">
+      <div class="card-head">
+        <span class="card-title">🔥 Mapa de calor — horarios de reserva</span>
+        <div style="display:flex;gap:6px">
+          <select id="hm-sport" onchange="updateHeatmap()" style="background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:11px;outline:none;cursor:pointer">
+            <option value="all">Todos los deportes</option>
+            <option value="padel">Pádel</option>
+            <option value="futbol">Fútbol</option>
+            <option value="crossfit">Crossfit</option>
+            <option value="tenis">Tenis</option>
+          </select>
+          <select id="hm-club" onchange="updateHeatmap()" style="background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:11px;outline:none;cursor:pointer">
+            <option value="all">Todos los clubs</option>
+            ${CLUBS.filter(c=>c.active).map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="padding:16px;overflow-x:auto">
+        <div id="heatmap-wrap"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:11px;color:var(--tx3)">
+          <span>Menor demanda</span>
+          ${['#1c2235','#1a3040','#0d4a6a','#0d6a8a','#0d8aaa','#2ecc71aa','#2ecc71cc','#2ecc71'].map(c=>`<div style="width:18px;height:14px;border-radius:3px;background:${c}"></div>`).join('')}
+          <span>Mayor demanda</span>
+          <span style="margin-left:12px">· Clic en una celda para ver detalle</span>
+        </div>
+      </div>
+    </div>
+  `
+
+  // Renderizar heatmap después de que el DOM esté listo
+  setTimeout(buildHeatmap, 30)
+}
+
+// ── Datos del heatmap ────────────────────────────────────
+const HEATMAP_DATA = {
+  all: {
+    'Lun': {8:12,9:18,10:24,11:20,12:15,13:10,14:22,15:28,16:35,17:42,18:68,19:95,20:88,21:72,22:45},
+    'Mar': {8:10,9:15,10:20,11:18,12:12,13:8, 14:20,15:25,16:32,17:40,18:65,19:90,20:85,21:68,22:40},
+    'Mié': {8:14,9:20,10:26,11:22,12:16,13:12,14:24,15:30,16:38,17:45,18:72,19:98,20:92,21:75,22:48},
+    'Jue': {8:11,9:17,10:22,11:19,12:14,13:9, 14:21,15:27,16:34,17:41,18:66,19:91,20:86,21:70,22:42},
+    'Vie': {8:16,9:22,10:28,11:24,12:18,13:14,14:26,15:34,16:44,17:55,18:80,19:100,20:95,21:82,22:60},
+    'Sáb': {8:20,9:35,10:55,11:70,12:80,13:75,14:65,15:60,16:58,17:62,18:85,19:90,20:88,21:70,22:50},
+    'Dom': {8:15,9:28,10:45,11:60,12:68,13:62,14:55,15:48,16:44,17:38,18:42,19:35,20:28,21:18,22:10},
+  },
+  padel: {
+    'Lun': {8:5,9:8,10:12,11:10,12:6,13:4,14:10,15:14,16:18,17:22,18:38,19:55,20:50,21:42,22:28},
+    'Mar': {8:4,9:7,10:10,11:9, 12:5,13:3,14:9, 15:12,16:16,17:20,18:35,19:52,20:48,21:38,22:24},
+    'Mié': {8:6,9:9,10:13,11:11,12:7,13:5,14:11,15:15,16:20,17:24,18:40,19:58,20:54,21:44,22:30},
+    'Jue': {8:5,9:8,10:11,11:10,12:6,13:4,14:10,15:13,16:18,17:21,18:37,19:54,20:50,21:40,22:26},
+    'Vie': {8:7,9:10,10:14,11:12,12:8,13:6,14:12,15:18,16:24,17:30,18:46,19:62,20:58,21:48,22:35},
+    'Sáb': {8:10,9:18,10:28,11:38,12:44,13:40,14:35,15:32,16:30,17:34,18:48,19:55,20:52,21:42,22:30},
+    'Dom': {8:8,9:15,10:24,11:32,12:36,13:30,14:28,15:24,16:20,17:18,18:22,19:18,20:12,21:8,22:4},
+  },
+  futbol: {
+    'Lun': {8:2,9:3,10:5,11:4,12:3,13:2,14:5,15:8,16:12,17:16,18:24,19:32,20:28,21:22,22:14},
+    'Mar': {8:2,9:3,10:4,11:4,12:3,13:2,14:5,15:7,16:11,17:15,18:22,19:30,20:26,21:20,22:12},
+    'Mié': {8:3,9:4,10:6,11:5,12:4,13:3,14:6,15:9,16:13,17:18,18:26,19:34,20:32,21:24,22:16},
+    'Jue': {8:2,9:3,10:5,11:4,12:3,13:2,14:5,15:8,16:12,17:16,18:24,19:32,20:28,21:22,22:14},
+    'Vie': {8:3,9:5,10:7,11:6,12:4,13:3,14:7,15:11,16:16,17:20,18:30,19:38,20:36,21:28,22:20},
+    'Sáb': {8:4,9:8,10:14,11:18,12:20,13:18,14:16,15:14,16:14,17:16,18:22,19:26,20:24,21:18,22:12},
+    'Dom': {8:3,9:6,10:10,11:14,12:16,13:14,14:12,15:10,16:9, 17:8, 18:9, 19:8, 20:6, 21:4, 22:2},
+  },
+  crossfit: {
+    'Lun': {7:18,8:22,9:15,10:8,11:5,17:12,18:28,19:32,20:20},
+    'Mar': {7:16,8:20,9:14,10:7,11:4,17:11,18:26,19:30,20:18},
+    'Mié': {7:19,8:24,9:16,10:9,11:5,17:13,18:30,19:35,20:22},
+    'Jue': {7:17,8:21,9:14,10:8,11:4,17:12,18:27,19:31,20:19},
+    'Vie': {7:20,8:25,9:17,10:9,11:6,17:14,18:32,19:38,20:24},
+    'Sáb': {9:20,10:24,11:22,12:18},
+    'Dom': {},
+  },
+  tenis: {
+    'Lun': {7:5,8:10,9:8,10:6,11:4,15:7,16:10,17:14,18:12,19:8},
+    'Mar': {7:4,8:9,9:7,10:5,11:3,15:6,16:9,17:12,18:10,19:7},
+    'Mié': {7:5,8:11,9:8,10:6,11:4,15:7,16:11,17:15,18:13,19:9},
+    'Jue': {7:4,8:9,9:7,10:5,11:3,15:6,16:9,17:12,18:10,19:7},
+    'Vie': {7:6,8:12,9:9,10:7,11:5,15:8,16:12,17:16,18:14,19:10},
+    'Sáb': {8:12,9:16,10:18,11:16,12:14,16:10,17:12,18:10},
+    'Dom': {9:8,10:12,11:14,12:12},
+  },
+}
+
+function buildHeatmap() {
+  const sportFilter = document.getElementById('hm-sport')?.value || 'all'
+  const clubFilter  = document.getElementById('hm-club')?.value  || 'all'
+  const data = HEATMAP_DATA[sportFilter] || HEATMAP_DATA.all
+
+  const days  = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
+  const hours = [7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
+
+  // Encontrar máximo para normalizar colores
+  let maxVal = 0
+  days.forEach(d => hours.forEach(h => { if (data[d]?.[h] > maxVal) maxVal = data[d][h] }))
+
+  // Paleta de colores del heatmap
+  function heatColor(val) {
+    if (!val) return 'var(--bd)'
+    const pct = val / maxVal
+    if (pct > 0.85) return '#e05050'
+    if (pct > 0.70) return '#f0a020'
+    if (pct > 0.55) return '#f0c040'
+    if (pct > 0.40) return '#2ecc71cc'
+    if (pct > 0.25) return '#2ecc7188'
+    if (pct > 0.10) return '#1a4a30'
+    return '#1c2235'
+  }
+
+  const CELL_W = 38
+  const CELL_H = 26
+  const PAD_LEFT = 38
+  const PAD_TOP  = 28
+  const W = PAD_LEFT + hours.length * CELL_W + 10
+  const H = PAD_TOP  + days.length  * CELL_H + 50
+
+  let svg = `<svg width="100%" viewBox="0 0 ${W} ${H}" style="font-family:'DM Sans',sans-serif">`
+
+  // Headers de horas
+  hours.forEach((h, ci) => {
+    const x = PAD_LEFT + ci * CELL_W + CELL_W/2
+    svg += `<text x="${x}" y="18" text-anchor="middle" font-size="10" fill="var(--tx3)">${h}h</text>`
+  })
+
+  // Headers de días + celdas
+  days.forEach((day, ri) => {
+    const y = PAD_TOP + ri * CELL_H
+
+    // Label del día
+    svg += `<text x="${PAD_LEFT - 6}" y="${y + CELL_H/2 + 4}" text-anchor="end" font-size="11" fill="var(--tx2)" font-weight="500">${day}</text>`
+
+    hours.forEach((h, ci) => {
+      const x   = PAD_LEFT + ci * CELL_W
+      const val = data[day]?.[h] || 0
+      const col = heatColor(val)
+      const pct = maxVal > 0 ? Math.round(val/maxVal*100) : 0
+
+      svg += `<g onclick="showHeatDetail('${day}','${h}','${val}','${pct}')" style="cursor:pointer">
+        <rect x="${x+1}" y="${y+1}" width="${CELL_W-2}" height="${CELL_H-2}" rx="4"
+          fill="${col}" opacity="${val?1:0.3}"/>
+        ${val > maxVal*0.3 ? `<text x="${x+CELL_W/2}" y="${y+CELL_H/2+4}" text-anchor="middle" font-size="9" fill="${val>maxVal*0.6?'#fff':'var(--tx2)'}">${val}</text>` : ''}
+      </g>`
+    })
+  })
+
+  // Eje: días con mayor demanda total
+  const dayTotals = days.map(d=>({ day:d, total: hours.reduce((a,h)=>a+(data[d]?.[h]||0),0) }))
+  const maxDayTotal = Math.max(...dayTotals.map(d=>d.total))
+  const barY = PAD_TOP + days.length * CELL_H + 6
+
+  dayTotals.forEach((dt, ri) => {
+    // No hacemos barras horizontales acá — el texto suficiente
+  })
+
+  // Peak hours labels
+  const hourTotals = hours.map(h=>({ h, total: days.reduce((a,d)=>a+(data[d]?.[h]||0),0) }))
+  const maxHourTotal = Math.max(...hourTotals.map(x=>x.total))
+
+  hourTotals.forEach((ht, ci) => {
+    const x   = PAD_LEFT + ci * CELL_W + CELL_W/2
+    const pct = Math.round(ht.total / maxHourTotal * 100)
+    if (pct >= 80) {
+      svg += `<text x="${x}" y="${PAD_TOP + days.length * CELL_H + 16}" text-anchor="middle" font-size="9" fill="var(--err)" font-weight="700">PICO</text>`
+    }
+  })
+
+  svg += `</svg>`
+
+  const wrap = document.getElementById('heatmap-wrap')
+  if (wrap) wrap.innerHTML = svg
+}
+
+function updateHeatmap() { buildHeatmap() }
+
+function showHeatDetail(day, hour, val, pct) {
+  if (!val || val==='0') return
+  toast(`${day} ${hour}hs — ${val} reservas · ${pct}% de ocupación máxima`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  HEALTH MAP
+// ══════════════════════════════════════════════════════════
+function renderHealthMap() {
+  const clubs = CLUBS.map(c=>({...c, health: calcHealth(c)})).sort((a,b)=>a.health-b.health)
+
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">Health scores</div>
+    <div class="page-sub">Estado de salud de cada club. Detecta problemas antes de que se vayan.</div>
+
+    <!-- Distribución -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+      ${[
+        {label:'En riesgo',  count:clubs.filter(c=>c.health<40).length,  color:'var(--err)',  range:'0–39' },
+        {label:'Atención',   count:clubs.filter(c=>c.health>=40&&c.health<70).length, color:'var(--warn)', range:'40–69'},
+        {label:'Saludable',  count:clubs.filter(c=>c.health>=70).length, color:'var(--ok)',   range:'70–100'},
+      ].map(s=>`<div class="card" style="margin:0">
+        <div class="card-body" style="padding:12px 14px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:${s.color}">${s.count}</div>
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin:2px 0">${s.label}</div>
+          <div style="font-size:10px;color:var(--tx3)">Score ${s.range}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Health score por club</span>
+        <span style="font-size:11px;color:var(--tx3)">Actualizado en tiempo real</span>
+      </div>
+      ${clubs.map(c=>{
+        const factors = [
+          { label:'Activo',           ok: c.active,          fix:'Reactivar acceso' },
+          { label:'Onboarding',       ok: c.onboardingDone,  fix:'Enviar guía de setup' },
+          { label:'Sin deuda',        ok: c.debt===0,        fix:'Gestionar cobro' },
+          { label:'Actividad reciente', ok: !c.lastActivity.includes('22') && !c.lastActivity.includes('5 días'), fix:'Contactar admin' },
+          { label:'Reservas activas', ok: c.bookingsMonth>0, fix:'Revisar configuración' },
+        ]
+        const issues = factors.filter(f=>!f.ok)
+        return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bd)55;transition:background .12s" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+
+          <!-- Club -->
+          <div style="display:flex;align-items:center;gap:8px;width:180px;flex-shrink:0">
+            <div style="width:32px;height:32px;border-radius:8px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:16px">${c.emoji}</div>
+            <div style="min-width:0">
+              <div style="font-size:12px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+              <div style="font-size:10px;color:var(--tx3)">${c.city}</div>
+            </div>
+          </div>
+
+          <!-- Score gauge -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;width:60px">
+            <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:${healthColor(c.health)}">${c.health}</div>
+            <div style="width:50px;background:var(--bd);border-radius:3px;height:5px;overflow:hidden">
+              <div style="width:${c.health}%;height:100%;background:${healthColor(c.health)};border-radius:3px"></div>
+            </div>
+          </div>
+
+          <!-- Factores -->
+          <div style="flex:1;display:flex;flex-wrap:wrap;gap:4px">
+            ${factors.map(f=>`<span style="font-size:10px;border-radius:5px;padding:2px 7px;background:${f.ok?'var(--ok)15':'var(--err)15'};color:${f.ok?'var(--ok)':'var(--err)'}">
+              ${f.ok?'✓':'✗'} ${f.label}
+            </span>`).join('')}
+          </div>
+
+          <!-- Acciones si hay problemas -->
+          <div style="flex-shrink:0">
+            ${issues.length ? `<button class="btn btn-ghost btn-sm" onclick="openHealthActions(${c.id})">
+              Acciones (${issues.length})
+            </button>` : `<span style="font-size:11px;color:var(--ok)">✓ Sin alertas</span>`}
+          </div>
+        </div>`
+      }).join('')}
+    </div>
+  `
+}
+
+function openHealthActions(clubId) {
+  const c = CLUBS.find(x=>x.id===clubId)
+  if (!c) return
+  const health = calcHealth(c)
+  const actions = []
+  if (!c.active)         actions.push({label:'Reactivar acceso',              fn:`toggleClubActive(${clubId})`})
+  if (!c.onboardingDone) actions.push({label:'Enviar guía de configuración',  fn:`toast('Email enviado a ${c.email}')`})
+  if (c.debt>0)          actions.push({label:'Enviar aviso de cobro',         fn:`sendDebtAlert(${clubId})`})
+  actions.push({label:'Ver ficha completa', fn:`closeModal();openClubDetail(${clubId})`})
+  actions.push({label:'Enviar mensaje personalizado', fn:`closeModal();goTo('broadcast')`})
+
+  showModal(`
+    <div class="modal-title">Acciones para ${c.emoji} ${c.name}</div>
+    <div class="modal-sub">Health score: <strong style="color:${healthColor(health)}">${health}/100</strong></div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+      ${actions.map(a=>`
+        <button class="btn btn-ghost" style="justify-content:flex-start;width:100%" onclick="${a.fn}">
+          → ${a.label}
+        </button>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+    </div>
+  `)
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHURN RISK
+// ══════════════════════════════════════════════════════════
+function renderChurn() {
+  const atRisk = CLUBS.map(c=>({...c, health:calcHealth(c)}))
+    .filter(c=>c.health<70&&c.active)
+    .sort((a,b)=>a.health-b.health)
+
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">🚨 Alertas de churn</div>
+    <div class="page-sub">Clubs que necesitan atención antes de que cancelen. Actuar a tiempo cuesta 10x menos que recuperar un cliente.</div>
+
+    ${!atRisk.length
+      ? `<div style="background:var(--ok)0c;border:1px solid var(--ok)33;border-radius:12px;padding:20px;text-align:center;font-size:14px;color:var(--ok)">
+          ✓ Todos los clubs están saludables. ¡Buen trabajo!
+        </div>`
+      : `<div style="display:flex;flex-direction:column;gap:10px">
+        ${atRisk.map(c=>{
+          const risk = c.health < 40 ? 'CRÍTICO' : 'EN RIESGO'
+          const riskColor = c.health < 40 ? 'var(--err)' : 'var(--warn)'
+          const riskBg    = c.health < 40 ? 'var(--err)0c' : 'var(--warn)0c'
+          const reasons = []
+          if (c.debt>0)          reasons.push('Deuda: '+fmt(c.debt))
+          if (!c.onboardingDone) reasons.push('Onboarding incompleto')
+          if (c.bookingsMonth<10) reasons.push('Pocas reservas este mes')
+          if (c.lastActivity.includes('22')||c.lastActivity.includes('5 días')) reasons.push('Sin actividad reciente')
+
+          return `<div style="background:${riskBg};border:1px solid ${riskColor}33;border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+              <div style="font-size:22px">${c.emoji}</div>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:13px;font-weight:600;color:var(--tx)">${c.name}</span>
+                  <span style="font-size:10px;font-weight:700;border-radius:5px;padding:2px 7px;background:${riskColor}20;color:${riskColor}">${risk}</span>
+                  <span style="font-size:12px;font-weight:700;color:${riskColor}">Score: ${c.health}</span>
+                </div>
+                <div style="font-size:11px;color:var(--tx2);margin-top:2px">${c.city} · Plan ${PLANS[c.plan]?.label||c.plan} · ${c.lastActivity}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+              ${reasons.map(r=>`<span style="font-size:10px;border-radius:5px;padding:2px 8px;background:${riskColor}18;color:${riskColor}">⚠ ${r}</span>`).join('')}
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-ghost btn-sm" onclick="openClubDetail(${c.id})">Ver ficha</button>
+              <button class="btn btn-ghost btn-sm" onclick="openChurnOutreach(${c.id})">📧 Contactar</button>
+              ${c.debt>0?`<button class="btn btn-err btn-sm" onclick="sendDebtAlert(${c.id})">Cobrar deuda</button>`:''}
+              ${!c.onboardingDone?`<button class="btn btn-ghost btn-sm" onclick="toast('Guía de onboarding enviada')">Enviar guía setup</button>`:''}
+            </div>
+          </div>`
+        }).join('')}
+      </div>`
+    }
+  `
+}
+
+function openChurnOutreach(clubId) {
+  const c = CLUBS.find(x=>x.id===clubId)
+  if (!c) return
+  const templates = [
+    { label:'Check-in amistoso',     text:`Hola ${c.contact}, ¿cómo está yendo todo en ${c.name}? Notamos que hace unos días no hay mucha actividad y queríamos saber si hay algo en lo que podemos ayudar.` },
+    { label:'Ofrecer ayuda técnica', text:`Hola ${c.contact}, vimos que el onboarding de ${c.name} está incompleto. ¿Podemos agendarte una sesión de 30 minutos para terminar la configuración juntos?` },
+    { label:'Oferta de retención',   text:`Hola ${c.contact}, tenemos una propuesta especial para ${c.name}. Queremos ofrecerte 2 meses gratis si renovás antes del viernes. ¿Hablamos?` },
+  ]
+  showModal(`
+    <div class="modal-title">📧 Contactar a ${c.name}</div>
+    <div class="modal-sub">${c.contact} · ${c.email}</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+      ${templates.map(t=>`<div onclick="document.getElementById('outreach-msg').value='${t.text.replace(/'/g,"\\'")}'"
+        style="padding:8px 12px;border-radius:8px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;font-size:12px;color:var(--tx2);transition:all .13s"
+        onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='var(--bd2)'">${t.label}</div>`).join('')}
+    </div>
+    <label class="flbl">Mensaje</label>
+    <textarea class="finp" id="outreach-msg" style="min-height:90px;resize:vertical" placeholder="Escribí o elegí una plantilla arriba..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-ghost btn-sm" onclick="toast('Abriendo WhatsApp...')">💬 WhatsApp</button>
+      <button class="btn btn-sa" onclick="closeModal();toast('Email enviado a ${c.email}')">✉ Enviar email</button>
+    </div>
+  `)
+}
+
+// ══════════════════════════════════════════════════════════
+//  DESCUENTOS Y CUPONES
+// ══════════════════════════════════════════════════════════
+function renderDiscounts() {
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">🎁 Descuentos y cupones</div>
+    <div class="page-sub">Creá cupones para cierres de venta, retención de clientes y campañas.</div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+      <button class="btn btn-sa" onclick="openNewDiscount()">+ Crear cupón</button>
+    </div>
+
+    <div class="card">
+      <table class="tbl">
+        <thead><tr>
+          <th>Código</th><th>Descuento</th><th>Duración</th>
+          <th class="r">Usos</th><th class="r">Máx.</th><th>Vence</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${DISCOUNTS.map(d=>`<tr>
+            <td>
+              <code style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;background:var(--s2);padding:3px 8px;border-radius:5px;color:var(--ac)">${d.code}</code>
+            </td>
+            <td style="font-weight:700;color:${d.pct===100?'var(--ok)':'var(--warn)'}">
+              ${d.pct===100?'1 mes GRATIS':d.pct+'% off'}
+            </td>
+            <td style="color:var(--tx2)">${d.months} ${d.months===1?'mes':'meses'}</td>
+            <td class="r" style="font-weight:600">${d.uses}</td>
+            <td class="r" style="color:var(--tx3)">${d.maxUses}</td>
+            <td style="color:var(--tx2)">${d.expires}</td>
+            <td>
+              <span style="font-size:10px;border-radius:8px;padding:2px 8px;background:${d.active?'var(--ok)15':'var(--bd)'};color:${d.active?'var(--ok)':'var(--tx3)'}">
+                ${d.active?'Activo':'Vencido'}
+              </span>
+            </td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-ghost btn-sm" onclick="toast('Código copiado: ${d.code}')">Copiar</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('Descuento desactivado','warn')">${d.active?'Pausar':'Activar'}</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+      ${[
+        {label:'Cupones activos',  val: DISCOUNTS.filter(d=>d.active).length,                color:'var(--ok)'},
+        {label:'Usos totales',     val: DISCOUNTS.reduce((a,d)=>a+d.uses,0),                 color:'var(--ac)'},
+        {label:'Revenue generado', val: fmt(DISCOUNTS.reduce((a,d)=>a+d.uses*29900,0)*0.7), color:'var(--warn)'},
+      ].map(k=>`<div class="card" style="margin:0">
+        <div class="card-body" style="padding:12px 14px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:${k.color}">${k.val}</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:3px">${k.label}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  `
+}
+
+function openNewDiscount() {
+  showModal(`
+    <div class="modal-title">Nuevo cupón</div>
+    <div class="modal-sub">El cupón se puede aplicar al crear o renovar un club</div>
+    <label class="flbl">Código del cupón</label>
+    <input class="finp" id="dc-code" placeholder="Ej: BLACKFRIDAY50" style="text-transform:uppercase;font-family:'DM Mono',monospace;font-size:14px">
+    <div class="frow">
+      <div>
+        <label class="flbl">Descuento (%)</label>
+        <input type="number" class="finp" id="dc-pct" value="25" min="1" max="100">
+      </div>
+      <div>
+        <label class="flbl">Duración (meses)</label>
+        <input type="number" class="finp" id="dc-months" value="1" min="1" max="12">
+      </div>
+    </div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Máximo de usos</label>
+        <input type="number" class="finp" id="dc-max" value="10" min="1">
+      </div>
+      <div>
+        <label class="flbl">Fecha de vencimiento</label>
+        <input type="date" class="finp" id="dc-exp">
+      </div>
+    </div>
+    <label class="flbl">Aplicar a planes</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+      ${Object.entries(PLANS).map(([id,p])=>`
+        <div onclick="this.classList.toggle('on');this.style.borderColor=this.classList.contains('on')?'var(--purple)':'var(--bd2)';this.style.color=this.classList.contains('on')?'var(--purple2)':'var(--tx3)'"
+          style="padding:5px 12px;border-radius:7px;border:1px solid var(--bd2);cursor:pointer;font-size:11px;color:var(--tx3);transition:all .13s">
+          ${p.label}
+        </div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-sa" onclick="saveDiscount()">Crear cupón</button>
+    </div>
+  `)
+}
+
+function saveDiscount() {
+  const code = document.getElementById('dc-code')?.value.trim().toUpperCase()
+  if (!code) { toast('Ingresá un código','warn'); return }
+  DISCOUNTS.push({
+    id: DISCOUNTS.length+1,
+    code,
+    pct:      parseInt(document.getElementById('dc-pct')?.value)||25,
+    months:   parseInt(document.getElementById('dc-months')?.value)||1,
+    uses:     0,
+    maxUses:  parseInt(document.getElementById('dc-max')?.value)||10,
+    expires:  document.getElementById('dc-exp')?.value||'—',
+    active:   true,
+  })
+  closeModal()
+  renderDiscounts()
+  toast(`✓ Cupón ${code} creado`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  BROADCAST
+// ══════════════════════════════════════════════════════════
+let broadcastSegment = 'all'
+
+function renderBroadcast() {
+  const segments = [
+    { id:'all',      label:'Todos los clubs',     count: CLUBS.length },
+    { id:'active',   label:'Solo activos',         count: CLUBS.filter(c=>c.active).length },
+    { id:'saas',     label:'Plan SaaS',            count: CLUBS.filter(c=>c.plan==='saas').length },
+    { id:'partner',  label:'Plan Partner',         count: CLUBS.filter(c=>c.plan==='partner').length },
+    { id:'enterprise',label:'Plan Enterprise',     count: CLUBS.filter(c=>c.plan==='enterprise').length },
+    { id:'risk',     label:'En riesgo de churn',   count: getChurnRisk().length },
+    { id:'debt',     label:'Con deuda',            count: CLUBS.filter(c=>c.debt>0).length },
+  ]
+  const audience = segments.find(s=>s.id===broadcastSegment)
+
+  document.getElementById('content').innerHTML = `
+    <div class="page-title">📢 Mensajes a clubs</div>
+    <div class="page-sub">Comunicados masivos a los admins de los complejos. Email directo al responsable de cada club.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:16px">
+
+      <!-- Izquierda: composer -->
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-head"><span class="card-title">1. Elegí la audiencia</span></div>
+          <div class="card-body" style="padding:12px">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+              ${segments.map(s=>`
+                <div onclick="broadcastSegment='${s.id}';renderBroadcast()"
+                  style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;border:1px solid ${broadcastSegment===s.id?'var(--purple)':'var(--bd2)'};background:${broadcastSegment===s.id?'var(--purple)0c':'var(--s2)'};cursor:pointer;transition:all .13s">
+                  <span style="font-size:12px;color:${broadcastSegment===s.id?'var(--purple2)':'var(--tx2)'}">${s.label}</span>
+                  <span style="font-size:11px;font-weight:600;color:${broadcastSegment===s.id?'var(--purple2)':'var(--tx3)'}">×${s.count}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-head"><span class="card-title">2. Escribí el mensaje</span></div>
+          <div class="card-body" style="padding:12px">
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+              ${[
+                {label:'Nueva función', text:'🚀 Novedad en Sport Hub OS: [descripción]. Ya disponible en tu panel.'},
+                {label:'Recordatorio pago', text:'💳 Recordatorio: tu mensualidad de [plan] vence el [fecha].'},
+                {label:'Webinar', text:'📅 Te invitamos a nuestro webinar: "Cómo aumentar reservas un 30%". [fecha] · 18hs.'},
+                {label:'Actualización', text:'🔧 Realizamos mejoras en el sistema. [descripción]. Nada que hacer de tu parte.'},
+              ].map(t=>`<div onclick="document.getElementById('bc-subject').value=t;document.getElementById('bc-msg').value='${t.text.replace(/'/g,"\\'")}.replace('t','${t.text}')" 
+                class="btn btn-ghost btn-sm">${t.label}</div>`).join('')}
+            </div>
+            <label class="flbl">Asunto del email</label>
+            <input class="finp" id="bc-subject" placeholder="Ej: Nueva función disponible en Sport Hub OS">
+            <label class="flbl">Mensaje</label>
+            <textarea class="finp" id="bc-msg" style="min-height:120px;resize:vertical"
+              placeholder="Escribí el mensaje que van a recibir los admins de cada club..."></textarea>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <div class="tog on" id="bc-email-tog"></div>
+              <span style="font-size:12px;color:var(--tx2)">Email</span>
+              <div class="tog" id="bc-wa-tog" style="margin-left:12px"></div>
+              <span style="font-size:12px;color:var(--tx2)">WhatsApp</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost" onclick="toast('Vista previa enviada a tu email')">Vista previa</button>
+          <button class="btn btn-sa" onclick="sendBroadcast()">
+            Enviar a ${audience?.count||0} club${(audience?.count||0)!==1?'s':''} →
+          </button>
+        </div>
+      </div>
+
+      <!-- Derecha: historial -->
+      <div>
+        <div class="card" style="margin:0">
+          <div class="card-head"><span class="card-title">Historial de envíos</span></div>
+          ${BROADCASTS.map(b=>`
+            <div style="padding:10px 14px;border-bottom:1px solid var(--bd)55">
+              <div style="font-size:12px;font-weight:500;color:var(--tx);margin-bottom:3px">${b.subject}</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--tx3)">
+                <span>${b.sent}</span>
+                <span style="display:flex;align-items:center;gap:3px">
+                  <span style="color:var(--ok)">✓ ${b.opens} abiertos</span>
+                  <span>/ ${b.total} enviados</span>
+                </span>
+              </div>
+              <div style="margin-top:5px">
+                <div style="background:var(--bd);border-radius:3px;height:4px;overflow:hidden">
+                  <div style="width:${Math.round(b.opens/b.total*100)}%;height:100%;background:var(--ok);border-radius:3px"></div>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function sendBroadcast() {
+  const subject = document.getElementById('bc-subject')?.value.trim()
+  const msg     = document.getElementById('bc-msg')?.value.trim()
+  if (!subject || !msg) { toast('Completá asunto y mensaje','warn'); return }
+  const seg = broadcastSegment
+  const count = {
+    all:seg==='all'?CLUBS.length:0,
+    active:CLUBS.filter(c=>c.active).length,
+    saas:CLUBS.filter(c=>c.plan==='saas').length,
+    partner:CLUBS.filter(c=>c.plan==='partner').length,
+    enterprise:CLUBS.filter(c=>c.plan==='enterprise').length,
+    risk:getChurnRisk().length,
+    debt:CLUBS.filter(c=>c.debt>0).length,
+  }[seg]||0
+  BROADCASTS.unshift({ id:BROADCASTS.length+1, subject, sent:'Ahora', opens:0, total:count, type:'custom' })
+  document.getElementById('bc-subject').value = ''
+  document.getElementById('bc-msg').value = ''
+  toast(`✓ Mensaje enviado a ${count} club${count!==1?'s':''}`)
+}
+
+// INIT
+renderNav()
+renderContent()
+</script>
+</body>
+</html>

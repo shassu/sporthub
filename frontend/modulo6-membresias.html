@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Membresías</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;--info:#38bdf8;
+  --gold:#f0c040;--purple:#8b5cf6;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000055;
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--info:#0284c7;
+  --gold:#ca8a04;--purple:#7c3aed;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;font-family:'Syne',sans-serif}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--ac)}
+
+.main{padding:22px 26px;max-width:1400px;margin:0 auto}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-top:5px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* PLAN CARDS */
+.planes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:20px}
+.plan-card{border-radius:14px;overflow:hidden;border:2px solid var(--bd);background:var(--s1);position:relative;transition:border-color .15s,transform .15s;cursor:pointer}
+.plan-card:hover{transform:translateY(-3px)}
+.plan-card.featured{border-color:var(--gold)}
+.plan-header{padding:20px 20px 14px}
+.plan-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:3px 10px;margin-bottom:10px}
+.plan-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px}
+.plan-price{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
+.plan-period{font-size:12px;color:var(--tx2);margin-top:2px}
+.plan-desc{font-size:12px;color:var(--tx2);margin-top:8px;line-height:1.5}
+.plan-features{padding:0 20px 16px}
+.plan-feature{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:12px;color:var(--tx2);border-bottom:1px solid var(--bd)55}
+.plan-feature:last-child{border-bottom:none}
+.pf-icon{font-size:12px;flex-shrink:0;margin-top:1px}
+.plan-footer{padding:14px 20px;border-top:1px solid var(--bd)}
+.plan-socios{font-size:22px;font-weight:800;font-family:'Syne',sans-serif}
+.plan-socios-lbl{font-size:10px;color:var(--tx3);text-transform:uppercase;margin-top:2px}
+
+/* SOCIOS TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl th.r{text-align:right}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--bd)55;vertical-align:middle}
+.tbl tr:hover td{background:var(--s2)}
+.tbl tr:last-child td{border-bottom:none}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:7px}
+.card-body{padding:14px 16px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px}
+
+/* ACCESO CARD */
+.acceso-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;transition:border-color .13s}
+.acceso-card:hover{border-color:var(--bd2)}
+.acceso-icon{font-size:20px;flex-shrink:0}
+.acceso-info{flex:1}
+.acceso-name{font-size:12px;font-weight:600;color:var(--tx)}
+.acceso-desc{font-size:11px;color:var(--tx3);margin-top:1px}
+.tog{width:34px;height:19px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tog.on{background:var(--ok)}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog.on::after{transform:translateX(15px)}
+
+/* CARNET */
+.carnet{background:var(--s1);border-radius:14px;overflow:hidden;border:1px solid var(--bd2);max-width:320px}
+.carnet-top{padding:16px;display:flex;align-items:center;gap:12px}
+.carnet-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:'Syne',sans-serif;flex-shrink:0}
+.carnet-qr{width:56px;height:56px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:28px}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:520px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:18px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--ac)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* BTNS */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-gold{background:var(--gold);color:#0d1020}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--ok)18;color:var(--ok);border:1px solid var(--ok)44}
+.btn-err{background:var(--err)18;color:var(--err);border:1px solid var(--err)44}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+
+/* MINI BAR */
+.mini-bar{height:5px;background:var(--bd);border-radius:3px;overflow:hidden;margin-top:6px}
+.mini-fill{height:100%;border-radius:3px;transition:width .4s}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+
+/* RENOVACION TIMELINE */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1px;background:var(--bd2)}
+.tl-item{position:relative;margin-bottom:12px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:8px;height:8px;border-radius:50%;border:2px solid var(--bd2);background:var(--bg)}
+.tl-dot.ok{border-color:var(--ok);background:var(--ok)}
+.tl-dot.warn{border-color:var(--warn);background:var(--warn)}
+.tl-dot.err{border-color:var(--err);background:var(--err)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">S</div>
+  <div>
+    <div class="ln">Sport Hub OS — Membresías</div>
+    <div style="font-size:10px;color:var(--tx3)">Sport Hub Norte</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-ghost btn-sm" onclick="switchTab('planes');openEditPlan(null)">+ Nuevo plan</button>
+    <button class="btn btn-gold" onclick="openNuevoSocio()">+ Nuevo socio</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-planes"    onclick="switchTab('planes')">⭐ Planes</div>
+  <div class="tab"    id="tab-socios"    onclick="switchTab('socios')">👤 Socios</div>
+  <div class="tab"    id="tab-accesos"   onclick="switchTab('accesos')">🚪 Accesos y beneficios</div>
+  <div class="tab"    id="tab-cobros"    onclick="switchTab('cobros')">💳 Cobros</div>
+  <div class="tab"    id="tab-carnets"   onclick="switchTab('carnets')">🪪 Carnets</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+const fmt = n => n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n.toLocaleString()
+
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+const PLANES = [
+  {
+    id:1, nombre:'Básico', color:'#5b7fff', badge:'Starter',
+    precio:15000, frecuencia:'mensual', descuento_anual:15,
+    descripcion:'Para el jugador ocasional que quiere precio fijo sin compromisos.',
+    featured:false,
+    beneficios:[
+      {icon:'✓', texto:'2 reservas de cancha por mes incluidas'},
+      {icon:'✓', texto:'10% descuento en reservas adicionales'},
+      {icon:'✓', texto:'Acceso a la tienda con 5% off'},
+      {icon:'✗', texto:'Clases incluidas', inactivo:true},
+      {icon:'✗', texto:'Acceso al gym', inactivo:true},
+    ],
+    accesosCanchas: 2, accesoGym: false, descuentoTienda: 5,
+    socios: 18,
+  },
+  {
+    id:2, nombre:'Sport', color:'#2ecc71', badge:'Popular',
+    precio:28000, frecuencia:'mensual', descuento_anual:20,
+    descripcion:'El más elegido. Incluye canchas ilimitadas y acceso a clases grupales.',
+    featured:true,
+    beneficios:[
+      {icon:'✓', texto:'Canchas ilimitadas (horario no pico)'},
+      {icon:'✓', texto:'20% descuento horario pico'},
+      {icon:'✓', texto:'1 clase grupal por semana incluida'},
+      {icon:'✓', texto:'10% descuento en tienda'},
+      {icon:'✗', texto:'Clases privadas', inactivo:true},
+    ],
+    accesosCanchas: 999, accesoGym: true, descuentoTienda: 10,
+    socios: 42,
+  },
+  {
+    id:3, nombre:'Elite', color:'#f0c040', badge:'Premium',
+    precio:45000, frecuencia:'mensual', descuento_anual:25,
+    descripcion:'Para el jugador comprometido. Acceso total sin restricciones de horario.',
+    featured:false,
+    beneficios:[
+      {icon:'✓', texto:'Canchas ilimitadas todos los horarios'},
+      {icon:'✓', texto:'2 clases grupales por semana incluidas'},
+      {icon:'✓', texto:'1 clase privada por mes incluida'},
+      {icon:'✓', texto:'15% descuento en tienda'},
+      {icon:'✓', texto:'Parking gratuito siempre'},
+    ],
+    accesosCanchas: 999, accesoGym: true, descuentoTienda: 15,
+    socios: 21,
+  },
+  {
+    id:4, nombre:'Familiar', color:'#a855f7', badge:'Familia',
+    precio:55000, frecuencia:'mensual', descuento_anual:20,
+    descripcion:'Hasta 4 integrantes del grupo familiar. El segundo paga 50%.',
+    featured:false,
+    beneficios:[
+      {icon:'✓', texto:'Hasta 4 personas del grupo familiar'},
+      {icon:'✓', texto:'Canchas ilimitadas (no pico)'},
+      {icon:'✓', texto:'2 clases grupales por semana por integrante'},
+      {icon:'✓', texto:'10% descuento en tienda'},
+      {icon:'✓', texto:'Cumpleaños gratuito (1 por año)'},
+    ],
+    accesosCanchas: 999, accesoGym: true, descuentoTienda: 10,
+    socios: 12,
+  },
+]
+
+const SOCIOS = [
+  {id:1,  nombre:'Sofía López',    planId:2, inicio:'Ene 2025', vence:'30 Jun 2025', pagado:true,  monto:28000, renovAuto:true,  deuda:0,     activo:true,  nroSocio:'SH-0001'},
+  {id:2,  nombre:'Lucas Martínez', planId:3, inicio:'Feb 2025', vence:'28 Feb 2026', pagado:true,  monto:40500, renovAuto:true,  deuda:0,     activo:true,  nroSocio:'SH-0002'},
+  {id:3,  nombre:'Valentina Ruiz', planId:1, inicio:'Mar 2025', vence:'31 Mar 2025', pagado:false, monto:15000, renovAuto:false, deuda:15000, activo:false, nroSocio:'SH-0003'},
+  {id:4,  nombre:'Agustín Paz',    planId:2, inicio:'Abr 2025', vence:'30 Abr 2026', pagado:true,  monto:26880, renovAuto:true,  deuda:0,     activo:true,  nroSocio:'SH-0004'},
+  {id:5,  nombre:'Camila Vega',    planId:3, inicio:'Ene 2025', vence:'31 Dic 2025', pagado:true,  monto:40500, renovAuto:true,  deuda:0,     activo:true,  nroSocio:'SH-0005'},
+  {id:6,  nombre:'Tomás Herrera',  planId:2, inicio:'May 2025', vence:'31 May 2026', pagado:true,  monto:28000, renovAuto:false, deuda:0,     activo:true,  nroSocio:'SH-0006'},
+  {id:7,  nombre:'Martina Gómez',  planId:1, inicio:'Feb 2025', vence:'28 Feb 2025', pagado:false, monto:15000, renovAuto:false, deuda:30000, activo:false, nroSocio:'SH-0007'},
+  {id:8,  nombre:'Facundo Torres', planId:4, inicio:'Ene 2025', vence:'31 Dic 2025', pagado:true,  monto:52800, renovAuto:true,  deuda:0,     activo:true,  nroSocio:'SH-0008'},
+  {id:9,  nombre:'Isabella Díaz',  planId:2, inicio:'May 2025', vence:'31 May 2025', pagado:true,  monto:28000, renovAuto:true,  deuda:0,     activo:true,  nroSocio:'SH-0009'},
+  {id:10, nombre:'Nicolás Ferro',  planId:3, inicio:'Mar 2025', vence:'28 Feb 2026', pagado:true,  monto:40500, renovAuto:true,  deuda:0,     activo:true,  nroSocio:'SH-0010'},
+  {id:11, nombre:'Ana Castillo',   planId:1, inicio:'Abr 2025', vence:'30 Abr 2025', pagado:false, monto:15000, renovAuto:false, deuda:15000, activo:false, nroSocio:'SH-0011'},
+  {id:12, nombre:'Emilio Ríos',    planId:2, inicio:'Jun 2025', vence:'30 Jun 2025', pagado:true,  monto:28000, renovAuto:false, deuda:0,     activo:true,  nroSocio:'SH-0012'},
+]
+
+let activeTab = 'planes'
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  const activos     = SOCIOS.filter(s=>s.activo).length
+  const mrr         = SOCIOS.filter(s=>s.activo).reduce((a,s)=>{
+    const p = PLANES.find(x=>x.id===s.planId)
+    return a + (p?.precio||0)
+  }, 0)
+  const deudaTotal  = SOCIOS.reduce((a,s)=>a+s.deuda, 0)
+  const renovAuto   = SOCIOS.filter(s=>s.renovAuto&&s.activo).length
+  const vencenProx  = SOCIOS.filter(s=>s.activo && s.vence.includes('Jun 2025')).length
+
+  const kpiHtml = `<div class="kpis">
+    <div class="kpi" style="border-top:3px solid var(--gold)">
+      <div style="font-size:11px;color:var(--tx2)">Socios activos</div>
+      <div class="kv" style="color:var(--gold)">${activos}</div>
+      <div class="kl">de ${SOCIOS.length} totales</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ok)">
+      <div style="font-size:11px;color:var(--tx2)">MRR membresías</div>
+      <div class="kv" style="color:var(--ok)">${fmt(mrr)}</div>
+      <div class="kl">ingreso recurrente</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ac)">
+      <div style="font-size:11px;color:var(--tx2)">Renovación auto</div>
+      <div class="kv" style="color:var(--ac)">${renovAuto}</div>
+      <div class="kl">socios asegurados</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--warn)">
+      <div style="font-size:11px;color:var(--tx2)">Vencen este mes</div>
+      <div class="kv" style="color:var(--warn)">${vencenProx}</div>
+      <div class="kl">requieren renovación</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid ${deudaTotal>0?'var(--err)':'var(--ok)'}">
+      <div style="font-size:11px;color:var(--tx2)">Deuda total</div>
+      <div class="kv" style="color:${deudaTotal>0?'var(--err)':'var(--ok)'}">${fmt(deudaTotal)}</div>
+      <div class="kl">${SOCIOS.filter(s=>s.deuda>0).length} socios morosos</div>
+    </div>
+  </div>`
+
+  const content = document.getElementById('main')
+  switch(activeTab) {
+    case 'planes':   content.innerHTML = kpiHtml + renderPlanes();   break
+    case 'socios':   content.innerHTML = kpiHtml + renderSocios();   break
+    case 'accesos':  content.innerHTML = kpiHtml + renderAccesos();  break
+    case 'cobros':   content.innerHTML = kpiHtml + renderCobros();   break
+    case 'carnets':  content.innerHTML = kpiHtml + renderCarnets();  break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  PLANES
+// ══════════════════════════════════════════════════════════
+function renderPlanes() {
+  const totalSocios = PLANES.reduce((a,p)=>a+p.socios,0)
+
+  let html = '<div class="planes-grid">'
+  PLANES.forEach(p => {
+    const pctSocios = Math.round(p.socios/totalSocios*100)
+    html += `<div class="plan-card ${p.featured?'featured':''}" onclick="openPlanDetail(${p.id})">
+      ${p.featured?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold)"></div>':''}
+      <div class="plan-header">
+        <div class="plan-badge" style="background:${p.color}22;color:${p.color}">${p.badge}${p.featured?' ⭐':''}</div>
+        <div class="plan-name" style="color:${p.color}">${p.nombre}</div>
+        <div class="plan-price">${fmt(p.precio)}</div>
+        <div class="plan-period">por mes · o ${fmt(Math.round(p.precio*12*(1-p.descuento_anual/100)))} al año (${p.descuento_anual}% off)</div>
+        <div class="plan-desc">${p.descripcion}</div>
+      </div>
+      <div class="plan-features">
+        ${p.beneficios.map(b=>`<div class="plan-feature" style="${b.inactivo?'opacity:.4':''}">
+          <span class="pf-icon" style="color:${b.inactivo?'var(--tx3)':'var(--ok)'}">${b.icon}</span>
+          <span>${b.texto}</span>
+        </div>`).join('')}
+      </div>
+      <div class="plan-footer" style="background:${p.color}08">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="plan-socios" style="color:${p.color}">${p.socios}</div>
+            <div class="plan-socios-lbl">socios activos</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:13px;font-weight:700;color:var(--ok)">${fmt(p.socios*p.precio)}</div>
+            <div style="font-size:10px;color:var(--tx3)">revenue/mes</div>
+          </div>
+        </div>
+        <div class="mini-bar" style="margin-top:10px">
+          <div class="mini-fill" style="width:${pctSocios}%;background:${p.color}"></div>
+        </div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:3px;text-align:right">${pctSocios}% del total de socios</div>
+      </div>
+    </div>`
+  })
+  html += '</div>'
+
+  // Revenue por plan — barras
+  html += `<div class="card">
+    <div class="card-head"><span class="card-title">Revenue total por plan</span>
+      <button class="btn btn-ghost btn-sm" onclick="openEditPlan(null)">+ Nuevo plan</button>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">`
+
+  const maxRev = Math.max(...PLANES.map(p=>p.socios*p.precio))
+  PLANES.forEach(p => {
+    const rev = p.socios * p.precio
+    const pct = Math.round(rev/maxRev*100)
+    html += `<div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:12px;font-weight:600;color:${p.color}">${p.nombre}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--ok)">${fmt(rev)}/mes</span>
+      </div>
+      <div style="background:var(--bd);border-radius:4px;height:20px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${p.color};border-radius:4px;display:flex;align-items:center;padding:0 8px">
+          ${pct>20?`<span style="font-size:10px;font-weight:600;color:#fff">${p.socios} socios</span>`:''}
+        </div>
+      </div>
+    </div>`
+  })
+
+  html += '</div></div></div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  SOCIOS
+// ══════════════════════════════════════════════════════════
+function renderSocios() {
+  const plan = id => PLANES.find(p=>p.id===id)
+  const morosos  = SOCIOS.filter(s=>s.deuda>0)
+  const vencen   = SOCIOS.filter(s=>s.activo && !s.renovAuto && s.vence.includes('Jun 2025'))
+
+  let html = ''
+
+  // Alertas rápidas
+  if (morosos.length || vencen.length) {
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">'
+    if (morosos.length) html += `<div style="background:var(--err)0a;border:1px solid var(--err)33;border-radius:10px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px"><strong style="color:var(--err)">${morosos.length} socios con deuda</strong> · ${fmt(SOCIOS.reduce((a,s)=>a+s.deuda,0))} total</div>
+      <button class="btn btn-err btn-sm" onclick="sendDebtAlerts()">Enviar avisos</button>
+    </div>`
+    if (vencen.length) html += `<div style="background:var(--warn)0a;border:1px solid var(--warn)33;border-radius:10px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px"><strong style="color:var(--warn)">${vencen.length} membresías vencen este mes</strong> sin auto-renovación</div>
+      <button class="btn btn-warn btn-sm" onclick="sendRenovAlerts()">Recordar renovación</button>
+    </div>`
+    html += '</div>'
+  }
+
+  html += `<div class="card">
+    <div class="card-head">
+      <span class="card-title">Todos los socios (${SOCIOS.length})</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="toast('Exportando lista de socios...')">↓ Exportar</button>
+        <button class="btn btn-gold btn-sm" onclick="openNuevoSocio()">+ Nuevo socio</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr>
+          <th>Nro.</th><th>Socio</th><th>Plan</th><th>Período</th>
+          <th class="r">Monto</th><th>Vencimiento</th><th>Auto-renov.</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody>`
+
+  SOCIOS.forEach(s => {
+    const p     = plan(s.planId)
+    const venceProx = s.vence.includes('Jun 2025') || s.vence.includes('Mar 2025')
+    html += `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tx3)">${s.nroSocio}</td>
+      <td><strong>${s.nombre}</strong></td>
+      <td><span class="badge" style="background:${p?.color||'var(--ac)'}22;color:${p?.color||'var(--ac)'}">${p?.nombre||'—'}</span></td>
+      <td style="color:var(--tx2);font-size:11px">${s.inicio} → ${s.vence}</td>
+      <td class="r" style="font-family:'DM Mono',monospace;font-weight:600;color:${s.deuda>0?'var(--err)':'var(--ok)'}">
+        ${s.deuda>0?'⚠ Debe '+fmt(s.deuda):fmt(s.monto)}
+      </td>
+      <td style="color:${venceProx?'var(--warn)':'var(--tx3)'};font-size:11px;font-weight:${venceProx?600:400}">
+        ${s.vence}${venceProx?' ⚠':''}
+      </td>
+      <td style="text-align:center">
+        <div class="tog ${s.renovAuto?'on':''}" onclick="toggleRenov(${s.id})"></div>
+      </td>
+      <td>
+        <span class="badge" style="background:${s.activo?'var(--ok)15':'var(--err)15'};color:${s.activo?'var(--ok)':'var(--err)'}">
+          ${s.activo?'Activo':'Vencido'}
+        </span>
+      </td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="openSocioDetail(${s.id})">Ver</button>
+        ${s.deuda>0?`<button class="btn btn-ok btn-sm" onclick="markPaid(${s.id})">Cobrar</button>`:''}
+      </td>
+    </tr>`
+  })
+
+  html += '</tbody></table></div></div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  ACCESOS Y BENEFICIOS
+// ══════════════════════════════════════════════════════════
+function renderAccesos() {
+  const ACCESOS = [
+    { id:'canchas_libres',  icon:'🎾', nombre:'Canchas sin costo',      desc:'Según cantidad incluida en el plan',  planes:[1,2,3,4] },
+    { id:'descuento_cancha',icon:'💸', nombre:'Descuento en reservas',   desc:'% sobre precio de lista',            planes:[1,2,3,4] },
+    { id:'clases_grupales', icon:'🎓', nombre:'Clases grupales',         desc:'1-2 por semana según plan',          planes:[2,3,4] },
+    { id:'clase_privada',   icon:'🏆', nombre:'Clase privada mensual',   desc:'1 clase con profesor',               planes:[3] },
+    { id:'gym',             icon:'🏋', nombre:'Acceso al gym',           desc:'Libre acceso durante la membresía',  planes:[2,3,4] },
+    { id:'tienda',          icon:'🛍', nombre:'Descuento en tienda',     desc:'5-15% según plan',                  planes:[1,2,3,4] },
+    { id:'parking',         icon:'🚗', nombre:'Parking gratuito',        desc:'Incluido en plan Elite',             planes:[3] },
+    { id:'cumple',          icon:'🎂', nombre:'Cumpleaños gratuito',     desc:'1 evento por año (Familiar)',        planes:[4] },
+    { id:'prioridad',       icon:'⚡', nombre:'Prioridad de reserva',    desc:'48hs antes para socios Elite',      planes:[3] },
+    { id:'wifi',            icon:'📶', nombre:'WiFi premium',            desc:'Sin límite de velocidad',           planes:[2,3,4] },
+  ]
+
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
+
+  // Lista de accesos
+  html += '<div>'
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head"><span class="card-title">Beneficios por plan</span><button class="btn btn-ghost btn-sm" onclick="toast(\'Próximamente: agregar beneficio\')">+ Agregar</button></div>'
+  html += '<div class="card-body" style="padding:12px">'
+
+  ACCESOS.forEach(a => {
+    html += `<div class="acceso-card">
+      <div class="acceso-icon">${a.icon}</div>
+      <div class="acceso-info">
+        <div class="acceso-name">${a.nombre}</div>
+        <div class="acceso-desc">${a.desc}</div>
+        <div style="display:flex;gap:4px;margin-top:5px">
+          ${PLANES.map(p=>`<span style="font-size:9px;font-weight:700;border-radius:4px;padding:1px 6px;
+            background:${a.planes.includes(p.id)?p.color+'22':'var(--bd)'};
+            color:${a.planes.includes(p.id)?p.color:'var(--tx3)'}">
+            ${p.nombre}
+          </span>`).join('')}
+        </div>
+      </div>
+    </div>`
+  })
+
+  html += '</div></div></div>'
+
+  // Tabla comparativa de planes
+  html += '<div>'
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head"><span class="card-title">Comparativa de planes</span></div>'
+  html += '<div style="overflow-x:auto"><table class="tbl">'
+  html += '<thead><tr><th>Beneficio</th>'
+  PLANES.forEach(p => html += `<th style="text-align:center;color:${p.color}">${p.nombre}</th>`)
+  html += '</tr></thead><tbody>'
+
+  const rows = [
+    ['Precio/mes',         PLANES.map(p=>fmt(p.precio))],
+    ['Canchas incluidas',  ['2/mes','Ilimitado*','Ilimitado','Ilimitado']],
+    ['Descuento canchas',  ['10%','20% pico','Sin restrict.','Sin restrict.']],
+    ['Clases grupales',    ['—','1/semana','2/semana','2/sem x integrante']],
+    ['Clase privada',      ['—','—','1/mes','—']],
+    ['Acceso gym',         ['—','✓','✓','✓']],
+    ['Descuento tienda',   ['5%','10%','15%','10%']],
+    ['Parking gratis',     ['—','—','✓','—']],
+    ['Precio anual',       PLANES.map(p=>fmt(Math.round(p.precio*12*(1-p.descuento_anual/100))))],
+  ]
+
+  rows.forEach(([label, vals]) => {
+    html += '<tr><td style="font-weight:500">' + label + '</td>'
+    vals.forEach((v,i) => {
+      const isGood = v === '✓' || v.includes('%') || v.includes('Ilimitado')
+      html += `<td style="text-align:center;font-size:12px;color:${v==='—'?'var(--tx3)':v==='✓'?'var(--ok)':'var(--tx)'};font-weight:${v==='✓'?700:400}">${v}</td>`
+    })
+    html += '</tr>'
+  })
+
+  html += '</tbody></table></div></div></div>'
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  COBROS
+// ══════════════════════════════════════════════════════════
+function renderCobros() {
+  const plan = id => PLANES.find(p=>p.id===id)
+  const morosos = SOCIOS.filter(s=>s.deuda>0)
+  const cobradoMes = SOCIOS.filter(s=>s.pagado&&s.activo).reduce((a,s)=>a+s.monto,0)
+  const pendienteMes = SOCIOS.filter(s=>!s.pagado&&s.activo).reduce((a,s)=>a+(plan(s.planId)?.precio||0),0)
+
+  // Timeline de próximas renovaciones
+  const prox = [
+    {fecha:'30 Jun 2025', socios:['Sofía L.','Emilio R.','Isabella D.'], monto:84000},
+    {fecha:'31 Jul 2025', socios:['Tomás H.'], monto:28000},
+    {fecha:'31 Ago 2025', socios:['Agustín P.'], monto:26880},
+    {fecha:'31 Dic 2025', socios:['Camila V.','Facundo T.'], monto:93300},
+  ]
+
+  let html = '<div style="display:grid;grid-template-columns:1fr 320px;gap:14px">'
+
+  // Panel principal
+  html += '<div>'
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+    ${[
+      {l:'Cobrado este mes',   v:fmt(cobradoMes),    c:'var(--ok)'},
+      {l:'Pendiente de cobro', v:fmt(pendienteMes),  c:'var(--warn)'},
+      {l:'Deuda acumulada',    v:fmt(SOCIOS.reduce((a,s)=>a+s.deuda,0)), c:SOCIOS.some(s=>s.deuda>0)?'var(--err)':'var(--ok)'},
+    ].map(k=>`<div class="card" style="margin:0">
+      <div class="card-body" style="padding:12px 14px">
+        <div style="font-size:11px;color:var(--tx2)">${k.l}</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:${k.c};margin-top:4px">${k.v}</div>
+      </div>
+    </div>`).join('')}
+  </div>`
+
+  if (morosos.length) {
+    html += `<div class="card">
+      <div class="card-head">
+        <span class="card-title" style="color:var(--err)">⚠ Cuotas impagas (${morosos.length})</span>
+        <button class="btn btn-err btn-sm" onclick="sendDebtAlerts()">Enviar avisos masivos</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Socio</th><th>Plan</th><th class="r">Deuda</th><th>Vto. original</th><th></th></tr></thead>
+        <tbody>
+          ${morosos.map(s=>`<tr>
+            <td><strong>${s.nombre}</strong><div style="font-size:10px;color:var(--tx3)">${s.nroSocio}</div></td>
+            <td><span class="badge" style="background:${plan(s.planId)?.color||'var(--ac)'}22;color:${plan(s.planId)?.color||'var(--ac)'}">${plan(s.planId)?.nombre||'—'}</span></td>
+            <td class="r" style="font-family:'DM Mono',monospace;font-weight:700;color:var(--err)">${fmt(s.deuda)}</td>
+            <td style="color:var(--tx3)">${s.vence}</td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-ok btn-sm" onclick="markPaid(${s.id})">✓ Cobrar</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('Aviso enviado a ${s.nombre}')">📱</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`
+  }
+
+  html += `<div class="card">
+    <div class="card-head"><span class="card-title">Historial de cobros — Junio 2025</span></div>
+    <table class="tbl">
+      <thead><tr><th>Socio</th><th>Plan</th><th class="r">Monto</th><th>Tipo</th><th>Estado</th></tr></thead>
+      <tbody>
+        ${SOCIOS.filter(s=>s.activo).slice(0,8).map(s=>`<tr>
+          <td><strong>${s.nombre}</strong></td>
+          <td style="color:var(--tx2)">${plan(s.planId)?.nombre}</td>
+          <td class="r" style="font-family:'DM Mono',monospace;font-weight:600">${fmt(s.monto)}</td>
+          <td style="font-size:11px;color:var(--tx2)">${s.monto < (plan(s.planId)?.precio||0) ? 'Anual (descuento)' : 'Mensual'}</td>
+          <td><span class="badge" style="background:${s.pagado?'var(--ok)15':'var(--warn)15'};color:${s.pagado?'var(--ok)':'var(--warn)'}">${s.pagado?'Cobrado':'Pendiente'}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`
+  html += '</div>'
+
+  // Sidebar — próximas renovaciones
+  html += '<div>'
+  html += '<div class="card" style="margin:0">'
+  html += '<div class="card-head"><span class="card-title">Próximas renovaciones</span></div>'
+  html += '<div class="card-body" style="padding:14px 16px">'
+  html += '<div class="timeline">'
+  prox.forEach((r,i) => {
+    const dotClass = i===0?'warn':i===1?'ok':'ok'
+    html += `<div class="tl-item">
+      <div class="tl-dot ${dotClass}"></div>
+      <div style="font-size:12px;font-weight:600;color:var(--tx)">${r.fecha}</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:1px">${r.socios.join(', ')}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--ok);margin-top:2px">${fmt(r.monto)}</div>
+    </div>`
+  })
+  html += '</div></div></div></div>'
+
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  CARNETS DIGITALES
+// ══════════════════════════════════════════════════════════
+function renderCarnets() {
+  const plan = id => PLANES.find(p=>p.id===id)
+
+  let html = `<div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:5px">Carnets digitales</div>
+  <div style="font-size:12px;color:var(--tx2);margin-bottom:18px">Cada socio tiene un carnet digital con QR único. Se puede mostrar desde el celular para acceder al complejo.</div>`
+
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px">'
+
+  SOCIOS.filter(s=>s.activo).slice(0,6).forEach(s => {
+    const p       = plan(s.planId)
+    const initials = s.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')
+    const dias    = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][new Date().getDay()]
+    html += `<div class="carnet" onclick="openCarnetDetail(${s.id})">
+      <!-- Top del carnet -->
+      <div style="padding:14px 16px;background:${p?.color||'#5b7fff'}18;border-bottom:1px solid ${p?.color||'#5b7fff'}33">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+          <div style="font-size:9px;font-weight:700;color:${p?.color||'var(--ac)'};text-transform:uppercase;letter-spacing:.1em">Sport Hub OS</div>
+          <div style="font-size:9px;color:var(--tx3)">${s.nroSocio}</div>
+        </div>
+        <div class="carnet-top" style="padding:0;gap:10px;margin-top:10px">
+          <div class="carnet-avatar" style="background:${p?.color||'var(--ac)'}22;color:${p?.color||'var(--ac)'};width:44px;height:44px;font-size:16px">${initials}</div>
+          <div style="flex:1">
+            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tx)">${s.nombre}</div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:1px">Plan <span style="color:${p?.color||'var(--ac)'};font-weight:600">${p?.nombre}</span></div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:2px">Vence: ${s.vence}</div>
+          </div>
+          <div class="carnet-qr" style="border:1px solid ${p?.color||'var(--ac)'}33">▦</div>
+        </div>
+      </div>
+      <!-- Beneficios rápidos -->
+      <div style="padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap">
+        ${(p?.beneficios||[]).filter(b=>!b.inactivo).slice(0,3).map(b=>`
+          <span style="font-size:10px;background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:2px 7px;color:var(--tx2)">${b.texto.slice(0,22)}${b.texto.length>22?'...':''}</span>
+        `).join('')}
+      </div>
+      <!-- Footer -->
+      <div style="padding:8px 16px;background:var(--s2);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:10px;color:var(--ok);font-weight:600">✓ ACTIVO</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toast('Enviando carnet a ${s.nombre}...')">📱 Enviar</button>
+      </div>
+    </div>`
+  })
+
+  html += '</div>'
+
+  html += `<div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:var(--tx2);line-height:1.6">
+    💡 <strong style="color:var(--tx)">Cómo funciona el carnet digital:</strong> Cada socio recibe el carnet por WhatsApp al inscribirse. Muestra el QR al llegar y el staff lo escanea para verificar la membresía activa. El QR expira automáticamente cuando vence la membresía.
+  </div>`
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════════
+function openPlanDetail(id) {
+  const p = PLANES.find(x=>x.id===id)
+  if (!p) return
+  showModal(`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:44px;height:44px;border-radius:10px;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:22px">⭐</div>
+      <div>
+        <div class="modal-title" style="margin-bottom:2px;color:${p.color}">${p.nombre}</div>
+        <div style="font-size:12px;color:var(--tx2)">${p.badge} · ${p.socios} socios activos</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+      ${[
+        {l:'Precio mensual',  v:fmt(p.precio),            c:'var(--gold)'},
+        {l:'Revenue mes',     v:fmt(p.socios*p.precio),   c:'var(--ok)'},
+        {l:'Descuento anual', v:p.descuento_anual+'%',    c:'var(--ac)'},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:${s.c}">${s.v}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Beneficios incluidos</div>
+    <div style="margin-bottom:14px">
+      ${p.beneficios.map(b=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)55;font-size:12px;${b.inactivo?'opacity:.4':''}">
+        <span style="color:${b.inactivo?'var(--tx3)':'var(--ok)'}">${b.icon}</span>
+        <span>${b.texto}</span>
+      </div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-err btn-sm" onclick="closeModal();openEditPlan(id)">✏ Editar plan</button>
+      <button class="btn btn-primary" onclick="closeModal();openNuevoSocio(${id})">+ Nuevo socio en este plan</button>
+    </div>
+  `)
+}
+
+function openNuevoSocio(planPresel) {
+  showModal(`
+    <div class="modal-title">Nuevo socio</div>
+    <div class="modal-sub">Registrá un nuevo socio y asignale un plan</div>
+    <div class="frow">
+      <div><label class="flbl">Nombre completo</label><input class="finp" id="ns-nombre" placeholder="Nombre y apellido"></div>
+      <div><label class="flbl">Teléfono / WhatsApp</label><input class="finp" id="ns-tel" placeholder="11-xxxx-xxxx"></div>
+    </div>
+    <div><label class="flbl">Email</label><input class="finp" id="ns-email" placeholder="email@ejemplo.com" type="email"></div>
+    <label class="flbl">Plan</label>
+    <select class="fsel" id="ns-plan">
+      ${PLANES.map(p=>`<option value="${p.id}" ${planPresel===p.id?'selected':''}>${p.nombre} — ${fmt(p.precio)}/mes</option>`).join('')}
+    </select>
+    <div class="frow">
+      <div>
+        <label class="flbl">Tipo de suscripción</label>
+        <select class="fsel" id="ns-tipo">
+          <option value="mensual">Mensual</option>
+          <option value="anual">Anual (con descuento)</option>
+          <option value="trimestral">Trimestral</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Fecha de inicio</label>
+        <input type="date" class="finp" id="ns-inicio">
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:8px;margin-bottom:10px">
+      <div class="tog on" id="ns-renov-tog" onclick="this.classList.toggle('on')"></div>
+      <div>
+        <div style="font-size:12px;font-weight:500">Renovación automática</div>
+        <div style="font-size:11px;color:var(--tx3)">Se renueva solo al vencer — recomendado</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--ok)0a;border:1px solid var(--ok)22;border-radius:8px;margin-bottom:10px">
+      <div class="tog on"></div>
+      <div>
+        <div style="font-size:12px;font-weight:500;color:var(--ok)">Enviar carnet digital por WhatsApp</div>
+        <div style="font-size:11px;color:var(--tx3)">Al confirmar la membresía</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveNuevoSocio()">Crear membresía</button>
+    </div>
+  `)
+  // Set fecha de hoy
+  document.getElementById('ns-inicio').value = new Date().toISOString().slice(0,10)
+}
+
+function saveNuevoSocio() {
+  const nombre = document.getElementById('ns-nombre')?.value.trim()
+  if (!nombre) { toast('Ingresá el nombre','warn'); return }
+  const planId = parseInt(document.getElementById('ns-plan')?.value)||1
+  const plan   = PLANES.find(p=>p.id===planId)
+  const renovAuto = document.getElementById('ns-renov-tog')?.classList.contains('on') || false
+  const nroNuevo = 'SH-' + String(SOCIOS.length+1).padStart(4,'0')
+  SOCIOS.push({
+    id: SOCIOS.length+1, nombre, planId,
+    inicio: 'Jun 2025', vence: 'Jul 2025',
+    pagado: true, monto: plan?.precio||0,
+    renovAuto, deuda: 0, activo: true,
+    nroSocio: nroNuevo,
+  })
+  const p = PLANES.find(x=>x.id===planId)
+  if (p) p.socios++
+  closeModal(); renderMain()
+  toast('✓ ' + nombre + ' — Carnet enviado por WhatsApp 📱')
+}
+
+function openSocioDetail(id) {
+  const s = SOCIOS.find(x=>x.id===id)
+  if (!s) return
+  const p = PLANES.find(x=>x.id===s.planId)
+  showModal(`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:44px;height:44px;border-radius:50%;background:${p?.color||'var(--ac)'}22;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;color:${p?.color||'var(--ac)'}">
+        ${s.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')}
+      </div>
+      <div>
+        <div class="modal-title" style="margin-bottom:2px">${s.nombre}</div>
+        <div style="font-size:12px;color:var(--tx2)">${s.nroSocio} · Plan ${p?.nombre}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {l:'Membresía',    v:p?.nombre||'—',     c:p?.color||'var(--ac)'},
+        {l:'Vencimiento',  v:s.vence,             c:s.activo?'var(--ok)':'var(--err)'},
+        {l:'Estado cuota', v:s.deuda>0?'Debe '+fmt(s.deuda):'Al día', c:s.deuda>0?'var(--err)':'var(--ok)'},
+      ].map(k=>`<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:13px;font-weight:700;font-family:'Syne',sans-serif;color:${k.c}">${k.v}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${k.l}</div>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:8px;margin-bottom:14px">
+      <div class="tog ${s.renovAuto?'on':''}" onclick="toggleRenov(${s.id});this.classList.toggle('on')"></div>
+      <div style="font-size:12px">Renovación automática ${s.renovAuto?'<span style="color:var(--ok)">activa</span>':'<span style="color:var(--tx3)">inactiva</span>'}</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      ${s.deuda>0?`<button class="btn btn-ok btn-sm" onclick="markPaid(${s.id});closeModal()">✓ Registrar pago</button>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="toast('Carnet enviado a ${s.nombre}')">📱 Enviar carnet</button>
+      <button class="btn btn-primary" onclick="closeModal();toast('Plan actualizado')">Cambiar plan</button>
+    </div>
+  `)
+}
+
+function openCarnetDetail(id) {
+  const s = SOCIOS.find(x=>x.id===id)
+  if (!s) return
+  const p = PLANES.find(x=>x.id===s.planId)
+  const initials = s.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')
+  showModal(`
+    <div style="text-align:center;padding:10px 0 18px">
+      <div style="font-size:10px;font-weight:700;color:var(--ac);letter-spacing:.15em;margin-bottom:14px">CARNET DIGITAL · SPORT HUB OS</div>
+      <div style="width:64px;height:64px;border-radius:50%;background:${p?.color||'var(--ac)'}22;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;font-family:'Syne',sans-serif;color:${p?.color||'var(--ac)'};margin:0 auto 10px">${initials}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--tx)">${s.nombre}</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:3px">Plan <span style="color:${p?.color};font-weight:600">${p?.nombre}</span></div>
+      <div style="font-size:78px;margin:16px 0;filter:grayscale(20%)">▦</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--tx2);letter-spacing:.1em">${s.nroSocio}</div>
+      <div style="font-size:11px;color:var(--tx3);margin-top:4px">Válido hasta: ${s.vence}</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-ghost btn-sm" onclick="toast('Descargando PNG...')">↓ Descargar</button>
+      <button class="btn btn-primary" onclick="toast('Carnet enviado por WhatsApp 📱')">📱 Enviar por WhatsApp</button>
+    </div>
+  `)
+}
+
+// Estado del editor de planes — beneficios dinámicos
+let _editPlanId    = null
+let _editBeneficios = []  // [{icon, texto, inactivo}]
+
+function openEditPlan(id) {
+  _editPlanId = id || null
+  const p = id ? PLANES.find(x=>x.id===id) : null
+  _currentPlanColor = p?.color || '#5b7fff'
+
+  // Clonar beneficios o empezar vacío
+  _editBeneficios = p
+    ? p.beneficios.map(b=>({...b}))
+    : [
+        {icon:'✓', texto:'', inactivo:false},
+        {icon:'✓', texto:'', inactivo:false},
+      ]
+
+  const COLORES = ['#5b7fff','#2ecc71','#f0c040','#a855f7','#ef4444','#f97316','#06b6d4','#ec4899','#334155','#10b981']
+  const planColor = p?.color || '#5b7fff'
+
+  showModal(buildPlanEditor(p, planColor, COLORES))
+  updateBeneficiosUI()
+  updatePricePreview()
+}
+
+function buildPlanEditor(p, planColor, COLORES) {
+  const isNew = !p
+  return `
+    <div class="modal-title">${isNew ? 'Nuevo plan de membresía' : 'Editar plan: ' + p.nombre}</div>
+    <div class="modal-sub">${isNew ? 'Diseñá el plan desde cero' : 'Todos los cambios aplican a nuevos socios. Los existentes conservan su precio.'}</div>
+
+    <!-- Nombre + badge -->
+    <div class="frow">
+      <div>
+        <label class="flbl">Nombre del plan</label>
+        <input class="finp" id="ep-nombre" value="${p?.nombre||''}" placeholder="Ej: Pro, VIP, Joven...">
+      </div>
+      <div>
+        <label class="flbl">Badge / etiqueta</label>
+        <input class="finp" id="ep-badge" value="${p?.badge||''}" placeholder="Ej: Popular, Nuevo...">
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <label class="flbl">Descripción corta (para el jugador)</label>
+    <input class="finp" id="ep-desc-txt" value="${p?.descripcion||''}" placeholder="Para quién es este plan, qué lo hace especial...">
+
+    <!-- Precios -->
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Precios</div>
+    <div class="frow3" style="margin-bottom:6px">
+      <div>
+        <label class="flbl">Precio mensual ($)</label>
+        <input type="number" class="finp" id="ep-precio" value="${p?.precio||''}" placeholder="0" min="0" oninput="updatePricePreview()">
+      </div>
+      <div>
+        <label class="flbl">Descuento anual (%)</label>
+        <input type="number" class="finp" id="ep-desc-pct" value="${p?.descuento_anual||15}" min="0" max="50" oninput="updatePricePreview()">
+      </div>
+      <div>
+        <label class="flbl">Precio trimestral (%off)</label>
+        <input type="number" class="finp" id="ep-desc-trim" value="${p?.descuento_trimestral||10}" min="0" max="50" oninput="updatePricePreview()">
+      </div>
+    </div>
+    <!-- Preview de precio -->
+    <div id="price-preview" style="background:var(--s2);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;gap:14px;flex-wrap:wrap"></div>
+
+    <!-- Accesos cuantificables -->
+    <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Accesos y límites</div>
+    <div class="frow3" style="margin-bottom:12px">
+      <div>
+        <label class="flbl">Canchas incluidas/mes</label>
+        <select class="fsel" id="ep-canchas">
+          <option value="0"  ${(p?.accesosCanchas||0)===0?'selected':''}>Sin canchas</option>
+          <option value="1"  ${p?.accesosCanchas===1?'selected':''}>1 por mes</option>
+          <option value="2"  ${p?.accesosCanchas===2?'selected':''}>2 por mes</option>
+          <option value="4"  ${p?.accesosCanchas===4?'selected':''}>4 por mes</option>
+          <option value="8"  ${p?.accesosCanchas===8?'selected':''}>8 por mes</option>
+          <option value="999" ${(p?.accesosCanchas||0)>=999?'selected':''}>Ilimitadas</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Descuento en tienda (%)</label>
+        <input type="number" class="finp" id="ep-tienda" value="${p?.descuentoTienda||0}" min="0" max="50" placeholder="0">
+      </div>
+      <div>
+        <label class="flbl">Acceso al gym</label>
+        <select class="fsel" id="ep-gym">
+          <option value="0" ${!p?.accesoGym?'selected':''}>No incluido</option>
+          <option value="1" ${p?.accesoGym?'selected':''}>Incluido</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Color del plan -->
+    <label class="flbl">Color del plan</label>
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      ${COLORES.map(c=>`
+        <div onclick="setPlanColor('${c}')" id="colsel-${c.slice(1)}"
+          style="width:28px;height:28px;border-radius:7px;background:${c};cursor:pointer;transition:all .13s;outline:${planColor===c?'2px solid var(--tx)':'none'};outline-offset:2px"
+          onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform=''"></div>
+      `).join('')}
+      <input type="color" id="ep-color-custom" value="${planColor}"
+        style="width:36px;height:28px;border:1px solid var(--bd2);border-radius:7px;cursor:pointer;padding:2px;background:var(--s2)"
+        oninput="setPlanColor(this.value)">
+      <span style="font-size:10px;color:var(--tx3)">o personalizá</span>
+    </div>
+
+    <!-- Plan destacado -->
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:8px;margin-bottom:14px">
+      <div class="tog ${p?.featured?'on':''}" id="ep-featured-tog" onclick="this.classList.toggle('on')"></div>
+      <div>
+        <div style="font-size:12px;font-weight:500">Plan destacado ⭐</div>
+        <div style="font-size:11px;color:var(--tx3)">Aparece con borde dorado y marcado como recomendado</div>
+      </div>
+    </div>
+
+    <!-- Beneficios dinámicos -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em">Beneficios del plan</div>
+      <button class="btn btn-ghost btn-sm" onclick="addBeneficio()">+ Agregar línea</button>
+    </div>
+    <div id="beneficios-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      ${!isNew ? `<button class="btn btn-err btn-sm" onclick="deletePlan(${p.id})">Eliminar plan</button>` : ''}
+      <button class="btn btn-gold" onclick="savePlan()">
+        ${isNew ? 'Crear plan' : 'Guardar cambios'}
+      </button>
+    </div>
+  `
+}
+
+// Color picker
+let _currentPlanColor = '#5b7fff'
+function setPlanColor(c) {
+  _currentPlanColor = c
+  document.querySelectorAll('[id^="colsel-"]').forEach(el => el.style.outline='none')
+  const slug = c.slice(1)
+  const el = document.getElementById('colsel-'+slug)
+  if (el) el.style.outline = '2px solid var(--tx)'
+  const cp = document.getElementById('ep-color-custom')
+  if (cp) cp.value = c
+}
+
+// Preview de precios
+function updatePricePreview() {
+  const precio  = parseInt(document.getElementById('ep-precio')?.value)||0
+  const descAnual = parseInt(document.getElementById('ep-desc-pct')?.value)||15
+  const descTrim  = parseInt(document.getElementById('ep-desc-trim')?.value)||10
+  const el = document.getElementById('price-preview')
+  if (!el || !precio) return
+  const anual = Math.round(precio*12*(1-descAnual/100))
+  const trim  = Math.round(precio*3*(1-descTrim/100))
+  el.innerHTML = [
+    {label:'Mensual',    val:fmt(precio),  sub:'por mes',           color:'var(--tx)'},
+    {label:'Trimestral', val:fmt(trim),    sub:'ahorrás '+fmt(precio*3-trim), color:'var(--ac)'},
+    {label:'Anual',      val:fmt(anual),   sub:'ahorrás '+fmt(precio*12-anual), color:'var(--ok)'},
+  ].map(k=>`<div style="flex:1;text-align:center">
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:${k.color}">${k.val}</div>
+    <div style="font-size:10px;font-weight:600;color:var(--tx2)">${k.label}</div>
+    <div style="font-size:9px;color:var(--tx3)">${k.sub}</div>
+  </div>`).join('')
+}
+
+// Gestión de beneficios dinámicos
+function updateBeneficiosUI() {
+  const list = document.getElementById('beneficios-list')
+  if (!list) return
+  list.innerHTML = _editBeneficios.map((b,i) => {
+    const isInactive = b.inactivo
+    return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0" id="brow-${i}">
+      <!-- Toggle incluido/no incluido -->
+      <div onclick="toggleBeneficioState(${i})" title="${isInactive?'No incluido':'Incluido'}"
+        style="width:24px;height:24px;border-radius:6px;border:1px solid ${isInactive?'var(--err)33':'var(--ok)33'};
+        background:${isInactive?'var(--err)15':'var(--ok)15'};
+        color:${isInactive?'var(--err)':'var(--ok)'};
+        display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0;font-weight:700">
+        ${isInactive?'✗':'✓'}
+      </div>
+      <!-- Texto del beneficio -->
+      <input type="text" value="${b.texto}" placeholder="Ej: Canchas ilimitadas, 10% descuento tienda..."
+        oninput="_editBeneficios[${i}].texto=this.value"
+        style="flex:1;padding:7px 10px;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:12px;outline:none">
+      <!-- Botón eliminar -->
+      <button onclick="removeBeneficio(${i})"
+        style="width:24px;height:24px;border-radius:6px;border:1px solid var(--bd2);background:none;color:var(--tx3);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .13s"
+        onmouseover="this.style.color='var(--err)';this.style.borderColor='var(--err)33'"
+        onmouseout="this.style.color='var(--tx3)';this.style.borderColor='var(--bd2)'">✕</button>
+    </div>`
+  }).join('')
+
+  // Sugerencias rápidas si la lista está vacía
+  if (_editBeneficios.length === 0) {
+    list.innerHTML += `<div style="font-size:11px;color:var(--tx3);padding:8px 0">La lista está vacía. Usá el botón "+ Agregar línea" o las sugerencias:</div>`
+  }
+
+  // Chips de sugerencia
+  const sugs = [
+    'Canchas ilimitadas','2 reservas por mes','Acceso al gym',
+    'Clases grupales incluidas','1 clase privada por mes',
+    '10% descuento tienda','15% descuento tienda','Parking gratuito',
+    'Prioridad de reserva 48hs','Cumpleaños gratuito (1/año)',
+  ]
+  list.innerHTML += `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+    ${sugs.map(s=>`<div onclick="addBeneficio('${s}')"
+      style="padding:3px 9px;border-radius:6px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;font-size:10px;color:var(--tx3);transition:all .13s"
+      onmouseover="this.style.borderColor='var(--ac)';this.style.color='var(--ac)'"
+      onmouseout="this.style.borderColor='var(--bd2)';this.style.color='var(--tx3)'">
+      + ${s}
+    </div>`).join('')}
+  </div>`
+}
+
+function addBeneficio(texto='') {
+  _editBeneficios.push({icon:'✓', texto, inactivo:false})
+  updateBeneficiosUI()
+  // Foco en el último input
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('#beneficios-list input[type=text]')
+    inputs[inputs.length-1]?.focus()
+  }, 40)
+}
+
+function removeBeneficio(i) {
+  _editBeneficios.splice(i,1)
+  updateBeneficiosUI()
+}
+
+function toggleBeneficioState(i) {
+  _editBeneficios[i].inactivo = !_editBeneficios[i].inactivo
+  _editBeneficios[i].icon     = _editBeneficios[i].inactivo ? '✗' : '✓'
+  updateBeneficiosUI()
+}
+
+function savePlan() {
+  const nombre = document.getElementById('ep-nombre')?.value.trim()
+  if (!nombre) { toast('Ingresá el nombre del plan','warn'); return }
+  const precio = parseInt(document.getElementById('ep-precio')?.value)||0
+  if (!precio)  { toast('Ingresá el precio mensual','warn'); return }
+
+  // Filtrar beneficios que tengan texto
+  const beneficios = _editBeneficios.filter(b=>b.texto.trim())
+  if (!beneficios.length) { toast('Agregá al menos un beneficio','warn'); return }
+
+  const color    = _currentPlanColor
+  const featured = document.getElementById('ep-featured-tog')?.classList.contains('on') || false
+
+  const data = {
+    nombre,
+    badge:            document.getElementById('ep-badge')?.value.trim() || 'Nuevo',
+    descripcion:      document.getElementById('ep-desc-txt')?.value.trim() || '',
+    precio,
+    frecuencia:       'mensual',
+    descuento_anual:  parseInt(document.getElementById('ep-desc-pct')?.value)||15,
+    descuento_trimestral: parseInt(document.getElementById('ep-desc-trim')?.value)||10,
+    color,
+    featured,
+    beneficios,
+    accesosCanchas:   parseInt(document.getElementById('ep-canchas')?.value)||0,
+    descuentoTienda:  parseInt(document.getElementById('ep-tienda')?.value)||0,
+    accesoGym:        document.getElementById('ep-gym')?.value === '1',
+  }
+
+  if (_editPlanId) {
+    // Editar plan existente
+    const idx = PLANES.findIndex(x=>x.id===_editPlanId)
+    if (idx>=0) {
+      PLANES[idx] = { ...PLANES[idx], ...data }
+      toast('✓ Plan "'+nombre+'" actualizado')
+    }
+  } else {
+    // Nuevo plan
+    PLANES.push({ id: PLANES.length+1, socios:0, ...data })
+    toast('✓ Plan "'+nombre+'" creado')
+  }
+
+  closeModal()
+  switchTab('planes')
+  renderMain()
+}
+
+function deletePlan(id) {
+  const p = PLANES.find(x=>x.id===id)
+  if (!p) return
+  if (p.socios > 0) {
+    toast('No podés eliminar un plan con socios activos ('+p.socios+')','warn')
+    return
+  }
+  PLANES.splice(PLANES.findIndex(x=>x.id===id), 1)
+  closeModal()
+  renderMain()
+  toast('Plan eliminado','warn')
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function toggleRenov(id) {
+  const s = SOCIOS.find(x=>x.id===id)
+  if (s) { s.renovAuto=!s.renovAuto; renderMain() }
+}
+
+function markPaid(id) {
+  const s = SOCIOS.find(x=>x.id===id)
+  if (!s) return
+  s.deuda=0; s.pagado=true; s.activo=true
+  renderMain(); toast('✓ Pago registrado — '+s.nombre)
+}
+
+function sendDebtAlerts() {
+  const n = SOCIOS.filter(s=>s.deuda>0).length
+  toast('📱 Avisos enviados a '+n+' socios morosos')
+}
+function sendRenovAlerts() {
+  toast('📱 Recordatorios de renovación enviados')
+}
+
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html
+  document.getElementById('modal').style.display  = 'flex'
+}
+function closeModal() { document.getElementById('modal').style.display='none' }
+
+function toast(msg,type='success') {
+  const cols={success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t=document.createElement('div');t.className='toast'
+  t.innerHTML='<span style="color:'+(cols[type]||cols.success)+'">●</span> '+msg
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2600)
+}
+
+function toggleTheme() {
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme',h.getAttribute('data-theme'))
+}
+const st=localStorage.getItem('shos-theme')
+if(st) document.documentElement.setAttribute('data-theme',st)
+
+renderMain()
+</script>
+</body>
+</html>

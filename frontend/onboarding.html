@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Configuración inicial</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ac:#5b7fff;--ac2:#3d63f0;
+  --bg:#06080f;--s1:#0c0f1a;--s2:#111520;
+  --bd:#1c2235;--bd2:#252d45;
+  --tx:#dde3f4;--tx2:#8494b8;--tx3:#3a4a68;
+  --ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+}
+
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{height:3px;background:var(--bd);flex-shrink:0}
+.progress-fill{height:100%;background:var(--ac);transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* ── LAYOUT ── */
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:hidden;position:relative}
+
+/* ── PREGUNTA ── */
+.q-wrap{width:100%;max-width:620px;animation:qin .35s cubic-bezier(.4,0,.2,1)}
+@keyframes qin{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.q-wrap.out{animation:qout .25s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes qout{to{opacity:0;transform:translateY(-28px)}}
+
+.q-step{font-size:11px;font-weight:600;color:var(--ac);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
+.q-title{font-family:'Syne',sans-serif;font-size:clamp(22px,4vw,34px);font-weight:700;line-height:1.2;color:var(--tx);margin-bottom:8px}
+.q-sub{font-size:14px;color:var(--tx2);margin-bottom:28px;line-height:1.5}
+
+/* ── INPUTS ── */
+.big-input{width:100%;font-family:'Syne',sans-serif;font-size:clamp(18px,3vw,26px);font-weight:600;background:transparent;border:none;border-bottom:2px solid var(--bd2);color:var(--tx);padding:8px 0;outline:none;transition:border-color .2s}
+.big-input:focus{border-color:var(--ac)}
+.big-input::placeholder{color:var(--tx3)}
+
+.sub-input{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;color:var(--tx);padding:11px 14px;outline:none;transition:border-color .2s;margin-bottom:10px}
+.sub-input:focus{border-color:var(--ac)}
+
+.input-hint{font-size:11px;color:var(--tx3);margin-top:8px}
+
+/* ── CHOICE CARDS ── */
+.choices{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.choice{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:11px;border:1px solid var(--bd2);background:var(--s1);cursor:pointer;transition:all .15s;user-select:none}
+.choice:hover{border-color:var(--ac);background:var(--ac)0c}
+.choice.sel{border-color:var(--ac);background:var(--ac)14}
+.choice-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.choice-info{flex:1}
+.choice-label{font-size:14px;font-weight:500;color:var(--tx)}
+.choice-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.choice-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--bd2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.choice.sel .choice-check{background:var(--ac);border-color:var(--ac);color:#fff}
+
+/* ── MULTI-SPORT GRID ── */
+.sport-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:8px}
+.sport-card{padding:14px 12px;border-radius:10px;border:1px solid var(--bd2);background:var(--s1);cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+.sport-card:hover{border-color:var(--ac)}
+.sport-card.sel{border-color:var(--ac);background:var(--ac)12}
+.sport-card-icon{font-size:28px;margin-bottom:6px}
+.sport-card-name{font-size:12px;font-weight:500;color:var(--tx)}
+.sport-card.sel .sport-card-name{color:var(--ac)}
+
+/* ── COLOR PICKER PALETTES ── */
+.palette-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
+.palette-card{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:1px solid var(--bd2);background:var(--s1);cursor:pointer;transition:all .15s}
+.palette-card:hover{border-color:var(--bd3)}
+.palette-card.sel{border-color:var(--ac)}
+.palette-dots{display:flex;gap:4px}
+.palette-dot{width:18px;height:18px;border-radius:4px}
+.palette-name{font-size:12px;font-weight:500;color:var(--tx2)}
+.palette-card.sel .palette-name{color:var(--tx)}
+
+/* ── BOTÓN SIGUIENTE ── */
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;flex-wrap:wrap;gap:10px}
+.btn-next{display:flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;border:none;background:var(--ac);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-next:hover{background:var(--ac2);transform:translateY(-1px)}
+.btn-next:disabled{opacity:.35;cursor:default;transform:none}
+.btn-back{background:none;border:1px solid var(--bd2);color:var(--tx3);border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-back:hover{border-color:var(--bd3);color:var(--tx2)}
+.enter-hint{font-size:11px;color:var(--tx3);display:flex;align-items:center;gap:5px}
+.kbd{display:inline-flex;align-items:center;justify-content:center;background:var(--s2);border:1px solid var(--bd2);border-radius:4px;padding:1px 6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--tx2)}
+
+/* ── FILA DE ITEMS DINÁMICOS ── */
+.dyn-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.dyn-item{display:flex;align-items:center;gap:8px}
+.dyn-input{flex:1;font-size:14px;background:var(--s1);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);padding:9px 12px;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif}
+.dyn-input:focus{border-color:var(--ac)}
+.dyn-remove{width:28px;height:28px;border-radius:6px;border:1px solid var(--bd2);background:none;color:var(--tx3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .14s;flex-shrink:0}
+.dyn-remove:hover{border-color:var(--err);color:var(--err)}
+.add-dyn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ac);cursor:pointer;padding:6px 0;width:fit-content}
+.add-dyn:hover{opacity:.75}
+
+/* ── TIME INPUTS ── */
+.time-row{display:flex;align-items:center;gap:12px}
+.time-group{display:flex;flex-direction:column;gap:5px;flex:1}
+.time-label{font-size:11px;color:var(--tx3);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.time-inp{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;color:var(--tx);padding:12px 16px;outline:none;transition:border-color .2s;width:100%;text-align:center}
+.time-inp:focus{border-color:var(--ac)}
+.time-sep{font-size:28px;color:var(--tx3);font-weight:700;margin-top:16px}
+
+/* ── SUMMARY / FINISH ── */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.sum-card{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
+.sum-icon{font-size:20px;margin-bottom:6px}
+.sum-label{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.sum-val{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+
+/* ── FINISH SCREEN ── */
+.finish-wrap{text-align:center;animation:qin .4s cubic-bezier(.4,0,.2,1)}
+.finish-icon{font-size:64px;margin-bottom:16px;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.finish-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;margin-bottom:8px}
+.finish-sub{font-size:15px;color:var(--tx2);max-width:460px;margin:0 auto 28px;line-height:1.6}
+.finish-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ── LOGO ── */
+.top-logo{position:absolute;top:20px;left:24px;display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tx2);opacity:.5}
+.top-logo-badge{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700}
+
+/* ── SKIP ── */
+.skip-link{position:absolute;top:22px;right:24px;font-size:11px;color:var(--tx3);cursor:pointer;transition:color .14s}
+.skip-link:hover{color:var(--tx2)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .palette-grid{grid-template-columns:1fr}
+  .sport-grid{grid-template-columns:repeat(3,1fr)}
+  .summary-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+
+<div class="stage" id="stage">
+  <div class="top-logo"><div class="top-logo-badge">S</div> Sport Hub OS</div>
+  <div class="skip-link" id="skip-btn" onclick="skipToEnd()">Saltar configuración →</div>
+  <div class="q-wrap" id="qwrap"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  CONFIG QUE SE VA CONSTRUYENDO
+// ══════════════════════════════════════════════════════════
+const CFG = {
+  clubName:'', tagline:'', phone:'', city:'',
+  openTime:'08:00', closeTime:'23:00',
+  sports:[], palette:{primary:'#5b7fff',accent:'#2ecc71'},
+  spaces:[], hasStore:false, hasSUM:false,
+  size:'small', // small | medium | large
+}
+
+// ══════════════════════════════════════════════════════════
+//  DEFINICIÓN DE PASOS
+// ══════════════════════════════════════════════════════════
+const STEPS = [
+
+  // ── 1. Bienvenida ──────────────────────────────────────
+  {
+    id:'welcome',
+    render() {
+      return `
+        <div class="q-step">Paso 1 de 8</div>
+        <div class="q-title">¡Hola! Vamos a dejar tu complejo listo en 5 minutos. 👋</div>
+        <div class="q-sub">Te vamos a hacer unas pocas preguntas. Podés cambiar todo después desde la configuración. No necesitás tener todos los datos ahora.</div>
+        <div class="nav-row">
+          <div></div>
+          <button class="btn-next" onclick="next()">Empezar <span>→</span></button>
+        </div>`
+    },
+    validate:()=>true,
+  },
+
+  // ── 2. Nombre del complejo ─────────────────────────────
+  {
+    id:'name',
+    render() {
+      return `
+        <div class="q-step">Paso 2 de 8</div>
+        <div class="q-title">¿Cómo se llama tu complejo?</div>
+        <div class="q-sub">Este nombre aparece en todos los mensajes a tus jugadores y en el agente IA.</div>
+        <input class="big-input" id="f-name" placeholder="Ej: Pádel Norte Club"
+          value="${CFG.clubName}" oninput="CFG.clubName=this.value" onkeydown="if(event.key==='Enter')next()">
+        <div class="input-hint">Presioná <span class="kbd">Enter</span> o el botón para continuar</div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="back()">← Atrás</button>
+          <button class="btn-next" onclick="next()">Continuar →</button>
+        </div>`
+    },
+    validate:()=>CFG.clubName.trim().length>=2,
+    onEnter(){ setTimeout(()=>document.getElementById('f-name')?.focus(),80) }
+  },
+
+  // ── 3. Tamaño / tipo ────────────────────────────────────
+  {
+    id:'size',
+    render() {
+      const opts = [
+        {id:'small',  icon:'🏠', label:'Spot pequeño',    sub:'1 a 3 canchas o espacios. Solo quiero lo básico.'},
+        {id:'medium', icon:'🏟', label:'Complejo mediano', sub:'4 a 10 espacios. Canchas, clases y tienda.'},
+        {id:'large',  icon:'🌆', label:'Gran complejo',    sub:'Más de 10 espacios. Academia, torneos, eventos.'},
+      ]
+      return `
+        <div class="q-step">Paso 3 de 8</div>
+        <div class="q-title">¿Qué tan grande es <em style="color:var(--ac)">${CFG.clubName||'tu complejo'}</em>?</div>
+        <div class="q-sub">Esto nos ayuda a precargar solo lo que necesitás. Sin datos de relleno.</div>
+        <div class="choices">
+          ${opts.map(o=>`
+            <div class="choice ${CFG.size===o.id?'sel':''}" onclick="CFG.size='${o.id}';renderQ()">
+              <span class="choice-icon">${o.icon}</span>
+              <div class="choice-info">
+                <div class="choice-label">${o.label}</div>
+                <div class="choice-sub">${o.sub}</div>
+              </div>
+              <div class="choice-check">${CFG.size===o.id?'✓':''}</div>
+            </div>`).join('')}
+        </div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="back()">← Atrás</button>
+          <button class="btn-next" onclick="next()">Continuar →</button>
+        </div>`
+    },
+    validate:()=>!!CFG.size,
+  },
+
+  // ── 4. Deportes ─────────────────────────────────────────
+  {
+    id:'sports',
+    render() {
+      const sports = [
+        {id:'padel',      icon:'🎾', name:'Pádel'},
+        {id:'futbol5',    icon:'⚽', name:'Fútbol 5'},
+        {id:'futbol7',    icon:'⚽', name:'Fútbol 7'},
+        {id:'futbol11',   icon:'⚽', name:'Fútbol 11'},
+        {id:'tenis',      icon:'🎾', name:'Tenis'},
+        {id:'basquet',    icon:'🏀', name:'Básquet'},
+        {id:'voley',      icon:'🏐', name:'Vóley'},
+        {id:'pickleball', icon:'🏓', name:'Pickleball'},
+        {id:'crossfit',   icon:'💪', name:'Crossfit'},
+        {id:'yoga',       icon:'🧘', name:'Yoga'},
+        {id:'natacion',   icon:'🏊', name:'Natación'},
+        {id:'squash',     icon:'🎱', name:'Squash'},
+        {id:'gym',        icon:'🏋', name:'Gimnasio'},
+        {id:'hockey',     icon:'🏑', name:'Hockey'},
+        {id:'rugby',      icon:'🏉', name:'Rugby'},
+        {id:'otro',       icon:'🎯', name:'Otro'},
+      ]
+      return `
+        <div class="q-step">Paso 4 de 8</div>
+        <div class="q-title">¿Qué deportes o actividades ofrecés?</div>
+        <div class="q-sub">Elegí todos los que tenés. Podés agregar más después.</div>
+        <div class="sport-grid">
+          ${sports.map(s=>`
+            <div class="sport-card ${CFG.sports.includes(s.id)?'sel':''}"
+              onclick="toggleSport('${s.id}')">
+              <div class="sport-card-icon">${s.icon}</div>
+              <div class="sport-card-name">${s.name}</div>
+            </div>`).join('')}
+        </div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="back()">← Atrás</button>
+          <button class="btn-next" onclick="next()" ${CFG.sports.length===0?'disabled':''}>
+            ${CFG.sports.length===0?'Elegí al menos uno':CFG.sports.length+' seleccionados →'}
+          </button>
+        </div>`
+    },
+    validate:()=>CFG.sports.length>0,
+  },
+
+  // ── 5. Espacios básicos ────────────────────────────────
+  {
+    id:'spaces',
+    render() {
+      // Pre-generar nombres de canchas según deportes
+      if (CFG.spaces.length===0) {
+        CFG.spaces = CFG.sports.slice(0,3).map((s,i)=>({
+          name: getSportName(s)+' '+(i+1), sport:s
+        }))
+      }
+      return `
+        <div class="q-step">Paso 5 de 8</div>
+        <div class="q-title">¿Cuántas canchas o espacios tenés?</div>
+        <div class="q-sub">Nombralas como quieras. Podés agregar o editar después desde el módulo de reservas.</div>
+        <div class="dyn-list" id="spaces-list">
+          ${CFG.spaces.map((sp,i)=>`
+            <div class="dyn-item">
+              <span style="font-size:18px;width:28px;text-align:center">${getSportIcon(sp.sport)}</span>
+              <input class="dyn-input" value="${sp.name}" placeholder="Nombre del espacio"
+                oninput="CFG.spaces[${i}].name=this.value">
+              <button class="dyn-remove" onclick="removeSpace(${i})">✕</button>
+            </div>`).join('')}
+        </div>
+        <div class="add-dyn" onclick="addSpace()">
+          <span style="font-size:16px">+</span> Agregar espacio
+        </div>
+        <div class="input-hint">No importa si no los tenés todos ahora. Podés completarlos después.</div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="back()">← Atrás</button>
+          <button class="btn-next" onclick="next()">Continuar →</button>
+        </div>`
+    },
+    validate:()=>true,
+  },
+
+  // ── 6. Horarios ────────────────────────────────────────
+  {
+    id:'hours',
+    render() {
+      return `
+        <div class="q-step">Paso 6 de 8</div>
+        <div class="q-title">¿En qué horario abre el complejo?</div>
+        <div class="q-sub">El horario general. Cada espacio puede tener su propio horario después.</div>
+        <div class="time-row">
+          <div class="time-group">
+            <span class="time-label">Apertura</span>
+            <input type="time" class="time-inp" id="f-open" value="${CFG.openTime}"
+              oninput="CFG.openTime=this.value">
+          </div>
+          <div class="time-sep">–</div>
+          <div class="time-group">
+            <span class="time-label">Cierre</span>
+            <input type="time" class="time-inp" id="f-close" value="${CFG.closeTime}"
+              oninput="CFG.closeTime=this.value">
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="q-sub" style="margin-bottom:10px">¿Abrís todos los días?</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map((d,i)=>`
+              <div id="day-${i}" onclick="toggleDay(${i},this)"
+                style="padding:7px 13px;border-radius:8px;border:1px solid ${i<=5?'var(--ac)':'var(--bd2)'};background:${i<=5?'var(--ac)14':'var(--s1)'};color:${i<=5?'var(--ac)':'var(--tx3)'};font-size:13px;font-weight:500;cursor:pointer;transition:all .14s">
+                ${d}
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="back()">← Atrás</button>
+          <button class="btn-next" onclick="next()">Continuar →</button>
+        </div>`
+    },
+    validate:()=>true,
+  },
+
+  // ── 7. Identidad visual ─────────────────────────────────
+  {
+    id:'visual',
+    render() {
+      const palettes = [
+        {name:'Azul deportivo', primary:'#3d63f0', accent:'#2ecc71'},
+        {name:'Verde campo',    primary:'#16a34a', accent:'#38bdf8'},
+        {name:'Naranja energía',primary:'#f97316', accent:'#5b7fff'},
+        {name:'Violeta power',  primary:'#7c3aed', accent:'#ec4899'},
+        {name:'Rojo pasión',    primary:'#e05050', accent:'#f0a020'},
+        {name:'Teal moderno',   primary:'#0d9488', accent:'#a855f7'},
+        {name:'Gris premium',   primary:'#334155', accent:'#5b7fff'},
+        {name:'Dorado clásico', primary:'#b45309', accent:'#22c55e'},
+      ]
+      const isCustom = !palettes.find(p=>p.primary===CFG.palette.primary&&p.accent===CFG.palette.accent)
+      return `
+        <div class="q-step">Paso 7 de 8</div>
+        <div class="q-title">¿Qué colores representan a tu complejo?</div>
+        <div class="q-sub">Elegí una paleta o personalizá los colores. Podés cambiarlo cuando quieras.</div>
+        <div class="palette-grid">
+          ${palettes.map(p=>`
+            <div class="palette-card ${CFG.palette.primary===p.primary?'sel':''}"
+              onclick="CFG.palette={primary:'${p.primary}',accent:'${p.accent}'};renderQ()">
+              <div class="palette-dots">
+                <div class="palette-dot" style="background:${p.primary}"></div>
+                <div class="palette-dot" style="background:${p.accent}"></div>
+              </div>
+              <span class="palette-name">${p.name}</span>
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <span style="font-size:11px;color:var(--tx3)">Color personalizado:</span>
+          <input type="color" value="${CFG.palette.primary}"
+            style="width:34px;height:28px;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;padding:2px;background:var(--s2)"
+            oninput="CFG.palette.primary=this.value">
+          <input type="color" value="${CFG.palette.accent}"
+            style="width:34px;height:28px;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;padding:2px;background:var(--s2)"
+            oninput="CFG.palette.accent=this.value">
+        </div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="back()">← Atrás</button>
+          <button class="btn-next" onclick="next()">Continuar →</button>
+        </div>`
+    },
+    validate:()=>true,
+  },
+
+  // ── 8. Resumen ─────────────────────────────────────────
+  {
+    id:'summary',
+    render() {
+      const sportNames = CFG.sports.map(s=>getSportName(s)).join(', ')
+      return `
+        <div class="q-step">Paso 8 de 8 — Revisión</div>
+        <div class="q-title">¿Todo correcto? 🎯</div>
+        <div class="q-sub">Mirá el resumen. Si algo está mal podés volver atrás.</div>
+        <div class="summary-grid">
+          <div class="sum-card">
+            <div class="sum-icon">🏟</div>
+            <div class="sum-label">Complejo</div>
+            <div class="sum-val">${CFG.clubName}</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-icon">📐</div>
+            <div class="sum-label">Tamaño</div>
+            <div class="sum-val">${{small:'Pequeño',medium:'Mediano',large:'Grande'}[CFG.size]}</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-icon">⚽</div>
+            <div class="sum-label">Deportes (${CFG.sports.length})</div>
+            <div class="sum-val" style="font-size:12px">${sportNames||'—'}</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-icon">🏠</div>
+            <div class="sum-label">Espacios (${CFG.spaces.length})</div>
+            <div class="sum-val" style="font-size:12px">${CFG.spaces.map(s=>s.name).join(', ')||'—'}</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-icon">🕐</div>
+            <div class="sum-label">Horario</div>
+            <div class="sum-val">${CFG.openTime} a ${CFG.closeTime}</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-icon" style="display:flex;gap:4px">
+              <div style="width:20px;height:20px;border-radius:4px;background:${CFG.palette.primary}"></div>
+              <div style="width:20px;height:20px;border-radius:4px;background:${CFG.palette.accent}"></div>
+            </div>
+            <div class="sum-label">Colores</div>
+            <div class="sum-val" style="font-family:'DM Mono',monospace;font-size:11px">${CFG.palette.primary} · ${CFG.palette.accent}</div>
+          </div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:6px">
+          💡 <strong style="color:var(--tx)">Esto es todo lo necesario para arrancar.</strong> Precios, horarios pico, proveedores, clases y todo lo demás lo configurás desde el panel mientras vas operando.
+        </div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="back()">← Atrás</button>
+          <button class="btn-next" onclick="finish()" style="background:var(--ok);gap:8px">
+            ✓ Crear mi complejo
+          </button>
+        </div>`
+    },
+    validate:()=>true,
+  },
+]
+
+// ══════════════════════════════════════════════════════════
+//  ESTADO Y NAVEGACIÓN
+// ══════════════════════════════════════════════════════════
+let current = 0
+
+function renderQ() {
+  const step = STEPS[current]
+  const pct  = Math.round((current / (STEPS.length - 1)) * 100)
+  document.getElementById('prog').style.width = pct + '%'
+
+  const wrap = document.getElementById('qwrap')
+  wrap.classList.remove('out')
+  wrap.innerHTML = step.render()
+  if (step.onEnter) step.onEnter()
+
+  // Mostrar/ocultar skip
+  document.getElementById('skip-btn').style.display = current >= STEPS.length-2 ? 'none' : 'block'
+}
+
+function next() {
+  const step = STEPS[current]
+  if (!step.validate()) {
+    shake()
+    return
+  }
+  if (current < STEPS.length - 1) {
+    animOut(()=>{ current++; renderQ() })
+  }
+}
+
+function back() {
+  if (current > 0) animOut(()=>{ current--; renderQ() })
+}
+
+function animOut(cb) {
+  const wrap = document.getElementById('qwrap')
+  wrap.classList.add('out')
+  setTimeout(cb, 220)
+}
+
+function shake() {
+  const wrap = document.getElementById('qwrap')
+  wrap.style.animation = 'none'
+  wrap.offsetHeight // reflow
+  wrap.style.animation = 'shake .3s'
+  if (!document.getElementById('shake-kf')) {
+    const s = document.createElement('style')
+    s.id = 'shake-kf'
+    s.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}'
+    document.head.appendChild(s)
+  }
+}
+
+function skipToEnd() {
+  animOut(()=>{ current = STEPS.length - 1; renderQ() })
+}
+
+// ══════════════════════════════════════════════════════════
+//  ACCIONES DE PASOS
+// ══════════════════════════════════════════════════════════
+function toggleSport(id) {
+  const idx = CFG.sports.indexOf(id)
+  if (idx>=0) CFG.sports.splice(idx,1)
+  else CFG.sports.push(id)
+  // resetear espacios para que se regeneren
+  if (CFG.sports.length===0) CFG.spaces=[]
+  else if (CFG.spaces.length===0) {
+    CFG.spaces = CFG.sports.slice(0,3).map((s,i)=>({name:getSportName(s)+' '+(i+1),sport:s}))
+  }
+  renderQ()
+}
+
+function addSpace() {
+  const sport = CFG.sports[CFG.spaces.length % Math.max(CFG.sports.length,1)]
+  CFG.spaces.push({name:'', sport})
+  renderQ()
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('.dyn-input')
+    inputs[inputs.length-1]?.focus()
+  },50)
+}
+
+function removeSpace(i) {
+  CFG.spaces.splice(i,1)
+  renderQ()
+}
+
+function toggleDay(i, el) {
+  const isActive = el.style.borderColor.includes('ac') || el.style.color.includes('ac')
+  if (isActive) {
+    el.style.borderColor='var(--bd2)'; el.style.background='var(--s1)'; el.style.color='var(--tx3)'
+  } else {
+    el.style.borderColor='var(--ac)'; el.style.background='var(--ac)14'; el.style.color='var(--ac)'
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  FINALIZAR
+// ══════════════════════════════════════════════════════════
+function finish() {
+  // Guardar en localStorage
+  localStorage.setItem('sporthubos-config', JSON.stringify({
+    club: {
+      name: CFG.clubName,
+      openTime: CFG.openTime,
+      closeTime: CFG.closeTime,
+      primaryColor: CFG.palette.primary,
+      accentColor: CFG.palette.accent,
+    },
+    sports: CFG.sports.map(id=>({ id, name:getSportName(id), icon:getSportIcon(id), active:true, categories:[] })),
+    sectors: CFG.spaces.map((sp,i)=>({ id:'sp'+i, name:sp.name, sport:sp.sport, type:'court' })),
+    onboardingDone: true,
+  }))
+
+  // Mostrar pantalla final
+  animOut(()=>{
+    document.getElementById('prog').style.width = '100%'
+    document.getElementById('skip-btn').style.display = 'none'
+    document.getElementById('qwrap').innerHTML = `
+      <div class="finish-wrap">
+        <div class="finish-icon">🎉</div>
+        <div class="finish-title" style="font-family:'Syne',sans-serif">¡${CFG.clubName} está listo!</div>
+        <div class="finish-sub">
+          Tu sistema quedó configurado con lo básico. Podés empezar a tomar reservas ahora mismo y seguir configurando el resto mientras operás.
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px">
+          ${CFG.sports.map(s=>`<span style="font-size:20px">${getSportIcon(s)}</span>`).join('')}
+        </div>
+        <div class="finish-actions">
+          <button class="btn-next" onclick="goTo('reservas')" style="background:var(--ok)">
+            📅 Ir a Reservas
+          </button>
+          <button class="btn-next" onclick="goTo('jugadores')">
+            👤 Cargar jugadores
+          </button>
+          <button class="btn-next" onclick="goTo('config')" style="background:var(--s1);border:1px solid var(--bd2);color:var(--tx2)">
+            ⚙ Seguir configurando
+          </button>
+        </div>
+        <div style="margin-top:20px;font-size:11px;color:var(--tx3)">
+          Todo lo que configuraste queda guardado. Podés agregar precios, horarios pico, proveedores y más cuando quieras.
+        </div>
+      </div>`
+  })
+}
+
+function goTo(dest) {
+  const pages = {
+    reservas:  'modulo1-reservas-v2.html',
+    jugadores: 'modulo2-jugadores-crm.html',
+    config:    'modulo-configuracion.html',
+  }
+  if (pages[dest]) window.location.href = pages[dest]
+  else toast(`Abriendo ${dest}...`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS DE DEPORTES
+// ══════════════════════════════════════════════════════════
+const SPORT_DATA = {
+  padel:      {name:'Pádel',      icon:'🎾'},
+  futbol5:    {name:'Fútbol 5',   icon:'⚽'},
+  futbol7:    {name:'Fútbol 7',   icon:'⚽'},
+  futbol11:   {name:'Fútbol 11',  icon:'⚽'},
+  tenis:      {name:'Tenis',      icon:'🎾'},
+  basquet:    {name:'Básquet',    icon:'🏀'},
+  voley:      {name:'Vóley',      icon:'🏐'},
+  pickleball: {name:'Pickleball', icon:'🏓'},
+  crossfit:   {name:'Crossfit',   icon:'💪'},
+  yoga:       {name:'Yoga',       icon:'🧘'},
+  natacion:   {name:'Natación',   icon:'🏊'},
+  squash:     {name:'Squash',     icon:'🎱'},
+  gym:        {name:'Gimnasio',   icon:'🏋'},
+  hockey:     {name:'Hockey',     icon:'🏑'},
+  rugby:      {name:'Rugby',      icon:'🏉'},
+  otro:       {name:'Otro',       icon:'🎯'},
+}
+const getSportName = id => SPORT_DATA[id]?.name || id
+const getSportIcon = id => SPORT_DATA[id]?.icon || '🏟'
+
+function toast(msg){
+  const t=document.createElement('div')
+  t.style.cssText='position:fixed;bottom:16px;right:16px;background:var(--s1);border:1px solid var(--bd2);border-radius:9px;padding:9px 14px;font-size:12px;color:var(--tx);z-index:400'
+  t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2200)
+}
+
+// Teclado
+document.addEventListener('keydown', e=>{
+  if (e.key==='Enter' && !e.target.matches('input[type=text],input[type=tel],input[type=email],.big-input')) {
+    // Enter en inputs ya está manejado por onkeydown
+  }
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') next()
+  if (e.key==='ArrowLeft' ||e.key==='ArrowUp')   back()
+})
+
+// INIT
+renderQ()
+</script>
+</body>
+</html>

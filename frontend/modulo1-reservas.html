@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Reservas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --gold:#f0c040;--sh:0 8px 32px #00000099;--sh2:0 2px 10px #00000066
+}
+:root[data-theme="light"]{
+  --bg:#f0f4fc;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#8a9ab8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --gold:#ca8a04;--sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+/* ─── TOP BAR ──────────────────────────────────── */
+.top{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:60;box-shadow:var(--sh2)}
+.logo{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--ac),#a855f7);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.app-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:800}
+.ttog{width:38px;height:20px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+/* ─── CONTROL BAR ─────────────────────────────── */
+.ctrl{background:var(--s1);border-bottom:1px solid var(--bd);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:49px;z-index:50}
+
+/* Navegación de fecha */
+.nav-fecha{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--bd2);border-radius:9px;padding:4px 6px}
+.nav-btn{width:26px;height:26px;border-radius:6px;border:none;background:none;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .13s}
+.nav-btn:hover{background:var(--bd2);color:var(--tx)}
+.fecha-label{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;min-width:120px;text-align:center;cursor:pointer;color:var(--tx)}
+.btn-hoy{padding:5px 10px;border-radius:7px;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s}
+.btn-hoy:hover{border-color:var(--ac);color:var(--ac)}
+
+/* Filtros de deporte */
+.sport-pills{display:flex;gap:4px;flex-wrap:wrap}
+.sp-pill{padding:5px 11px;border-radius:20px;border:1px solid var(--bd2);background:none;color:var(--tx3);font-size:11px;font-weight:600;cursor:pointer;transition:all .14s;white-space:nowrap}
+.sp-pill:hover{border-color:var(--bd3);color:var(--tx2)}
+.sp-pill.on{color:#fff;border-color:transparent}
+
+/* Filtros de cancha */
+.cancha-pills{display:flex;gap:4px;flex-wrap:wrap}
+.c-pill{padding:4px 10px;border-radius:8px;border:1px solid var(--bd2);background:var(--s2);color:var(--tx3);font-size:11px;font-weight:500;cursor:pointer;transition:all .14s;display:flex;align-items:center;gap:4px}
+.c-pill .dot{width:7px;height:7px;border-radius:50%}
+.c-pill:hover{border-color:var(--bd3)}
+.c-pill.on{border-color:transparent;color:#fff}
+
+/* Selector de vista */
+.vista-sel{display:flex;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;overflow:hidden;margin-left:auto;flex-shrink:0}
+.vista-btn{padding:5px 10px;border:none;background:none;color:var(--tx3);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:4px}
+.vista-btn.on{background:var(--ac);color:#fff}
+.vista-btn:hover:not(.on){background:var(--s3);color:var(--tx)}
+
+/* ─── KPIs ─────────────────────────────────────── */
+.kpis{display:flex;gap:0;background:var(--s1);border-bottom:1px solid var(--bd);overflow-x:auto}
+.kpi{padding:10px 20px;min-width:110px;border-right:1px solid var(--bd);flex-shrink:0}
+.kpi:last-child{border-right:none}
+.kpi-v{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;line-height:1}
+.kpi-l{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+
+/* ─── MAIN ─────────────────────────────────────── */
+.main{padding:16px 20px;max-width:1400px;margin:0 auto}
+
+/* ══════════════════════════════════════════════════
+   VISTA 1 — TIMELINE
+══════════════════════════════════════════════════ */
+.timeline-wrap{display:flex;flex-direction:column;gap:10px}
+
+.tl-cancha{background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden;transition:border-color .14s}
+.tl-cancha:hover{border-color:var(--bd2)}
+
+.tl-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd);cursor:pointer;user-select:none}
+.tl-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;flex:1}
+.tl-badge{font-size:10px;font-weight:700;border-radius:6px;padding:2px 7px}
+.tl-occ-bar{flex:1;max-width:120px;background:var(--bd);border-radius:3px;height:5px;overflow:hidden}
+.tl-occ-fill{height:100%;border-radius:3px;transition:width .4s}
+
+/* SLOTS VISUALES */
+.tl-slots{padding:10px 14px;overflow-x:auto}
+.tl-grid{display:flex;align-items:flex-end;gap:3px;height:68px;position:relative}
+.tl-hour-labels{display:flex;gap:3px;padding:0 14px 6px;overflow-x:auto}
+.tl-hour-lbl{font-size:9px;color:var(--tx3);font-family:'DM Mono',monospace;flex-shrink:0;text-align:center}
+
+.slot{border-radius:5px;flex-shrink:0;cursor:pointer;transition:all .15s;position:relative;display:flex;align-items:flex-end;padding-bottom:4px;justify-content:center;overflow:hidden}
+.slot:hover{transform:scaleY(1.06);z-index:2;box-shadow:0 4px 14px #00000044}
+.slot.libre{background:var(--s2);border:1px solid var(--bd2)}
+.slot.libre:hover{border-color:var(--ok)55;background:var(--ok)0a}
+.slot.ocupado{border:1px solid transparent}
+.slot.bloqueado{background:var(--bd2);opacity:.6;cursor:not-allowed}
+.slot.peak{border-bottom:2px solid var(--gold)}
+.slot-label{font-size:9px;font-weight:700;color:#fff;opacity:.9;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;max-width:95%;text-align:center;font-family:'DM Mono',monospace}
+.slot.libre .slot-label{color:var(--tx3)}
+
+/* Línea de "ahora" */
+.tl-now-line{position:absolute;top:0;bottom:0;width:2px;background:var(--err);z-index:3;border-radius:1px}
+.tl-now-line::before{content:'▼';position:absolute;top:-8px;left:50%;transform:translateX(-50%);color:var(--err);font-size:8px}
+
+/* ══════════════════════════════════════════════════
+   VISTA 2 — CARDS
+══════════════════════════════════════════════════ */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+
+.cancha-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:all .15s;cursor:pointer}
+.cancha-card:hover{border-color:var(--bd2);transform:translateY(-2px);box-shadow:var(--sh2)}
+
+.cc-top{padding:14px 16px;position:relative}
+.cc-top::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.cc-icon{font-size:28px;margin-bottom:6px}
+.cc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:3px}
+.cc-meta{font-size:11px;color:var(--tx2)}
+
+/* Mini timeline en card */
+.cc-timeline{display:flex;gap:2px;padding:10px 14px;overflow-x:auto;background:var(--s2)}
+.cc-slot{width:18px;border-radius:3px;cursor:pointer;transition:all .14s;flex-shrink:0;position:relative}
+.cc-slot:hover{transform:scaleY(1.1)}
+
+/* Stats de la cancha */
+.cc-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--bd)}
+.cc-s{padding:8px 10px;text-align:center}
+.cc-sv{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.cc-sl{font-size:9px;color:var(--tx3);text-transform:uppercase;margin-top:1px}
+
+/* Próximos slots libres */
+.cc-libres{padding:8px 14px 12px;display:flex;flex-wrap:wrap;gap:4px}
+.libre-chip{padding:3px 8px;border-radius:6px;border:1px solid var(--ok)44;background:var(--ok)0a;color:var(--ok);font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .13s}
+.libre-chip:hover{background:var(--ok)18}
+
+/* ══════════════════════════════════════════════════
+   VISTA 3 — AGENDA
+══════════════════════════════════════════════════ */
+.agenda-wrap{display:flex;flex-direction:column;gap:6px}
+.agenda-hora-group{display:flex;align-items:flex-start;gap:12px}
+.agenda-hora{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--tx3);min-width:48px;padding-top:10px;flex-shrink:0}
+.agenda-slots{flex:1;display:flex;flex-direction:column;gap:4px}
+.agenda-item{background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:9px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .13s;position:relative;overflow:hidden}
+.agenda-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.agenda-item:hover{border-color:var(--bd2);transform:translateX(3px)}
+.agenda-empty{background:var(--s2);border:1px dashed var(--bd2);border-radius:9px;padding:8px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .13s;opacity:.6}
+.agenda-empty:hover{opacity:1;border-color:var(--ok)55;background:var(--ok)05}
+
+/* ─── MODAL ─────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:22px;width:100%;max-width:480px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:mIn .18s}
+@keyframes mIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.m-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:3px}
+.m-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--ac)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-ok{background:var(--ok);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{border-color:var(--bd3);color:var(--tx)}
+.btn-err{background:var(--err)18;color:var(--err);border:1px solid var(--err)33}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+
+/* ─── TOAST ─────────────────────────────────────── */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--s1);border:1px solid var(--bd2);border-radius:9px;padding:9px 14px;font-size:12px;z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:tIn .2s;max-width:320px}
+@keyframes tIn{from{transform:translateX(110%)}to{transform:none}}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top">
+  <div class="logo">📅</div>
+  <div class="app-name">Reservas</div>
+  <div style="font-size:11px;color:var(--tx3);margin-left:2px">Sport Hub Norte</div>
+  <div style="margin-left:auto;display:flex;gap:7px;align-items:center">
+    <button class="btn btn-ghost btn-sm" onclick="openNueva()">+ Nueva reserva</button>
+    <button class="btn btn-primary btn-sm" onclick="openNueva()">+ Turno fijo</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</div>
+
+<!-- CONTROL BAR -->
+<div class="ctrl">
+  <!-- Fecha -->
+  <div class="nav-fecha">
+    <button class="nav-btn" onclick="navFecha(-1)">‹</button>
+    <span class="fecha-label" id="fecha-label">Hoy</span>
+    <button class="nav-btn" onclick="navFecha(1)">›</button>
+  </div>
+  <button class="btn-hoy" onclick="goHoy()">Hoy</button>
+
+  <!-- Deportes -->
+  <div class="sport-pills" id="sport-pills"></div>
+
+  <!-- Vista -->
+  <div class="vista-sel" style="margin-left:auto">
+    <button class="vista-btn on" id="vbtn-timeline" onclick="setVista('timeline')" title="Timeline por cancha">▬ Timeline</button>
+    <button class="vista-btn"    id="vbtn-cards"    onclick="setVista('cards')"    title="Cards por cancha">⊞ Cards</button>
+    <button class="vista-btn"    id="vbtn-agenda"   onclick="setVista('agenda')"   title="Agenda cronológica">≡ Agenda</button>
+  </div>
+</div>
+
+<!-- Filtros de cancha (segunda fila, dinámica) -->
+<div style="background:var(--s1);border-bottom:1px solid var(--bd);padding:7px 20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap" id="cancha-bar"></div>
+
+<!-- KPIs -->
+<div class="kpis" id="kpis"></div>
+
+<!-- CONTENT -->
+<div class="main" id="main"></div>
+
+<!-- MODAL -->
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATOS
+// ══════════════════════════════════════════════════════════
+const SPACES = [
+  {id:'p1',cat:'padel',  name:'Pádel 1',      icon:'🎾',color:'#5b7fff',open:'08:00',close:'23:00',price:4500,peak:6000,peakH:['19:00','20:00','21:00','22:00'],cap:4},
+  {id:'p2',cat:'padel',  name:'Pádel 2',      icon:'🎾',color:'#5b7fff',open:'08:00',close:'23:00',price:4500,peak:6000,peakH:['19:00','20:00','21:00','22:00'],cap:4},
+  {id:'p3',cat:'padel',  name:'Pádel 3',      icon:'🎾',color:'#818cf8',open:'08:00',close:'23:00',price:4000,peak:5500,peakH:['19:00','20:00','21:00','22:00'],cap:4},
+  {id:'f1',cat:'futbol', name:'Fútbol 5 — A', icon:'⚽',color:'#2ecc71',open:'08:00',close:'22:00',price:5500,peak:8000,peakH:['18:00','19:00','20:00','21:00'],cap:10},
+  {id:'f2',cat:'futbol', name:'Fútbol 5 — B', icon:'⚽',color:'#16a34a',open:'08:00',close:'22:00',price:5000,peak:7500,peakH:['18:00','19:00','20:00','21:00'],cap:10},
+  {id:'f3',cat:'futbol', name:'Fútbol 7',      icon:'⚽',color:'#15803d',open:'09:00',close:'21:00',price:7000,peak:10000,peakH:['18:00','19:00','20:00'],cap:14},
+  {id:'t1',cat:'tenis',  name:'Tenis 1',       icon:'🎾',color:'#f59e0b',open:'07:00',close:'20:00',price:3500,peak:5000,peakH:['08:00','09:00','17:00','18:00'],cap:4},
+  {id:'t2',cat:'tenis',  name:'Tenis 2',       icon:'🎾',color:'#d97706',open:'07:00',close:'20:00',price:3500,peak:5000,peakH:['08:00','09:00','17:00','18:00'],cap:4},
+  {id:'g1',cat:'clases', name:'Crossfit',      icon:'💪',color:'#ef4444',open:'07:00',close:'21:00',price:3000,peak:3000,peakH:[],cap:15},
+  {id:'g2',cat:'clases', name:'Yoga',          icon:'🧘',color:'#06b6d4',open:'08:00',close:'20:00',price:2000,peak:2000,peakH:[],cap:12},
+]
+
+const SPORT_LABELS = {padel:'🎾 Pádel',futbol:'⚽ Fútbol',tenis:'🎾 Tenis',clases:'💪 Clases'}
+const NOMBRES = ['Carlos M.','Julia P.','Roberto S.','Ana G.','Diego H.','Sofía R.','Martín V.','Lucía F.','Pablo N.','Valentina O.','Grupo Los Pibes','Club Social']
+
+function seeded(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*16777619)>>>0}return(h%1000)/1000}
+
+function getSlots(sp){
+  const slots=[]
+  const [oh,om]=sp.open.split(':').map(Number)
+  const [ch,cm]=sp.close.split(':').map(Number)
+  let cur=oh*60+om,end=ch*60+cm
+  while(cur+60<=end){slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);cur+=60}
+  return slots
+}
+
+// Genera reservas demo deterministas para cualquier día
+function buildBookingsForDay(dayOffset){
+  const bk={}, sts=['CONFIRMED','CONFIRMED','CONFIRMED','PENDING','CONFIRMED']
+  for(const sp of SPACES){
+    for(const h of getSlots(sp)){
+      const k=`${sp.id}-${dayOffset}-${h}`, pk=sp.peakH.includes(h)
+      const prob=pk?.72:.28
+      if(seeded(k)<prob){
+        const ni=Math.floor(seeded(k+'n')*NOMBRES.length)
+        const si=Math.floor(seeded(k+'s')*sts.length)
+        const rec=seeded(k+'r')>.75
+        bk[k]={
+          name:NOMBRES[ni],status:sts[si],recurring:rec,
+          paid:seeded(k+'p')>.35,
+          price:pk?sp.peak:sp.price,
+          phone:'11-'+Math.floor(seeded(k+'ph')*90000000+10000000)
+        }
+      }
+      // bloqueados manuales
+      if((sp.id==='p1'&&dayOffset===0&&h==='08:00')||(sp.id==='f3'&&dayOffset===0&&h==='18:00')){
+        bk[k]={name:'',status:'BLOCKED',reason:'Mantenimiento',paid:false,price:0}
+      }
+    }
+  }
+  return bk
+}
+
+// ── Estado ──────────────────────────────────────
+let dayOffset   = 0
+let activeCats  = new Set(['all'])
+let activeSps   = new Set(['all'])
+let vistaActual = 'timeline'
+let BOOKINGS    = buildBookingsForDay(0)
+
+// ── Helpers ─────────────────────────────────────
+const fmt = n => n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n.toLocaleString()
+const fmtDate = offset => {
+  const d = new Date(); d.setDate(d.getDate()+offset)
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+  if(offset===0) return 'Hoy · '+dias[d.getDay()]+' '+d.getDate()+' '+meses[d.getMonth()]
+  if(offset===1) return 'Mañana · '+dias[d.getDay()]+' '+d.getDate()+' '+meses[d.getMonth()]
+  if(offset===-1) return 'Ayer · '+dias[d.getDay()]+' '+d.getDate()+' '+meses[d.getMonth()]
+  return dias[d.getDay()]+' '+d.getDate()+' '+meses[d.getMonth()]
+}
+const statusColor = {CONFIRMED:'var(--ac)',PENDING:'var(--warn)',BLOCKED:'var(--tx3)'}
+const statusLabel = {CONFIRMED:'Confirmada',PENDING:'Pendiente',BLOCKED:'Bloqueado'}
+
+function getVisibleSpaces(){
+  let sps = SPACES
+  if(!activeCats.has('all')) sps = sps.filter(s=>activeCats.has(s.cat))
+  if(!activeSps.has('all'))  sps = sps.filter(s=>activeSps.has(s.id))
+  return sps
+}
+
+function slotKey(spId,h){ return `${spId}-${dayOffset}-${h}` }
+
+function getOccupancy(sp){
+  const slots = getSlots(sp)
+  const occ   = slots.filter(h=>BOOKINGS[slotKey(sp.id,h)]?.status!=='BLOCKED' && BOOKINGS[slotKey(sp.id,h)]).length
+  return slots.length ? Math.round(occ/slots.length*100) : 0
+}
+
+function getRevenue(sp){
+  return getSlots(sp).reduce((a,h)=>{const b=BOOKINGS[slotKey(sp.id,h)];return b&&b.status!=='BLOCKED'?a+b.price:a},0)
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER PRINCIPAL
+// ══════════════════════════════════════════════════════════
+function render(){
+  BOOKINGS = buildBookingsForDay(dayOffset)
+  document.getElementById('fecha-label').textContent = fmtDate(dayOffset)
+  renderSportPills()
+  renderCanchaBar()
+  renderKPIs()
+  renderMain()
+}
+
+function renderSportPills(){
+  const cats = ['all',...new Set(SPACES.map(s=>s.cat))]
+  document.getElementById('sport-pills').innerHTML = cats.map(cat=>{
+    const on = activeCats.has(cat)||activeCats.has('all')&&cat==='all'
+    const lbl = cat==='all'?'Todos':SPORT_LABELS[cat]||cat
+    const colors = {padel:'#5b7fff',futbol:'#2ecc71',tenis:'#f59e0b',clases:'#ef4444',all:'var(--ac)'}
+    return `<button class="sp-pill ${on?'on':''}" onclick="toggleCat('${cat}')"
+      style="${on?`background:${colors[cat]||'var(--ac)'};border-color:transparent`:''}">${lbl}</button>`
+  }).join('')
+}
+
+function renderCanchaBar(){
+  const sps = activeCats.has('all') ? SPACES : SPACES.filter(s=>activeCats.has(s.cat))
+  let html = '<span style="font-size:10px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.07em;flex-shrink:0">Cancha:</span>'
+  html += sps.map(sp=>{
+    const on = activeSps.has('all') || activeSps.has(sp.id)
+    const occ = getOccupancy(sp)
+    return `<div class="c-pill ${on?'on':''}" onclick="toggleSp('${sp.id}')"
+      style="${on?`background:${sp.color};border-color:transparent`:''}" title="${occ}% ocupación">
+      <div class="dot" style="background:${on?'#fff8':sp.color}"></div>
+      ${sp.name}
+      <span style="font-family:'DM Mono',monospace;font-size:9px;opacity:.75">${occ}%</span>
+    </div>`
+  }).join('')
+  document.getElementById('cancha-bar').innerHTML = html
+}
+
+function renderKPIs(){
+  const sps = getVisibleSpaces()
+  let total=0,conf=0,pend=0,rev=0,libres=0
+  for(const sp of sps){
+    for(const h of getSlots(sp)){
+      const b = BOOKINGS[slotKey(sp.id,h)]
+      if(!b){libres++;continue}
+      if(b.status==='BLOCKED') continue
+      total++
+      if(b.status==='CONFIRMED') conf++
+      if(b.status==='PENDING')   pend++
+      if(b.paid) rev+=b.price
+    }
+  }
+  const totalSlots = sps.reduce((a,s)=>a+getSlots(s).length,0)
+  const occ = totalSlots>0?Math.round(total/totalSlots*100):0
+  document.getElementById('kpis').innerHTML = [
+    {v:total,     l:'Reservas',       c:'var(--ac)'},
+    {v:conf,      l:'Confirmadas',    c:'var(--ok)'},
+    {v:pend,      l:'Pendientes',     c:'var(--warn)'},
+    {v:libres,    l:'Turnos libres',  c:'var(--tx3)'},
+    {v:fmt(rev),  l:'Cobrado',        c:'var(--gold)'},
+    {v:occ+'%',   l:'Ocupación',      c:'var(--purple,#8b5cf6)'},
+  ].map(k=>`<div class="kpi"><div class="kpi-v" style="color:${k.c}">${k.v}</div><div class="kpi-l">${k.l}</div></div>`).join('')
+}
+
+function renderMain(){
+  const el = document.getElementById('main')
+  if(vistaActual==='timeline') el.innerHTML = renderTimeline()
+  else if(vistaActual==='cards') el.innerHTML = renderCards()
+  else el.innerHTML = renderAgenda()
+}
+
+// ══════════════════════════════════════════════════════════
+//  VISTA 1 — TIMELINE (fila por cancha, columnas = horas)
+// ══════════════════════════════════════════════════════════
+function renderTimeline(){
+  const sps = getVisibleSpaces()
+  if(!sps.length) return '<div style="padding:40px;text-align:center;color:var(--tx3)">Seleccioná al menos una cancha</div>'
+
+  // Rango horario global
+  const allHours = [...new Set(sps.flatMap(s=>getSlots(s)))].sort()
+  const SLOT_W = 52  // px por slot
+
+  // Hora actual → línea "now"
+  const now = new Date()
+  const nowMin = now.getHours()*60+now.getMinutes()
+  const firstMin = parseInt(allHours[0])*60+parseInt(allHours[0].split(':')[1])
+
+  // Etiquetas de hora
+  let labelsHtml = `<div style="display:flex;gap:3px;padding:0 0 4px 190px;overflow-x:auto;min-width:max-content">`
+  allHours.forEach(h=>{
+    labelsHtml += `<div style="width:${SLOT_W}px;flex-shrink:0;font-size:9px;color:var(--tx3);font-family:'DM Mono',monospace;text-align:center">${h}</div>`
+  })
+  labelsHtml += '</div>'
+
+  let body = '<div class="timeline-wrap">'
+  for(const sp of sps){
+    const slots = getSlots(sp)
+    const occ   = getOccupancy(sp)
+    const rev   = getRevenue(sp)
+    const confCount = slots.filter(h=>BOOKINGS[slotKey(sp.id,h)]?.status==='CONFIRMED').length
+    const pendCount = slots.filter(h=>BOOKINGS[slotKey(sp.id,h)]?.status==='PENDING').length
+
+    body += `<div class="tl-cancha">`
+
+    // Header
+    body += `<div class="tl-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
+      <span style="font-size:18px">${sp.icon}</span>
+      <span class="tl-name" style="color:${sp.color}">${sp.name}</span>
+      <span style="font-size:11px;color:var(--tx3);margin-right:8px">${fmt(rev)}</span>
+      ${confCount?`<span class="tl-badge" style="background:${statusColor.CONFIRMED}18;color:${statusColor.CONFIRMED}">${confCount} conf.</span>`:''} 
+      ${pendCount?`<span class="tl-badge" style="background:${statusColor.PENDING}18;color:${statusColor.PENDING};margin-left:3px">${pendCount} pend.</span>`:''}
+      <div class="tl-occ-bar" style="margin-left:8px">
+        <div class="tl-occ-fill" style="width:${occ}%;background:${sp.color}"></div>
+      </div>
+      <span style="font-size:10px;color:var(--tx3);margin-left:4px;min-width:28px">${occ}%</span>
+    </div>`
+
+    // Timeline de slots
+    body += `<div style="overflow-x:auto;padding:10px 14px 12px;position:relative">`
+    body += `<div style="display:flex;gap:3px;min-width:max-content;position:relative">`
+
+    // Línea "ahora" si es hoy
+    if(dayOffset===0){
+      const nowPos = allHours.findIndex(h=>{
+        const [hh,mm] = h.split(':').map(Number)
+        const slotMin = hh*60+mm
+        return nowMin>=slotMin && nowMin<slotMin+60
+      })
+      if(nowPos>=0){
+        const x = nowPos*(SLOT_W+3) + Math.round((nowMin%60)/60*(SLOT_W+3))
+        body += `<div style="position:absolute;left:${x}px;top:0;bottom:0;width:2px;background:var(--err);z-index:3;border-radius:1px">
+          <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);color:var(--err);font-size:8px">▼</div>
+        </div>`
+      }
+    }
+
+    allHours.forEach(h=>{
+      const inRange = slots.includes(h)
+      if(!inRange){
+        body += `<div style="width:${SLOT_W}px;height:54px;border-radius:5px;flex-shrink:0;background:var(--bg);opacity:.3"></div>`
+        return
+      }
+      const bk = BOOKINGS[slotKey(sp.id,h)]
+      const pk = sp.peakH.includes(h)
+
+      if(!bk){
+        // LIBRE
+        body += `<div class="slot libre ${pk?'peak':''}" 
+          style="width:${SLOT_W}px;height:54px"
+          onclick="openNueva('${sp.id}','${h}')" 
+          title="${h} — ${sp.name} — Libre${pk?' · Horario pico':''}">
+          <span class="slot-label" style="color:var(--ok)99;font-size:8px">${pk?'PICO':''}</span>
+        </div>`
+      } else if(bk.status==='BLOCKED'){
+        body += `<div class="slot bloqueado" style="width:${SLOT_W}px;height:54px" title="${bk.reason||'Bloqueado'}">
+          <span class="slot-label" style="color:var(--tx3)">🔒</span>
+        </div>`
+      } else {
+        const col = bk.status==='CONFIRMED'?sp.color:'#f0a020'
+        const h2  = Math.round(54*(bk.status==='CONFIRMED'?.85:.65))
+        body += `<div class="slot ocupado ${pk?'peak':''}"
+          style="width:${SLOT_W}px;height:${h2}px;background:${col}${bk.status==='CONFIRMED'?'cc':'88'};align-self:flex-end;margin-top:${54-h2}px"
+          onclick="openDetalle('${sp.id}','${h}')"
+          title="${h} · ${bk.name} · ${statusLabel[bk.status]}${bk.recurring?' · Fijo':''} · ${fmt(bk.price)}">
+          <span class="slot-label">${bk.recurring?'↻ ':''}{${bk.name.split(' ')[0]}}</span>
+        </div>`
+      }
+    })
+
+    body += '</div></div></div>'
+  }
+
+  body += '</div>'
+  return labelsHtml + body
+}
+
+// ══════════════════════════════════════════════════════════
+//  VISTA 2 — CARDS
+// ══════════════════════════════════════════════════════════
+function renderCards(){
+  const sps = getVisibleSpaces()
+  if(!sps.length) return '<div style="padding:40px;text-align:center;color:var(--tx3)">Seleccioná al menos una cancha</div>'
+
+  const SLOT_H = 40
+
+  let html = '<div class="cards-grid">'
+  for(const sp of sps){
+    const slots  = getSlots(sp)
+    const occ    = getOccupancy(sp)
+    const rev    = getRevenue(sp)
+    const libresSlots = slots.filter(h=>!BOOKINGS[slotKey(sp.id,h)])
+
+    html += `<div class="cancha-card" onclick="openCanchaDetail('${sp.id}')">
+      <div class="cc-top" style="border-top:3px solid ${sp.color}">
+        <div class="cc-icon">${sp.icon}</div>
+        <div class="cc-name" style="color:${sp.color}">${sp.name}</div>
+        <div class="cc-meta">${sp.open} – ${sp.close} · ${slots.length} turnos</div>
+        <!-- Barra de ocupación -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <div style="flex:1;background:var(--bd);border-radius:4px;height:6px;overflow:hidden">
+            <div style="width:${occ}%;height:100%;background:${sp.color};border-radius:4px;transition:width .5s"></div>
+          </div>
+          <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace;flex-shrink:0">${occ}%</span>
+        </div>
+      </div>`
+
+    // Mini timeline horizontal
+    html += `<div style="padding:8px 14px;overflow-x:auto;background:var(--s2)">`
+    html += `<div style="display:flex;gap:2px;min-width:max-content">`
+    slots.forEach(h=>{
+      const bk = BOOKINGS[slotKey(sp.id,h)]
+      const pk = sp.peakH.includes(h)
+      let bg, title
+      if(!bk){ bg=`var(--ok)33`; title=h+' — Libre'+(pk?' · Pico':'')}
+      else if(bk.status==='BLOCKED'){ bg='var(--bd2)'; title=bk.reason||'Bloqueado' }
+      else if(bk.status==='CONFIRMED'){ bg=sp.color+'cc'; title=h+' · '+bk.name }
+      else { bg='#f0a02088'; title=h+' · '+bk.name+' (pendiente)' }
+
+      html += `<div style="width:14px;height:${SLOT_H}px;background:${bg};border-radius:3px;flex-shrink:0;cursor:pointer;transition:all .14s"
+        title="${title}"
+        onclick="event.stopPropagation();${!bk?`openNueva('${sp.id}','${h}')`:`openDetalle('${sp.id}','${h}')`}"
+        onmouseover="this.style.transform='scaleY(1.1)'" 
+        onmouseout="this.style.transform=''">
+      </div>`
+    })
+    html += '</div></div>'
+
+    // Stats
+    const conf = slots.filter(h=>BOOKINGS[slotKey(sp.id,h)]?.status==='CONFIRMED').length
+    const pend = slots.filter(h=>BOOKINGS[slotKey(sp.id,h)]?.status==='PENDING').length
+    html += `<div class="cc-stats">
+      <div class="cc-s"><div class="cc-sv" style="color:var(--ok)">${fmt(rev)}</div><div class="cc-sl">Revenue</div></div>
+      <div class="cc-s" style="border-left:1px solid var(--bd)"><div class="cc-sv" style="color:${statusColor.CONFIRMED}">${conf}</div><div class="cc-sl">Confirmadas</div></div>
+      <div class="cc-s" style="border-left:1px solid var(--bd)"><div class="cc-sv" style="color:${statusColor.PENDING}">${pend}</div><div class="cc-sl">Pendientes</div></div>
+    </div>`
+
+    // Próximos libres
+    if(libresSlots.length){
+      html += `<div class="cc-libres">`
+      html += `<span style="font-size:9px;color:var(--tx3);font-weight:600;text-transform:uppercase;width:100%;margin-bottom:2px">Turnos libres:</span>`
+      libresSlots.slice(0,6).map(h=>{
+        html += `<div class="libre-chip" onclick="event.stopPropagation();openNueva('${sp.id}','${h}')" title="Reservar ${h}">${h}</div>`
+      })
+      if(libresSlots.length>6) html += `<span style="font-size:10px;color:var(--tx3);align-self:center">+${libresSlots.length-6} más</span>`
+      html += '</div>'
+    }
+
+    html += '</div>'
+  }
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  VISTA 3 — AGENDA CRONOLÓGICA
+// ══════════════════════════════════════════════════════════
+function renderAgenda(){
+  const sps   = getVisibleSpaces()
+  const hours = [...new Set(sps.flatMap(s=>getSlots(s)))].sort()
+  let html = '<div class="agenda-wrap">'
+
+  const now = new Date()
+  const nowH = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+
+  hours.forEach(h=>{
+    const spConReserva = sps.filter(sp=>getSlots(sp).includes(h))
+    if(!spConReserva.length) return
+
+    const isNow = dayOffset===0 && h<=nowH && nowH<`${String(parseInt(h)+1).padStart(2,'0')}:00`
+
+    html += `<div class="agenda-hora-group">`
+    html += `<div class="agenda-hora" style="${isNow?'color:var(--err);font-weight:800':''}">${h}${isNow?'<br><span style="font-size:9px">ahora</span>':''}</div>`
+    html += `<div class="agenda-slots">`
+
+    spConReserva.forEach(sp=>{
+      const bk = BOOKINGS[slotKey(sp.id,h)]
+      const pk = sp.peakH.includes(h)
+
+      if(!bk){
+        html += `<div class="agenda-empty" onclick="openNueva('${sp.id}','${h}')">
+          <span style="font-size:14px;opacity:.5">+</span>
+          <span style="font-size:11px;color:var(--tx3)">${sp.icon} ${sp.name}</span>
+          ${pk?`<span style="font-size:9px;color:var(--gold);margin-left:auto">⚡ Pico</span>`:''}
+          <span style="font-size:10px;color:var(--ok);margin-left:auto">${fmt(pk?sp.peak:sp.price)}</span>
+        </div>`
+      } else {
+        const col = bk.status==='BLOCKED'?'var(--tx3)':bk.status==='CONFIRMED'?sp.color:'var(--warn)'
+        html += `<div class="agenda-item" onclick="openDetalle('${sp.id}','${h}')"
+          style="border-left:3px solid ${col}">
+          <span style="font-size:16px">${sp.icon}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--tx)">${bk.status==='BLOCKED'?(bk.reason||'Bloqueado'):bk.name}</div>
+            <div style="font-size:10px;color:var(--tx3)">${sp.name}${bk.recurring?' · ↻ Turno fijo':''}</div>
+          </div>
+          ${bk.status!=='BLOCKED'?`
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${bk.paid?'var(--ok)':'var(--warn)'}">${fmt(bk.price)}</div>
+            <div style="font-size:9px;color:${bk.paid?'var(--ok)':'var(--warn)'}">${bk.paid?'✓ Pagado':'Pendiente'}</div>
+          </div>`:''}
+          <span style="font-size:10px;font-weight:600;color:${col}">${statusLabel[bk.status]||bk.status}</span>
+        </div>`
+      }
+    })
+    html += '</div></div>'
+  })
+
+  if(!hours.length) html += '<div style="padding:40px;text-align:center;color:var(--tx3)">Sin turnos para mostrar</div>'
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════════
+function openDetalle(spId, h){
+  const sp = SPACES.find(x=>x.id===spId)
+  const bk = BOOKINGS[slotKey(spId,h)]
+  if(!sp||!bk) return
+
+  const col = bk.status==='CONFIRMED'?sp.color:'var(--warn)'
+  showModal(`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:46px;height:46px;border-radius:11px;background:${sp.color}22;display:flex;align-items:center;justify-content:center;font-size:22px">${sp.icon}</div>
+      <div>
+        <div class="m-title">${sp.name} · ${h}hs</div>
+        <div style="font-size:12px;color:var(--tx2)">${fmtDate(dayOffset)}</div>
+      </div>
+      <span style="margin-left:auto;font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px;background:${col}18;color:${col}">${statusLabel[bk.status]}</span>
+    </div>
+
+    ${bk.status!=='BLOCKED'?`
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px">
+      ${[
+        {l:'Jugador',  v:bk.name},
+        {l:'Teléfono', v:bk.phone||'—'},
+        {l:'Precio',   v:fmt(bk.price), c:'var(--ok)'},
+        {l:'Pago',     v:bk.paid?'✓ Pagado':'Pendiente', c:bk.paid?'var(--ok)':'var(--warn)'},
+        {l:'Turno fijo',v:bk.recurring?'Sí, semanal':'No'},
+        {l:'Estado',   v:statusLabel[bk.status], c:col},
+      ].map(r=>`<div style="background:var(--s2);border-radius:8px;padding:9px 12px">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">${r.l}</div>
+        <div style="font-size:13px;font-weight:600;color:${r.c||'var(--tx)'}">${r.v}</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="m-actions">
+      <button class="btn btn-err btn-sm" onclick="cancelarReserva('${spId}','${h}')">✕ Cancelar turno</button>
+      ${!bk.paid?`<button class="btn btn-ok btn-sm" onclick="marcarPagado('${spId}','${h}')">✓ Marcar pagado</button>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="toast('Enviando WhatsApp a '+BOOKINGS[slotKey('${spId}','${h}')]?.name||'')">📱 WhatsApp</button>
+    </div>`:`
+    <div style="text-align:center;padding:12px;color:var(--tx3);font-size:13px">${bk.reason||'Bloqueado'}</div>
+    <div class="m-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-primary" onclick="desbloquear('${spId}','${h}')">Desbloquear</button>
+    </div>`}
+  `)
+}
+
+function openNueva(preSpId, preH){
+  showModal(`
+    <div class="m-title">+ Nueva reserva</div>
+    <div class="m-sub">${preSpId&&preH?SPACES.find(s=>s.id===preSpId)?.name+' · '+preH+'hs':fmtDate(dayOffset)}</div>
+    <label class="flbl">Jugador / cliente</label>
+    <input class="finp" id="nr-nombre" placeholder="Nombre o buscar socio...">
+    <div class="frow">
+      <div>
+        <label class="flbl">Cancha</label>
+        <select class="fsel" id="nr-sp">
+          ${SPACES.map(s=>`<option value="${s.id}" ${s.id===preSpId?'selected':''}>${s.icon} ${s.name}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Horario</label>
+        <select class="fsel" id="nr-h">
+          ${[...new Set(SPACES.flatMap(s=>getSlots(s)))].sort().map(h=>`<option ${h===preH?'selected':''}>${h}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Teléfono</label>
+        <input class="finp" id="nr-tel" placeholder="11-xxxx-xxxx" type="tel">
+      </div>
+      <div>
+        <label class="flbl">Pago</label>
+        <select class="fsel" id="nr-pago">
+          <option value="0">Pendiente</option>
+          <option value="1">Efectivo ✓</option>
+          <option value="2">Transferencia ✓</option>
+          <option value="3">Mercado Pago ✓</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:var(--s2);border-radius:8px;padding:9px 12px;margin-bottom:10px;cursor:pointer" onclick="this.querySelector('input').checked=!this.querySelector('input').checked">
+      <input type="checkbox" id="nr-fijo" style="width:14px;height:14px;cursor:pointer">
+      <div>
+        <div style="font-size:12px;font-weight:500">Turno fijo semanal</div>
+        <div style="font-size:10px;color:var(--tx3)">Se repite todos los semana automáticamente</div>
+      </div>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarReserva()">✓ Confirmar reserva</button>
+    </div>
+  `)
+}
+
+function openCanchaDetail(spId){
+  const sp = SPACES.find(x=>x.id===spId)
+  if(!sp) return
+  const slots = getSlots(sp)
+  const occ = getOccupancy(sp)
+  const rev = getRevenue(sp)
+  const conf = slots.filter(h=>BOOKINGS[slotKey(sp.id,h)]?.status==='CONFIRMED').length
+  const pend = slots.filter(h=>BOOKINGS[slotKey(sp.id,h)]?.status==='PENDING').length
+  const libres = slots.filter(h=>!BOOKINGS[slotKey(sp.id,h)])
+
+  showModal(`
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:36px;margin-bottom:6px">${sp.icon}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:${sp.color}">${sp.name}</div>
+      <div style="font-size:11px;color:var(--tx2)">${sp.open} – ${sp.close} · ${slots.length} turnos disponibles</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {l:'Ocupación',  v:occ+'%',   c:occ>75?'var(--ok)':occ>40?'var(--warn)':'var(--err)'},
+        {l:'Revenue',    v:fmt(rev),  c:'var(--gold)'},
+        {l:'Confirmadas',v:conf,      c:'var(--ac)'},
+        {l:'Pendientes', v:pend,      c:'var(--warn)'},
+        {l:'Libres',     v:libres.length, c:'var(--ok)'},
+        {l:'Cap.',       v:sp.cap+' jug.',c:'var(--tx2)'},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:${s.c}">${s.v}</div>
+        <div style="font-size:9px;color:var(--tx3);margin-top:2px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+    ${libres.length?`
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:7px">Turnos libres hoy</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${libres.map(h=>`<div class="libre-chip" onclick="closeModal();openNueva('${sp.id}','${h}')">${h}</div>`).join('')}
+      </div>
+    </div>`:''}
+    <div class="m-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-primary" onclick="closeModal();openNueva('${sp.id}',null)">+ Reservar en esta cancha</button>
+    </div>
+  `)
+}
+
+// ── Acciones ─────────────────────────────────────
+function guardarReserva(){
+  const nombre = document.getElementById('nr-nombre')?.value.trim()
+  if(!nombre){ toast('Ingresá el nombre del jugador','warn'); return }
+  const spId = document.getElementById('nr-sp')?.value
+  const h    = document.getElementById('nr-h')?.value
+  const paid = parseInt(document.getElementById('nr-pago')?.value)||0
+  const fijo = document.getElementById('nr-fijo')?.checked
+  const sp   = SPACES.find(x=>x.id===spId)
+  const pk   = sp?.peakH.includes(h)
+  BOOKINGS[slotKey(spId,h)] = {
+    name:nombre, status:'CONFIRMED', paid:paid>0,
+    recurring:fijo, price:pk?sp?.peak:sp?.price,
+    phone:document.getElementById('nr-tel')?.value||''
+  }
+  closeModal(); render()
+  toast('✓ Reserva confirmada — '+sp?.name+' '+h+'hs para '+nombre)
+}
+
+function cancelarReserva(spId,h){
+  delete BOOKINGS[slotKey(spId,h)]
+  closeModal(); render()
+  toast('Reserva cancelada','warn')
+}
+
+function marcarPagado(spId,h){
+  const bk = BOOKINGS[slotKey(spId,h)]
+  if(bk) bk.paid=true
+  closeModal(); render()
+  toast('✓ Marcado como pagado')
+}
+
+function desbloquear(spId,h){
+  delete BOOKINGS[slotKey(spId,h)]
+  closeModal(); render()
+  toast('✓ Turno desbloqueado')
+}
+
+// ── Controles ────────────────────────────────────
+function navFecha(d){ dayOffset+=d; render() }
+function goHoy(){ dayOffset=0; render() }
+
+function toggleCat(cat){
+  if(cat==='all'){ activeCats=new Set(['all']); activeSps=new Set(['all']) }
+  else{
+    activeCats.delete('all')
+    if(activeCats.has(cat)) activeCats.delete(cat)
+    else activeCats.add(cat)
+    if(!activeCats.size) activeCats=new Set(['all'])
+  }
+  activeSps=new Set(['all'])
+  render()
+}
+
+function toggleSp(id){
+  if(activeSps.has('all')){ activeSps=new Set([id]) }
+  else{
+    if(activeSps.has(id)){ activeSps.delete(id); if(!activeSps.size) activeSps=new Set(['all']) }
+    else activeSps.add(id)
+  }
+  render()
+}
+
+function setVista(v){
+  vistaActual=v
+  document.querySelectorAll('.vista-btn').forEach(b=>b.classList.remove('on'))
+  document.getElementById('vbtn-'+v)?.classList.add('on')
+  renderMain()
+}
+
+// ── Modal / Toast ─────────────────────────────────
+function showModal(html){ document.getElementById('modal-body').innerHTML=html; document.getElementById('modal').style.display='flex' }
+function closeModal(){ document.getElementById('modal').style.display='none' }
+
+function toast(msg,type='ok'){
+  const cols={ok:'var(--ok)',warn:'var(--warn)',err:'var(--err)'}
+  const el=document.createElement('div'); el.className='toast'
+  el.innerHTML=`<span style="color:${cols[type]||cols.ok}">●</span> ${msg}`
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2800)
+}
+
+function toggleTheme(){
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme',h.getAttribute('data-theme'))
+}
+const st=localStorage.getItem('shos-theme')
+if(st) document.documentElement.setAttribute('data-theme',st)
+
+// ── Init ──────────────────────────────────────────
+render()
+</script>
+</body>
+</html>

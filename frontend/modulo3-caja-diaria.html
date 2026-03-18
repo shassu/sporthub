@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Caja Diaria</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#06080f;--s1:#0c0f1a;--s2:#111520;--s3:#161b2a;
+  --bd:#1c2235;--bd2:#252d45;--bd3:#303a58;
+  --tx:#dde3f4;--tx2:#8494b8;--tx3:#4a5878;
+  --ac:#5b7fff;--ac2:#3d60f0;--ac3:#7b9aff;
+  --ok:#2ecc71;--ok2:#1aaa59;--warn:#f0a020;--err:#e05050;--info:#38bdf8;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000066;
+  --income-bg:#091a0f;--income-bd:#1a4d30;--income-col:#2ecc71;
+  --expense-bg:#1a0a0a;--expense-bd:#4d1a1a;--expense-col:#e05050;
+  --cash-bg:#1a1505;--cash-bd:#4d3d0a;--cash-col:#f0c040;
+}
+:root[data-theme="light"]{
+  --bg:#f0f3fb;--s1:#fff;--s2:#f5f8ff;--s3:#edf0f9;
+  --bd:#e0e5f0;--bd2:#c8d0e8;--bd3:#b0bcd8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d60f0;--ac2:#2550d8;--ac3:#5b7fff;
+  --ok:#16a34a;--ok2:#15803d;--warn:#d97706;--err:#dc2626;--info:#0284c7;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+  --income-bg:#f0fdf4;--income-bd:#86efac;--income-col:#16a34a;
+  --expense-bg:#fef2f2;--expense-bd:#fca5a5;--expense-col:#dc2626;
+  --cash-bg:#fefce8;--cash-bd:#fde047;--cash-col:#ca8a04;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px;transition:background .25s,color .25s}
+
+/* TOPBAR */
+.top{display:flex;align-items:center;gap:12px;padding:11px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;font-family:'Syne',sans-serif;flex-shrink:0}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--tx)}
+.ls{font-size:10px;color:var(--tx3)}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);border:1px solid var(--bd2);cursor:pointer;position:relative;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--income-bg);color:var(--income-col);border:1px solid var(--income-bd)}
+.btn-err{background:var(--expense-bg);color:var(--expense-col);border:1px solid var(--expense-bd)}
+.btn-warn{background:var(--cash-bg);color:var(--cash-col);border:1px solid var(--cash-bd)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.top-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* TABS PRINCIPALES */
+.main-tabs{display:flex;gap:0;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px}
+.mtab{padding:10px 18px;cursor:pointer;font-size:13px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;transition:all .14s;white-space:nowrap}
+.mtab:hover{color:var(--tx)}
+.mtab.on{color:var(--tx);border-bottom-color:var(--ac)}
+
+/* LAYOUT MAIN */
+.main{padding:20px 24px;max-width:1400px;margin:0 auto}
+
+/* KPI CARDS */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.income::before{background:var(--ok)}
+.kpi.expense::before{background:var(--err)}
+.kpi.cash::before{background:var(--warn)}
+.kpi.net::before{background:var(--ac)}
+.kpi.txcount::before{background:var(--info)}
+.kv{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;line-height:1;margin-top:8px}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-top:5px}
+.ktrend{font-size:10px;margin-top:4px}
+.ktrend.up{color:var(--ok)}
+.ktrend.dn{color:var(--err)}
+
+/* CAJA STATUS BAR */
+.caja-bar{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.caja-status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.caja-status-dot.open{background:var(--ok);box-shadow:0 0 8px var(--ok)66}
+.caja-status-dot.closed{background:var(--err)}
+.caja-info{flex:1;min-width:0}
+.caja-title{font-size:14px;font-weight:600;font-family:'Syne',sans-serif}
+.caja-sub{font-size:11px;color:var(--tx2);margin-top:2px}
+.caja-balance{text-align:right}
+.caja-balance-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:700}
+.caja-balance-lbl{font-size:10px;color:var(--tx3);margin-top:2px}
+
+/* LAYOUT DOS COLUMNAS */
+.two-col{display:grid;grid-template-columns:1fr 380px;gap:16px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+
+/* TRANSACTION LIST */
+.tx-list{background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.tx-header{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.tx-header-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif}
+.tx-item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--bd)55;transition:background .12s;cursor:pointer}
+.tx-item:hover{background:var(--s2)}
+.tx-item:last-child{border-bottom:none}
+.tx-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tx-icon.income{background:var(--income-bg);border:1px solid var(--income-bd)}
+.tx-icon.expense{background:var(--expense-bg);border:1px solid var(--expense-bd)}
+.tx-icon.cash{background:var(--cash-bg);border:1px solid var(--cash-bd)}
+.tx-body{flex:1;min-width:0}
+.tx-desc{font-size:12px;font-weight:500;color:var(--tx)}
+.tx-meta{font-size:11px;color:var(--tx2);margin-top:1px;display:flex;gap:8px;flex-wrap:wrap}
+.tx-tag{font-size:10px;border-radius:10px;padding:1px 6px;font-weight:500}
+.tx-right{text-align:right;flex-shrink:0}
+.tx-amount{font-family:'DM Mono',monospace;font-size:13px;font-weight:700}
+.tx-amount.income{color:var(--income-col)}
+.tx-amount.expense{color:var(--expense-col)}
+.tx-amount.cash{color:var(--cash-col)}
+.tx-time{font-size:10px;color:var(--tx3);margin-top:2px}
+
+/* PANEL DERECHO */
+.right-panel{display:flex;flex-direction:column;gap:14px}
+.panel-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.panel-card-head{padding:12px 16px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:space-between}
+
+/* PRODUCT RANKING */
+.prod-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--bd)55}
+.prod-row:last-child{border-bottom:none}
+.prod-rank{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tx3);width:18px;flex-shrink:0}
+.prod-name{flex:1;font-size:12px;color:var(--tx)}
+.prod-bar-wrap{width:60px;height:5px;background:var(--bd);border-radius:3px;overflow:hidden}
+.prod-bar{height:100%;border-radius:3px;background:var(--ac)}
+.prod-val{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--tx);width:44px;text-align:right}
+
+/* METODOS DE PAGO */
+.pay-donut-wrap{padding:14px 16px;display:flex;align-items:center;gap:16px}
+.pay-legend{flex:1;display:flex;flex-direction:column;gap:6px}
+.pay-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:11px}
+.pay-leg-left{display:flex;align-items:center;gap:5px;color:var(--tx2)}
+.pay-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.pay-leg-val{font-weight:600;color:var(--tx);font-family:'DM Mono',monospace}
+
+/* CIERRE DE CAJA */
+.cierre-box{padding:14px 16px}
+.cierre-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px}
+.cierre-row:last-child{border-bottom:none}
+.cierre-row.total{font-weight:700;font-size:14px}
+.cierre-lbl{color:var(--tx2)}
+.cierre-val{font-family:'DM Mono',monospace;font-weight:600;color:var(--tx)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fi .15s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:420px;box-shadow:var(--sh);animation:su .18s;max-height:92vh;overflow-y:auto}
+@keyframes su{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px;color:var(--tx)}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:18px}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--ac)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+/* TYPE SELECTOR */
+.type-tabs{display:flex;gap:0;margin-bottom:14px;background:var(--s2);border-radius:9px;padding:3px}
+.type-tab{flex:1;padding:7px;border-radius:7px;text-align:center;font-size:12px;font-weight:500;cursor:pointer;transition:all .14s;color:var(--tx2)}
+.type-tab.income.on{background:var(--income-bg);color:var(--income-col);border:1px solid var(--income-bd)}
+.type-tab.expense.on{background:var(--expense-bg);color:var(--expense-col);border:1px solid var(--expense-bd)}
+.type-tab.cash.on{background:var(--cash-bg);color:var(--cash-col);border:1px solid var(--cash-bd)}
+
+/* REPORTE */
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.report-kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
+.report-kv{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.report-kl{font-size:10px;color:var(--tx3);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+.week-chart{display:flex;align-items:flex-end;gap:4px;height:80px;padding:8px 0}
+.week-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.week-bar{width:100%;border-radius:4px 4px 0 0;transition:height .3s;min-height:4px;cursor:pointer;position:relative}
+.week-bar:hover{opacity:.8}
+.week-bar-lbl{font-size:9px;color:var(--tx3);white-space:nowrap}
+.week-bar-val{font-size:9px;font-family:'DM Mono',monospace;color:var(--tx2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:si .2s}
+@keyframes si{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">S</div>
+  <div><div class="ln">Sport Hub OS</div><div class="ls">Caja Diaria — Sport Hub Norte</div></div>
+  <div class="top-right">
+    <button class="btn btn-ok btn-sm" onclick="openTx('income')">+ Ingreso</button>
+    <button class="btn btn-err btn-sm" onclick="openTx('expense')">+ Egreso</button>
+    <button class="btn btn-warn btn-sm" onclick="openTx('cash')">↕ Movimiento</button>
+    <button class="btn btn-ghost btn-sm" onclick="openCierre()">🔒 Cierre de caja</button>
+    <div class="ttog" onclick="toggleTheme()" title="Cambiar tema"></div>
+  </div>
+</header>
+
+<div class="main-tabs">
+  <div class="mtab on" id="tab-hoy"    onclick="switchTab('hoy')">Hoy</div>
+  <div class="mtab"    id="tab-semana" onclick="switchTab('semana')">Esta semana</div>
+  <div class="mtab"    id="tab-mes"    onclick="switchTab('mes')">Este mes</div>
+  <div class="mtab"    id="tab-cierre" onclick="switchTab('cierre')">Historial de cierres</div>
+</div>
+
+<div class="main" id="main-content"></div>
+
+<!-- MODAL NUEVA TRANSACCIÓN -->
+<div class="overlay" id="modal-tx" style="display:none" onclick="closeOverlay(event,'modal-tx')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="mt-title">Nueva transacción</div>
+    <div class="modal-sub" id="mt-sub">Registrá el movimiento en la caja</div>
+
+    <div class="type-tabs">
+      <div class="type-tab income" id="tt-income" onclick="setTxType('income')">↑ Ingreso</div>
+      <div class="type-tab expense" id="tt-expense" onclick="setTxType('expense')">↓ Egreso</div>
+      <div class="type-tab cash" id="tt-cash" onclick="setTxType('cash')">↕ Efectivo</div>
+    </div>
+
+    <label class="flbl">Descripción</label>
+    <input type="text" class="finp" id="tx-desc" placeholder="Ej: Reserva Pádel 1 - Carlos M.">
+
+    <div class="frow">
+      <div>
+        <label class="flbl">Monto</label>
+        <input type="number" class="finp" id="tx-amount" placeholder="$0">
+      </div>
+      <div>
+        <label class="flbl">Forma de pago</label>
+        <select class="fsel" id="tx-pay">
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="mercadopago">Mercado Pago</option>
+          <option value="tarjeta">Tarjeta</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="frow">
+      <div>
+        <label class="flbl">Categoría</label>
+        <select class="fsel" id="tx-cat">
+          <option value="cancha">Alquiler de cancha</option>
+          <option value="clase">Clase / academia</option>
+          <option value="tienda">Tienda / productos</option>
+          <option value="espacio">SUM / quincho / espacio</option>
+          <option value="evento">Evento especial</option>
+          <option value="membresia">Membresía</option>
+          <option value="proveedor">Pago a proveedor</option>
+          <option value="servicio">Servicio (luz, agua, etc.)</option>
+          <option value="personal">Personal / sueldos</option>
+          <option value="mantenimiento">Mantenimiento</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Hora</label>
+        <input type="time" class="finp" id="tx-time" value="">
+      </div>
+    </div>
+
+    <label class="flbl">Jugador / Cliente (opcional)</label>
+    <input type="text" class="finp" id="tx-player" placeholder="Nombre o teléfono">
+
+    <label class="flbl">Notas internas</label>
+    <input type="text" class="finp" id="tx-notes" placeholder="Opcional">
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-tx').style.display='none'">Cancelar</button>
+      <button class="btn btn-primary" id="tx-save-btn" onclick="saveTx()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CIERRE DE CAJA -->
+<div class="overlay" id="modal-cierre" style="display:none" onclick="closeOverlay(event,'modal-cierre')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:460px">
+    <div class="modal-title">🔒 Cierre de caja</div>
+    <div class="modal-sub">Resumen del día — <span id="cierre-date"></span></div>
+    <div id="cierre-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-cierre').style.display='none'">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarCierre()">Confirmar cierre</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATOS DEMO
+// ══════════════════════════════════════════════════════════
+const CAT_ICONS = {
+  cancha:'🎾', clase:'💪', tienda:'🛍', espacio:'🏠', evento:'🎉',
+  membresia:'⭐', proveedor:'📦', servicio:'⚡', personal:'👤',
+  mantenimiento:'🔧', otro:'💰'
+}
+const CAT_LABELS = {
+  cancha:'Alquiler cancha', clase:'Clase / academia', tienda:'Tienda', espacio:'Espacio (SUM/quincho)',
+  evento:'Evento especial', membresia:'Membresía', proveedor:'Proveedor', servicio:'Servicio',
+  personal:'Personal', mantenimiento:'Mantenimiento', otro:'Otro'
+}
+const PAY_LABELS  = { efectivo:'Efectivo', transferencia:'Transferencia', mercadopago:'Mercado Pago', tarjeta:'Tarjeta' }
+const PAY_COLORS  = { efectivo:'#f0c040', transferencia:'#5b7fff', mercadopago:'#009ee3', tarjeta:'#a855f7' }
+
+// Generar transacciones demo para hoy
+function makeTxs() {
+  const now   = new Date()
+  const today = now.toISOString().split('T')[0]
+  return [
+    { id:1, type:'income',  cat:'cancha',    desc:'Pádel 1 — Carlos Méndez',      amount:6000,  pay:'transferencia', time:'08:05', player:'Carlos Méndez',  date:today, notes:'' },
+    { id:2, type:'income',  cat:'cancha',    desc:'Pádel 2 — Julia Paredes',       amount:6000,  pay:'mercadopago',   time:'09:10', player:'Julia Paredes',   date:today, notes:'' },
+    { id:3, type:'income',  cat:'tienda',    desc:'Agua mineral x3 + Gatorade',    amount:3900,  pay:'efectivo',      time:'09:35', player:'Carlos Méndez',  date:today, notes:'' },
+    { id:4, type:'income',  cat:'clase',     desc:'Clase yoga — Sofía Paz',        amount:2000,  pay:'transferencia', time:'10:00', player:'',               date:today, notes:'' },
+    { id:5, type:'income',  cat:'tienda',    desc:'Pelota HEAD x3',                amount:4500,  pay:'efectivo',      time:'10:20', player:'',               date:today, notes:'' },
+    { id:6, type:'expense', cat:'proveedor', desc:'Proveedor bebidas — Coca Cola', amount:18000, pay:'transferencia', time:'11:00', player:'',               date:today, notes:'Factura #4521' },
+    { id:7, type:'income',  cat:'cancha',    desc:'Fútbol 5 A — Grupo Los Pibes',  amount:5500,  pay:'efectivo',      time:'12:15', player:'',               date:today, notes:'' },
+    { id:8, type:'income',  cat:'espacio',   desc:'SUM Grande — Cumple Martina',   amount:15000, pay:'mercadopago',   time:'13:00', player:'',               date:today, notes:'' },
+    { id:9, type:'income',  cat:'cancha',    desc:'Pádel 1 — Ana Gómez',           amount:6000,  pay:'efectivo',      time:'14:00', player:'Ana Gómez',      date:today, notes:'' },
+    {id:10, type:'income',  cat:'tienda',    desc:'Remera club + Grip x2',         amount:15600, pay:'tarjeta',       time:'14:40', player:'',               date:today, notes:'' },
+    {id:11, type:'expense', cat:'servicio',  desc:'Factura luz — EDESUR',          amount:45000, pay:'transferencia', time:'15:00', player:'',               date:today, notes:'Vencimiento 15/06' },
+    {id:12, type:'income',  cat:'cancha',    desc:'Pádel 3 — Diego Herrera',       amount:4500,  pay:'transferencia', time:'16:00', player:'Diego Herrera',  date:today, notes:'' },
+    {id:13, type:'income',  cat:'clase',     desc:'Crossfit — Diego Torres (6 al)',amount:18000, pay:'transferencia', time:'18:05', player:'',               date:today, notes:'6 alumnos' },
+    {id:14, type:'income',  cat:'cancha',    desc:'Pádel 1 — Sofía Ramírez',       amount:6000,  pay:'mercadopago',   time:'19:00', player:'Sofía Ramírez',  date:today, notes:'' },
+    {id:15, type:'income',  cat:'tienda',    desc:'Gatorade x4 + Cerveza x2',      amount:7800,  pay:'efectivo',      time:'19:45', player:'',               date:today, notes:'' },
+    {id:16, type:'cash',    cat:'otro',      desc:'Retiro de efectivo — propietario', amount:20000, pay:'efectivo',  time:'20:00', player:'',               date:today, notes:'Retiro parcial' },
+    {id:17, type:'income',  cat:'cancha',    desc:'Pádel 2 — Turno fijo Martín',   amount:6000,  pay:'transferencia', time:'20:00', player:'',               date:today, notes:'' },
+    {id:18, type:'income',  cat:'cancha',    desc:'Fútbol 5 B — Empresa XYZ',      amount:5000,  pay:'transferencia', time:'21:00', player:'',               date:today, notes:'' },
+    {id:19, type:'income',  cat:'tienda',    desc:'Agua + Gatorade post partido',  amount:3200,  pay:'efectivo',      time:'22:10', player:'',               date:today, notes:'' },
+  ]
+}
+
+// Transacciones de días anteriores (para semana/mes)
+function makePastTxs(daysAgo, income, expense) {
+  const d = new Date(); d.setDate(d.getDate()-daysAgo)
+  const dateStr = d.toISOString().split('T')[0]
+  return [
+    {id:1000+daysAgo*10, type:'income',  cat:'cancha', desc:'Reservas del día', amount:income,  pay:'varios', time:'23:59', date:dateStr},
+    {id:1001+daysAgo*10, type:'expense', cat:'otro',   desc:'Gastos del día',   amount:expense, pay:'varios', time:'23:59', date:dateStr},
+  ]
+}
+
+let TRANSACTIONS = makeTxs()
+let nextId = 100
+let activeTab = 'hoy'
+let txType = 'income'
+let cajaOpen = true
+let cajaOpenBalance = 5000
+
+// ══════════════════════════════════════════════════════════
+//  CÁLCULOS
+// ══════════════════════════════════════════════════════════
+function getTodayTxs()  { return TRANSACTIONS }
+function getIncome(txs) { return txs.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0) }
+function getExpense(txs){ return txs.filter(t=>t.type==='expense').reduce((a,t)=>a+t.amount,0) }
+function getCash(txs)   { return txs.filter(t=>t.type==='cash').reduce((a,t)=>a+t.amount,0) }
+function getNet(txs)    { return getIncome(txs)-getExpense(txs)-getCash(txs) }
+
+// Ingreso en efectivo real
+function getCashIncome(txs) {
+  return txs.filter(t=>t.type==='income'&&t.pay==='efectivo').reduce((a,t)=>a+t.amount,0)
+    - txs.filter(t=>t.type==='cash').reduce((a,t)=>a+t.amount,0)
+}
+
+// Datos por método de pago
+function getByPay(txs) {
+  const map = {}
+  txs.filter(t=>t.type==='income').forEach(t=>{
+    map[t.pay] = (map[t.pay]||0) + t.amount
+  })
+  return map
+}
+
+// Datos por categoría
+function getByCat(txs) {
+  const map = {}
+  txs.filter(t=>t.type==='income').forEach(t=>{
+    map[t.cat] = (map[t.cat]||0) + t.amount
+  })
+  return Object.entries(map).sort((a,b)=>b[1]-a[1])
+}
+
+// Productos más vendidos de tienda
+function getTopProducts(txs) {
+  return txs
+    .filter(t=>t.type==='income'&&t.cat==='tienda')
+    .sort((a,b)=>b.amount-a.amount)
+    .slice(0,6)
+}
+
+const fmt = n => {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M'
+  if (n >= 1000)    return '$' + (n/1000).toFixed(1) + 'k'
+  return '$' + n.toLocaleString()
+}
+
+// Datos semanales simulados
+const WEEK_DATA = [
+  {day:'Lun', income:84000, expense:18000},
+  {day:'Mar', income:72000, expense:5000},
+  {day:'Mié', income:91000, expense:63000},
+  {day:'Jue', income:68000, expense:8000},
+  {day:'Vie', income:105000, expense:12000},
+  {day:'Sáb', income:138000, expense:22000},
+  {day:'Hoy', income:getIncome(TRANSACTIONS), expense:getExpense(TRANSACTIONS)},
+]
+
+// ══════════════════════════════════════════════════════════
+//  RENDER TABS
+// ══════════════════════════════════════════════════════════
+function switchTab(tab) {
+  activeTab = tab
+  document.querySelectorAll('.mtab').forEach(el => el.classList.remove('on'))
+  document.getElementById('tab-'+tab)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  switch(activeTab) {
+    case 'hoy':    renderHoy();    break
+    case 'semana': renderSemana(); break
+    case 'mes':    renderMes();    break
+    case 'cierre': renderCierres();break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB HOY
+// ══════════════════════════════════════════════════════════
+function renderHoy() {
+  const txs = getTodayTxs()
+  const income  = getIncome(txs)
+  const expense = getExpense(txs)
+  const cashOut = getCash(txs)
+  const net     = income - expense - cashOut
+  const cashInBox = cajaOpenBalance + getCashIncome(txs)
+  const byPay   = getByPay(txs)
+  const byCat   = getByCat(txs)
+  const topProds= getTopProducts(txs)
+  const now = new Date()
+  const dateStr = now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+
+  document.getElementById('main-content').innerHTML = `
+
+    <!-- CAJA STATUS -->
+    <div class="caja-bar">
+      <div class="caja-status-dot ${cajaOpen?'open':'closed'}"></div>
+      <div class="caja-info">
+        <div class="caja-title">Caja ${cajaOpen?'abierta':'cerrada'}</div>
+        <div class="caja-sub">${dateStr} · Apertura: ${fmt(cajaOpenBalance)} · Operador: Martín García</div>
+      </div>
+      <div class="caja-balance">
+        <div class="caja-balance-val" style="color:var(--cash-col)">${fmt(cashInBox)}</div>
+        <div class="caja-balance-lbl">Efectivo en caja</div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi income">
+        <div style="font-size:11px;color:var(--tx2)">Total ingresos</div>
+        <div class="kv" style="color:var(--income-col)">${fmt(income)}</div>
+        <div class="kl">hoy</div>
+        <div class="ktrend up">↑ +12% vs ayer</div>
+      </div>
+      <div class="kpi expense">
+        <div style="font-size:11px;color:var(--tx2)">Total egresos</div>
+        <div class="kv" style="color:var(--expense-col)">${fmt(expense)}</div>
+        <div class="kl">hoy</div>
+        <div class="ktrend dn">↑ +38% vs ayer</div>
+      </div>
+      <div class="kpi cash">
+        <div style="font-size:11px;color:var(--tx2)">Retiros</div>
+        <div class="kv" style="color:var(--cash-col)">${fmt(cashOut)}</div>
+        <div class="kl">hoy</div>
+      </div>
+      <div class="kpi net">
+        <div style="font-size:11px;color:var(--tx2)">Resultado neto</div>
+        <div class="kv" style="color:${net>=0?'var(--income-col)':'var(--expense-col)'}">${fmt(net)}</div>
+        <div class="kl">hoy</div>
+      </div>
+      <div class="kpi txcount">
+        <div style="font-size:11px;color:var(--tx2)">Transacciones</div>
+        <div class="kv" style="color:var(--info)">${txs.length}</div>
+        <div class="kl">hoy</div>
+      </div>
+    </div>
+
+    <!-- LAYOUT DOS COLUMNAS -->
+    <div class="two-col">
+
+      <!-- IZQUIERDA: Lista de transacciones -->
+      <div class="tx-list">
+        <div class="tx-header">
+          <span class="tx-header-title">Movimientos del día</span>
+          <div style="display:flex;gap:6px">
+            <select id="tx-filter" onchange="renderHoy()" class="finp" style="width:auto;padding:4px 8px;font-size:11px;margin:0">
+              <option value="all">Todos</option>
+              <option value="income">Solo ingresos</option>
+              <option value="expense">Solo egresos</option>
+              <option value="cash">Solo retiros</option>
+            </select>
+          </div>
+        </div>
+        ${renderTxList(txs)}
+      </div>
+
+      <!-- DERECHA -->
+      <div class="right-panel">
+
+        <!-- Métodos de pago (SVG donut) -->
+        <div class="panel-card">
+          <div class="panel-card-head">Ingresos por método de pago</div>
+          <div class="pay-donut-wrap">
+            ${buildDonut(byPay, income)}
+            <div class="pay-legend">
+              ${Object.entries(byPay).map(([pay,val])=>`
+                <div class="pay-leg-row">
+                  <div class="pay-leg-left">
+                    <div class="pay-leg-dot" style="background:${PAY_COLORS[pay]||'#666'}"></div>
+                    ${PAY_LABELS[pay]||pay}
+                  </div>
+                  <span class="pay-leg-val">${fmt(val)}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingresos por categoría -->
+        <div class="panel-card">
+          <div class="panel-card-head">Ingresos por categoría</div>
+          <div style="padding:10px 14px">
+            ${byCat.map(([cat,val])=>{
+              const pct = Math.round(val/Math.max(income,1)*100)
+              return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+                <span style="width:24px;text-align:center;font-size:14px">${CAT_ICONS[cat]||'💰'}</span>
+                <span style="font-size:11px;color:var(--tx2);flex:1">${CAT_LABELS[cat]||cat}</span>
+                <div style="width:80px;background:var(--bd);border-radius:3px;height:14px;overflow:hidden">
+                  <div style="width:${pct}%;height:100%;background:var(--ac);border-radius:3px;display:flex;align-items:center;justify-content:center">
+                    ${pct>15?`<span style="font-size:9px;color:#fff">${pct}%</span>`:''}
+                  </div>
+                </div>
+                <span style="font-size:11px;font-family:'DM Mono',monospace;font-weight:600;color:var(--tx);min-width:44px;text-align:right">${fmt(val)}</span>
+              </div>`
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Top productos de tienda -->
+        <div class="panel-card">
+          <div class="panel-card-head">
+            Tienda — top ventas del día
+            <span style="font-size:11px;color:var(--tx3);font-weight:400">${fmt(getIncome(txs.filter(t=>t.cat==='tienda')))}</span>
+          </div>
+          ${topProds.length ? topProds.map((t,i)=>`<div class="prod-row">
+            <span class="prod-rank">#${i+1}</span>
+            <span class="prod-name">${t.desc}</span>
+            <div class="prod-bar-wrap"><div class="prod-bar" style="width:${Math.round(t.amount/Math.max(...topProds.map(x=>x.amount),1)*100)}%"></div></div>
+            <span class="prod-val">${fmt(t.amount)}</span>
+          </div>`).join('') : '<div style="padding:12px 14px;font-size:12px;color:var(--tx3)">Sin ventas de tienda hoy</div>'}
+        </div>
+
+      </div>
+    </div>
+  `
+}
+
+function renderTxList(txs) {
+  const filter = document.getElementById('tx-filter')?.value || 'all'
+  const shown  = filter === 'all' ? txs : txs.filter(t=>t.type===filter)
+  if (!shown.length) return '<div style="padding:20px;text-align:center;color:var(--tx3);font-size:12px">Sin movimientos</div>'
+  return shown.map(t=>`
+    <div class="tx-item" onclick="showTxDetail(${t.id})">
+      <div class="tx-icon ${t.type}">${CAT_ICONS[t.cat]||'💰'}</div>
+      <div class="tx-body">
+        <div class="tx-desc">${t.desc}</div>
+        <div class="tx-meta">
+          <span class="tx-tag" style="background:${PAY_COLORS[t.pay]||'#666'}22;color:${PAY_COLORS[t.pay]||'var(--tx2)'}">
+            ${PAY_LABELS[t.pay]||t.pay}
+          </span>
+          <span style="color:var(--tx3)">${CAT_LABELS[t.cat]||t.cat}</span>
+          ${t.player?`<span style="color:var(--tx3)">· ${t.player}</span>`:''}
+          ${t.notes?`<span style="color:var(--tx3);font-style:italic">${t.notes}</span>`:''}
+        </div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-amount ${t.type}">${t.type==='income'?'+':'−'}${fmt(t.amount)}</div>
+        <div class="tx-time">${t.time} hs</div>
+      </div>
+    </div>`).join('')
+}
+
+// ── Donut SVG de métodos de pago ───────────────────────
+function buildDonut(byPay, total) {
+  const r = 44, cx = 52, cy = 52, stroke = 14
+  const entries  = Object.entries(byPay)
+  if (!entries.length || !total) return `<svg width="104" height="104"><text x="52" y="52" text-anchor="middle" dominant-baseline="central" font-size="11" fill="var(--tx3)">Sin datos</text></svg>`
+  let offset = 0
+  const circumference = 2 * Math.PI * r
+  const arcs = entries.map(([pay, val]) => {
+    const pct  = val / total
+    const dash = pct * circumference
+    const arc  = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${PAY_COLORS[pay]||'#666'}"
+      stroke-width="${stroke}" stroke-dasharray="${dash} ${circumference}"
+      stroke-dashoffset="${-offset}" stroke-linecap="butt"
+      transform="rotate(-90 ${cx} ${cy})"/>`
+    offset += dash
+    return arc
+  })
+  return `<svg width="104" height="104" viewBox="0 0 104 104" style="flex-shrink:0">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bd)" stroke-width="${stroke}"/>
+    ${arcs.join('')}
+    <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tx)" font-family="DM Mono,monospace">${fmt(total)}</text>
+    <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="8" fill="var(--tx3)" font-family="DM Sans,sans-serif">ingresos</text>
+  </svg>`
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB SEMANA
+// ══════════════════════════════════════════════════════════
+function renderSemana() {
+  const maxIncome = Math.max(...WEEK_DATA.map(d=>d.income), 1)
+  const totalIncome  = WEEK_DATA.reduce((a,d)=>a+d.income,0)
+  const totalExpense = WEEK_DATA.reduce((a,d)=>a+d.expense,0)
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="report-grid">
+      <div class="report-kpi"><div class="report-kv" style="color:var(--income-col)">${fmt(totalIncome)}</div><div class="report-kl">Ingresos semana</div></div>
+      <div class="report-kpi"><div class="report-kv" style="color:var(--expense-col)">${fmt(totalExpense)}</div><div class="report-kl">Egresos semana</div></div>
+      <div class="report-kpi"><div class="report-kv" style="color:var(--ac)">${fmt(totalIncome-totalExpense)}</div><div class="report-kl">Resultado neto</div></div>
+    </div>
+
+    <!-- Gráfico de barras semanal -->
+    <div class="panel-card" style="margin-bottom:16px">
+      <div class="panel-card-head">Ingresos vs egresos — últimos 7 días</div>
+      <div style="padding:16px 20px">
+        <div style="display:flex;align-items:flex-end;gap:6px;height:130px">
+          ${WEEK_DATA.map((d,i)=>{
+            const hi = Math.round(d.income/maxIncome*110)
+            const he = Math.round(d.expense/maxIncome*110)
+            const isToday = d.day === 'Hoy'
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+              <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--income-col)">${fmt(d.income)}</div>
+              <div style="width:100%;display:flex;gap:2px;align-items:flex-end">
+                <div style="flex:1;height:${hi}px;background:${isToday?'var(--ac)':'var(--income-col)'};border-radius:4px 4px 0 0;opacity:${isToday?1:.7}" title="${fmt(d.income)}"></div>
+                <div style="flex:1;height:${he}px;background:var(--expense-col);border-radius:4px 4px 0 0;opacity:.7" title="${fmt(d.expense)}"></div>
+              </div>
+              <div style="font-size:10px;color:${isToday?'var(--ac)':'var(--tx3)'};font-weight:${isToday?600:400}">${d.day}</div>
+            </div>`
+          }).join('')}
+        </div>
+        <div style="display:flex;gap:14px;margin-top:10px;justify-content:center">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;background:var(--income-col);border-radius:2px"></div>Ingresos</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;background:var(--expense-col);border-radius:2px"></div>Egresos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mejor y peor día -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="panel-card">
+        <div class="panel-card-head">Mejor día de la semana</div>
+        <div style="padding:14px 16px">
+          ${[...WEEK_DATA].sort((a,b)=>b.income-a.income).slice(0,3).map((d,i)=>`
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px">
+              <span style="color:var(--tx2)">${['🥇','🥈','🥉'][i]} ${d.day}</span>
+              <span style="font-weight:600;color:var(--income-col);font-family:'DM Mono',monospace">${fmt(d.income)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-card-head">Promedio diario</div>
+        <div style="padding:14px 16px">
+          <div style="font-size:24px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ac)">${fmt(Math.round(totalIncome/7))}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:5px">Ingreso promedio por día</div>
+          <div style="margin-top:12px;font-size:12px;color:var(--tx2)">
+            Mejor franja: <strong style="color:var(--tx)">19:00–21:00 hs</strong>
+          </div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:4px">
+            Mejor día: <strong style="color:var(--tx)">Sábado</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB MES
+// ══════════════════════════════════════════════════════════
+function renderMes() {
+  const txs = getTodayTxs()
+  const monthIncome  = 847200
+  const monthExpense = 284000
+  const monthNet     = monthIncome - monthExpense
+
+  const monthByCat = [
+    {cat:'cancha',    val:487000},
+    {cat:'tienda',    val:178400},
+    {cat:'clase',     val:108000},
+    {cat:'espacio',   val:55000},
+    {cat:'evento',    val:18800},
+  ]
+
+  const topMonthProducts = [
+    {name:'Agua mineral',     val:28400, qty:35},
+    {name:'Gatorade',         val:24000, qty:20},
+    {name:'Pelota HEAD x3',   val:18000, qty:4},
+    {name:'Remera club',      val:24000, qty:2},
+    {name:'Grip Wilson',      val:10800, qty:6},
+    {name:'Cerveza lata',     val:9000,  qty:6},
+  ]
+  const maxProd = Math.max(...topMonthProducts.map(p=>p.val),1)
+  const margin = [
+    {name:'Bebidas',     cost:38, margin:62},
+    {name:'Ropa',        cost:45, margin:55},
+    {name:'Accesorios',  cost:52, margin:48},
+    {name:'Alquiler paleta', cost:10, margin:90},
+  ]
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="report-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="report-kpi"><div class="report-kv" style="color:var(--income-col)">${fmt(monthIncome)}</div><div class="report-kl">Ingresos mes</div></div>
+      <div class="report-kpi"><div class="report-kv" style="color:var(--expense-col)">${fmt(monthExpense)}</div><div class="report-kl">Egresos mes</div></div>
+      <div class="report-kpi"><div class="report-kv" style="color:var(--ac)">${fmt(monthNet)}</div><div class="report-kl">Resultado neto</div></div>
+      <div class="report-kpi"><div class="report-kv" style="color:var(--info)">${Math.round(monthNet/monthIncome*100)}%</div><div class="report-kl">Margen operativo</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+      <!-- Ingresos por categoría -->
+      <div class="panel-card">
+        <div class="panel-card-head">Ingresos por categoría — mes</div>
+        <div style="padding:12px 16px">
+          ${monthByCat.map(({cat,val})=>{
+            const pct = Math.round(val/monthIncome*100)
+            return `<div style="margin-bottom:9px">
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span>${CAT_ICONS[cat]} ${CAT_LABELS[cat]}</span>
+                <span style="font-family:'DM Mono',monospace;font-weight:600">${fmt(val)} <span style="color:var(--tx3)">(${pct}%)</span></span>
+              </div>
+              <div style="background:var(--bd);border-radius:3px;height:7px;overflow:hidden">
+                <div style="width:${pct}%;height:100%;background:var(--ac);border-radius:3px;opacity:.85"></div>
+              </div>
+            </div>`
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Top productos + margen -->
+      <div>
+        <div class="panel-card" style="margin-bottom:12px">
+          <div class="panel-card-head">
+            Productos más vendidos
+            <span style="font-size:11px;font-weight:400;color:var(--tx3)">${fmt(monthByCat.find(c=>c.cat==='tienda')?.val||0)}</span>
+          </div>
+          ${topMonthProducts.map((p,i)=>`<div class="prod-row">
+            <span class="prod-rank">#${i+1}</span>
+            <span class="prod-name">${p.name} <span style="color:var(--tx3);font-size:10px">×${p.qty}</span></span>
+            <div class="prod-bar-wrap"><div class="prod-bar" style="width:${Math.round(p.val/maxProd*100)}%"></div></div>
+            <span class="prod-val">${fmt(p.val)}</span>
+          </div>`).join('')}
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-card-head">Margen por categoría de producto</div>
+          <div style="padding:10px 14px">
+            ${margin.map(m=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:11px;color:var(--tx2);width:100px">${m.name}</span>
+              <div style="flex:1;background:var(--bd);border-radius:3px;height:16px;overflow:hidden;display:flex">
+                <div style="width:${m.cost}%;background:var(--expense-col);height:100%;opacity:.6;display:flex;align-items:center;justify-content:center"><span style="font-size:9px;color:#fff">${m.cost}%</span></div>
+                <div style="flex:1;background:var(--income-col);height:100%;opacity:.7;display:flex;align-items:center;justify-content:center"><span style="font-size:9px;color:#fff">${m.margin}%</span></div>
+              </div>
+              <span style="font-size:11px;color:var(--income-col);font-weight:600;width:28px">${m.margin}%</span>
+            </div>`).join('')}
+            <div style="font-size:10px;color:var(--tx3);margin-top:4px;display:flex;gap:10px">
+              <span><span style="display:inline-block;width:8px;height:8px;background:var(--expense-col);border-radius:1px;opacity:.6"></span> Costo</span>
+              <span><span style="display:inline-block;width:8px;height:8px;background:var(--income-col);border-radius:1px;opacity:.7"></span> Margen</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB HISTORIAL DE CIERRES
+// ══════════════════════════════════════════════════════════
+const CIERRES_HIST = [
+  {date:'Lun 10 Jun', income:84200, expense:18000, cash:10000, operator:'Martín G.', txCount:22},
+  {date:'Mar 11 Jun', income:71800, expense:5000,  cash:15000, operator:'Laura V.',  txCount:18},
+  {date:'Mié 12 Jun', income:91400, expense:63000, cash:0,     operator:'Martín G.', txCount:24},
+  {date:'Jue 13 Jun', income:68300, expense:8000,  cash:0,     operator:'Laura V.',  txCount:16},
+  {date:'Vie 14 Jun', income:104900,expense:12000, cash:20000, operator:'Martín G.', txCount:28},
+  {date:'Sáb 15 Jun', income:138200,expense:22000, cash:30000, operator:'Carlos R.', txCount:35},
+]
+
+function renderCierres() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="tx-list">
+      <div class="tx-header">
+        <span class="tx-header-title">Historial de cierres de caja</span>
+        <button class="btn btn-ghost btn-sm" onclick="exportCierres()">↓ Exportar</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--bd)">
+              ${['Fecha','Ingresos','Egresos','Retiros','Resultado','Trans.','Operador',''].map(h=>`
+                <th style="padding:10px 14px;text-align:${h===''||h==='Trans.'?'center':'right'};${h==='Fecha'?'text-align:left':''};font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em">${h}</th>
+              `).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${CIERRES_HIST.map(c=>{
+              const net = c.income - c.expense - c.cash
+              return `<tr style="border-bottom:1px solid var(--bd)55;transition:background .12s" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+                <td style="padding:10px 14px;font-weight:500">${c.date}</td>
+                <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--income-col);font-weight:600">${fmt(c.income)}</td>
+                <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--expense-col)">${fmt(c.expense)}</td>
+                <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--cash-col)">${fmt(c.cash)}</td>
+                <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:${net>=0?'var(--income-col)':'var(--expense-col)'};font-weight:700">${fmt(net)}</td>
+                <td style="padding:10px 14px;text-align:center;color:var(--tx2)">${c.txCount}</td>
+                <td style="padding:10px 14px;text-align:left;color:var(--tx2)">${c.operator}</td>
+                <td style="padding:10px 14px;text-align:center">
+                  <button class="btn btn-ghost btn-sm" onclick="toast('Detalle del cierre — próximamente')">Ver</button>
+                </td>
+              </tr>`
+            }).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="border-top:2px solid var(--bd2)">
+              <td style="padding:10px 14px;font-weight:700;font-family:'Syne',sans-serif">TOTAL</td>
+              <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--income-col);font-weight:700">${fmt(CIERRES_HIST.reduce((a,c)=>a+c.income,0))}</td>
+              <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--expense-col);font-weight:700">${fmt(CIERRES_HIST.reduce((a,c)=>a+c.expense,0))}</td>
+              <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--cash-col);font-weight:700">${fmt(CIERRES_HIST.reduce((a,c)=>a+c.cash,0))}</td>
+              <td style="padding:10px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--ac);font-weight:700">${fmt(CIERRES_HIST.reduce((a,c)=>a+c.income-c.expense-c.cash,0))}</td>
+              <td style="padding:10px 14px;text-align:center;font-weight:700">${CIERRES_HIST.reduce((a,c)=>a+c.txCount,0)}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  CIERRE DE CAJA
+// ══════════════════════════════════════════════════════════
+function openCierre() {
+  const txs     = getTodayTxs()
+  const income  = getIncome(txs)
+  const expense = getExpense(txs)
+  const cashOut = getCash(txs)
+  const net     = income - expense - cashOut
+  const cashInBox = cajaOpenBalance + getCashIncome(txs)
+  const now = new Date()
+  document.getElementById('cierre-date').textContent = now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})
+  document.getElementById('cierre-body').innerHTML = `
+    <div class="cierre-box">
+      <div class="cierre-row"><span class="cierre-lbl">Apertura de caja</span><span class="cierre-val">${fmt(cajaOpenBalance)}</span></div>
+      <div class="cierre-row"><span class="cierre-lbl">Total ingresos</span><span class="cierre-val" style="color:var(--income-col)">+ ${fmt(income)}</span></div>
+      <div class="cierre-row"><span class="cierre-lbl">Total egresos</span><span class="cierre-val" style="color:var(--expense-col)">− ${fmt(expense)}</span></div>
+      <div class="cierre-row"><span class="cierre-lbl">Retiros de efectivo</span><span class="cierre-val" style="color:var(--cash-col)">− ${fmt(cashOut)}</span></div>
+      <div class="cierre-row total">
+        <span class="cierre-lbl">Efectivo esperado en caja</span>
+        <span class="cierre-val" style="color:var(--cash-col)">${fmt(cashInBox)}</span>
+      </div>
+      <div class="cierre-row total" style="margin-top:8px;padding-top:12px;border-top:2px solid var(--bd2)">
+        <span class="cierre-lbl">Resultado neto del día</span>
+        <span class="cierre-val" style="color:${net>=0?'var(--income-col)':'var(--expense-col)'}; font-size:16px">${fmt(net)}</span>
+      </div>
+    </div>
+    <div style="padding:0 16px 12px">
+      <label class="flbl">Efectivo contado físicamente</label>
+      <input type="number" class="finp" id="cierre-counted" placeholder="${cashInBox}" value="${cashInBox}">
+      <label class="flbl">Notas del cierre</label>
+      <input type="text" class="finp" id="cierre-notes" placeholder="Observaciones del turno...">
+      <div id="cierre-diff" style="font-size:12px;color:var(--tx3);margin-top:4px"></div>
+    </div>
+  `
+  const inp = document.getElementById('cierre-counted')
+  inp.addEventListener('input', () => {
+    const counted = parseInt(inp.value)||0
+    const diff    = counted - cashInBox
+    const el      = document.getElementById('cierre-diff')
+    if (diff === 0) el.textContent = ''
+    else el.innerHTML = `<span style="color:${diff>0?'var(--income-col)':'var(--expense-col)'}">
+      ${diff>0?'Sobrante':'Faltante'}: ${fmt(Math.abs(diff))}
+    </span>`
+  })
+  document.getElementById('modal-cierre').style.display = 'flex'
+}
+
+function confirmarCierre() {
+  cajaOpen = false
+  const notes = document.getElementById('cierre-notes')?.value || ''
+  document.getElementById('modal-cierre').style.display = 'none'
+  toast('✓ Caja cerrada correctamente')
+  renderMain()
+}
+
+// ══════════════════════════════════════════════════════════
+//  NUEVA TRANSACCIÓN
+// ══════════════════════════════════════════════════════════
+function openTx(type) {
+  txType = type
+  updateTxModal()
+  const now = new Date()
+  document.getElementById('tx-time').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+  document.getElementById('tx-desc').value   = ''
+  document.getElementById('tx-amount').value = ''
+  document.getElementById('tx-player').value = ''
+  document.getElementById('tx-notes').value  = ''
+  document.getElementById('modal-tx').style.display = 'flex'
+  setTimeout(()=>document.getElementById('tx-desc').focus(), 80)
+}
+
+function setTxType(t) { txType = t; updateTxModal() }
+
+function updateTxModal() {
+  ;['income','expense','cash'].forEach(t => {
+    document.getElementById('tt-'+t)?.classList.toggle('on', txType===t)
+  })
+  const btn = document.getElementById('tx-save-btn')
+  if (btn) {
+    btn.style.background = txType==='income' ? 'var(--ok)' : txType==='expense' ? 'var(--err)' : 'var(--warn)'
+    btn.textContent = txType==='income' ? 'Guardar ingreso' : txType==='expense' ? 'Guardar egreso' : 'Guardar movimiento'
+  }
+  // Ajustar categorías según tipo
+  const catSel = document.getElementById('tx-cat')
+  if (!catSel) return
+  if (txType === 'expense') {
+    ;['proveedor','servicio','personal','mantenimiento','otro'].forEach(v => {
+      const opt = [...catSel.options].find(o=>o.value===v)
+      if (opt) opt.style.display=''
+    })
+    ;['cancha','clase','tienda','espacio','evento','membresia'].forEach(v => {
+      const opt = [...catSel.options].find(o=>o.value===v)
+      if (opt) opt.style.display='none'
+    })
+    catSel.value = 'proveedor'
+  } else {
+    ;[...catSel.options].forEach(o=>o.style.display='')
+    catSel.value = txType==='income' ? 'cancha' : 'otro'
+  }
+}
+
+function saveTx() {
+  const desc   = document.getElementById('tx-desc').value.trim()
+  const amount = parseInt(document.getElementById('tx-amount').value)||0
+  if (!desc)   { toast('⚠ Ingresá una descripción','warn'); return }
+  if (!amount) { toast('⚠ Ingresá un monto','warn');        return }
+  const tx = {
+    id: nextId++, type: txType,
+    desc, amount,
+    cat:    document.getElementById('tx-cat').value,
+    pay:    document.getElementById('tx-pay').value,
+    time:   document.getElementById('tx-time').value,
+    player: document.getElementById('tx-player').value,
+    notes:  document.getElementById('tx-notes').value,
+    date:   new Date().toISOString().split('T')[0],
+  }
+  TRANSACTIONS.push(tx)
+  TRANSACTIONS.sort((a,b) => a.time.localeCompare(b.time))
+  document.getElementById('modal-tx').style.display = 'none'
+  const txLabel = txType==='income' ? '↑ Ingreso' : txType==='expense' ? '↓ Egreso' : '↕ Movimiento'
+  toast(`${txLabel} registrado: ${fmt(amount)}`)
+  if (activeTab === 'hoy') renderHoy()
+}
+
+function showTxDetail(id) {
+  const t = TRANSACTIONS.find(x=>x.id===id)
+  if (!t) return
+  toast(`${CAT_ICONS[t.cat]} ${t.desc} · ${t.type==='income'?'+':'−'}${fmt(t.amount)} · ${PAY_LABELS[t.pay]||t.pay}`)
+}
+
+function exportCierres() { toast('↓ Exportando historial de cierres...') }
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function closeOverlay(e, id) {
+  if (e.target.id === id) document.getElementById(id).style.display = 'none'
+}
+
+function toast(msg, type='success') {
+  const colors = {success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t = document.createElement('div'); t.className='toast'
+  t.innerHTML = `<span style="color:${colors[type]||colors.success}">●</span> ${msg}`
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2600)
+}
+
+function toggleTheme() {
+  const h = document.documentElement
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme', h.getAttribute('data-theme'))
+}
+const st = localStorage.getItem('shos-theme')
+if (st) document.documentElement.setAttribute('data-theme', st)
+
+// INIT
+renderMain()
+</script>
+</body>
+</html>

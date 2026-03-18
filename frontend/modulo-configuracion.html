@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Configuración</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#06080f;--s1:#0c0f1a;--s2:#111520;--s3:#161b2a;
+  --bd:#1c2235;--bd2:#252d45;--bd3:#303a58;
+  --tx:#dde3f4;--tx2:#8494b8;--tx3:#4a5878;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000066;
+}
+:root[data-theme="light"]{
+  --bg:#f0f3fb;--s1:#fff;--s2:#f5f8ff;--s3:#edf0f9;
+  --bd:#e0e5f0;--bd2:#c8d0e8;--bd3:#b0bcd8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d60f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+/* TOPBAR */
+.top{display:flex;align-items:center;gap:12px;padding:11px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;font-family:'Syne',sans-serif}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ls{font-size:10px;color:var(--tx3)}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+/* LAYOUT */
+.layout{display:flex;height:calc(100vh - 49px);overflow:hidden}
+
+/* SIDEBAR NAV */
+.snav{width:220px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);overflow-y:auto;padding:12px 8px}
+.snav-section{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;padding:8px 10px 4px;margin-top:8px}
+.snav-section:first-child{margin-top:0}
+.snav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--tx2);transition:all .13s}
+.snav-item:hover{background:var(--s2);color:var(--tx)}
+.snav-item.active{background:var(--ac)15;color:var(--ac);font-weight:500}
+.snav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.snav-badge{margin-left:auto;font-size:10px;background:var(--ac)22;color:var(--ac);border-radius:10px;padding:1px 6px;font-weight:600}
+
+/* CONTENIDO */
+.content{flex:1;overflow-y:auto;padding:24px}
+.section-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px}
+.section-sub{font-size:12px;color:var(--tx2);margin-bottom:20px}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:7px}
+.card-body{padding:16px}
+
+/* GRID DE ITEMS CONFIGURABLES */
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.cfg-item{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .13s;position:relative}
+.cfg-item:hover{border-color:var(--bd2)}
+.cfg-item-icon{font-size:22px;flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.cfg-item-info{flex:1;min-width:0}
+.cfg-item-name{font-size:12px;font-weight:600;color:var(--tx)}
+.cfg-item-sub{font-size:10px;color:var(--tx3);margin-top:2px}
+.cfg-item-actions{display:flex;gap:4px;opacity:0;transition:opacity .13s}
+.cfg-item:hover .cfg-item-actions{opacity:1}
+
+/* ADD BUTTON */
+.add-row{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px dashed var(--bd2);cursor:pointer;font-size:12px;color:var(--tx3);transition:all .13s;margin-top:6px}
+.add-row:hover{border-color:var(--ac);color:var(--ac);background:var(--ac)08}
+
+/* FORM INPUTS */
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block}
+.finp,.fsel,.ftextarea{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.finp:focus,.fsel:focus,.ftextarea:focus{border-color:var(--ac)}
+.ftextarea{resize:vertical;min-height:70px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* COLOR SWATCHES */
+.swatches{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .13s}
+.swatch:hover{transform:scale(1.1)}
+.swatch.active{border-color:var(--tx)}
+
+/* ICON PICKER */
+.icon-grid{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.icon-opt{width:34px;height:34px;border-radius:7px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.icon-opt:hover{border-color:var(--ac)}
+.icon-opt.active{border-color:var(--ac);background:var(--ac)15}
+
+/* CHART TYPE PICKER */
+.chart-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.chart-opt{padding:10px 8px;border-radius:9px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;text-align:center;transition:all .13s}
+.chart-opt:hover{border-color:var(--ac)}
+.chart-opt.active{border-color:var(--ac);background:var(--ac)12}
+.chart-opt-icon{font-size:22px;margin-bottom:4px}
+.chart-opt-name{font-size:10px;font-weight:500;color:var(--tx2)}
+.chart-opt.active .chart-opt-name{color:var(--ac)}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd)55}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info{flex:1}
+.toggle-label{font-size:12px;font-weight:500;color:var(--tx)}
+.toggle-desc{font-size:11px;color:var(--tx3);margin-top:1px}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.toggle.on{background:var(--ac)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(16px)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:480px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+/* BTNS */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:opacity .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-err{background:#3d151522;color:var(--err);border:1px solid var(--err)44}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:6px}
+.btn-icon{width:26px;height:26px;padding:0;border-radius:6px;justify-content:center}
+
+/* SUPPLIER TABLE */
+.sup-table{width:100%;border-collapse:collapse;font-size:12px}
+.sup-table th{padding:8px 12px;font-size:10px;color:var(--tx3);text-transform:uppercase;font-weight:600;letter-spacing:.05em;border-bottom:1px solid var(--bd);text-align:left}
+.sup-table td{padding:9px 12px;border-bottom:1px solid var(--bd)55;vertical-align:middle}
+.sup-table tr:hover td{background:var(--s2)}
+
+/* PREVIEW AGENTE */
+.agent-preview{background:#07130f;border-radius:12px;padding:14px;font-size:12px}
+[data-theme="light"] .agent-preview{background:#edfaf2}
+.agent-bubble{background:#0d2a1a;border-radius:4px 10px 10px 10px;padding:9px 13px;font-size:12px;color:#c8e6c9;line-height:1.55;margin-top:8px;display:inline-block;max-width:85%}
+[data-theme="light"] .agent-bubble{background:#dcfce7;color:#15803d}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+
+/* RANGE */
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--bd2);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--ac);cursor:pointer}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">S</div>
+  <div><div class="ln">Sport Hub OS</div><div class="ls">Configuración del sistema</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-primary btn-sm" onclick="saveAll()">💾 Guardar cambios</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR NAV -->
+  <nav class="snav" id="snav"></nav>
+
+  <!-- CONTENIDO -->
+  <div class="content" id="content"></div>
+</div>
+
+<!-- MODAL GENÉRICO -->
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  CONFIG STORE — el "sistema nervioso" del complejo
+// ══════════════════════════════════════════════════════════
+const CONFIG = {
+  club: {
+    name: 'Sport Hub Norte',
+    tagline: 'Tu complejo deportivo de confianza',
+    phone: '11-4500-1234',
+    email: 'hola@sporthubos.app',
+    address: 'Av. del Libertador 4500, Palermo',
+    city: 'Buenos Aires',
+    timezone: 'America/Argentina/Buenos_Aires',
+    currency: 'ARS',
+    language: 'es',
+    openTime: '08:00',
+    closeTime: '23:00',
+    primaryColor: '#5b7fff',
+    accentColor: '#2ecc71',
+    logo: '🏟',
+  },
+
+  sports: [
+    { id:'padel',  name:'Pádel',       icon:'🎾', color:'#5b7fff', active:true,
+      categories:['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª / Inicio'] },
+    { id:'futbol', name:'Fútbol',      icon:'⚽', color:'#22c55e', active:true,
+      categories:['Primera','Ascenso','Amateur 1ª','Amateur 2ª','Infantil','Juvenil','Sub-20','Recreativo'] },
+    { id:'tenis',  name:'Tenis',       icon:'🎾', color:'#f59e0b', active:true,
+      categories:['Profesional','1ª cat.','2ª cat.','3ª cat.','4ª cat.','Recreativo'] },
+    { id:'crossfit',name:'Crossfit',   icon:'💪', color:'#ef4444', active:true,
+      categories:['RX','Scaled','Beginner'] },
+    { id:'yoga',   name:'Yoga/Pilates',icon:'🧘', color:'#06b6d4', active:true,
+      categories:['Avanzado','Intermedio','Principiante'] },
+    { id:'basquet',name:'Básquet',     icon:'🏀', color:'#f97316', active:false,
+      categories:['Liga Arg.','TNA/Federal','Amateur','Minibasquet'] },
+    { id:'voley',  name:'Vóley',       icon:'🏐', color:'#a855f7', active:false,
+      categories:['Superliga','Primera A','Primera B','Amateur','Infantil'] },
+  ],
+
+  sectors: [
+    { id:'canchas',  name:'Canchas',         icon:'🏟', color:'#5b7fff', type:'court' },
+    { id:'clases',   name:'Clases / academia',icon:'💪', color:'#ef4444', type:'class' },
+    { id:'sum',      name:'SUM / eventos',   icon:'🏠', color:'#f97316', type:'space' },
+    { id:'quinchos', name:'Quinchos',        icon:'🍖', color:'#d97706', type:'space' },
+    { id:'gym',      name:'Gimnasio',        icon:'🏋', color:'#a855f7', type:'class' },
+    { id:'pileta',   name:'Pileta',          icon:'🏊', color:'#38bdf8', type:'court' },
+  ],
+
+  suppliers: [
+    { id:1, name:'Distribuidora Norte',  contact:'Juan Pérez',   phone:'11-3344-5566', email:'ventas@disnorte.com',  category:'bebidas',   paymentTerms:30, debt:45000,  notes:'Entrega los miércoles' },
+    { id:2, name:'Sportlandia',          contact:'María Gómez',  phone:'11-5566-7788', email:'info@sportlandia.com', category:'deportivo', paymentTerms:15, debt:0,      notes:'Descuento 10% en paletas' },
+    { id:3, name:'Coca-Cola FEMSA',      contact:'Línea directa',phone:'0800-333-2653', email:'',                    category:'bebidas',   paymentTerms:30, debt:18000,  notes:'Pedido mínimo $50.000' },
+    { id:4, name:'La Cantina',           contact:'Roberto Silva', phone:'11-9988-7766', email:'',                    category:'comida',    paymentTerms:7,  debt:0,      notes:'Solo efectivo' },
+    { id:5, name:'Imprenta Deporte',     contact:'Carlos Ruiz',  phone:'11-4455-6677', email:'ventas@imprenta.com',  category:'ropa',      paymentTerms:15, debt:8500,   notes:'3 semanas de producción' },
+    { id:6, name:'NutriSport',           contact:'Ana Castro',   phone:'11-7788-9900', email:'ana@nutrisport.com',   category:'suplementos',paymentTerms:15, debt:0,      notes:'' },
+  ],
+
+  productCategories: [
+    { id:'bebida',    name:'Bebidas',        icon:'🧴', color:'#38bdf8',
+      products:[
+        {id:'beb1', name:'Agua mineral 500ml', price:800,  cost:280,  sku:'BEB-001', stock:48},
+        {id:'beb2', name:'Gatorade 500ml',     price:1200, cost:480,  sku:'BEB-002', stock:22},
+        {id:'beb3', name:'Coca-Cola 354ml',    price:900,  cost:350,  sku:'BEB-003', stock:30},
+        {id:'beb4', name:'Cerveza Quilmes',    price:1500, cost:600,  sku:'BEB-004', stock:3},
+        {id:'beb5', name:'Jugo naranja',       price:900,  cost:320,  sku:'BEB-005', stock:18},
+        {id:'beb6', name:'Café',               price:700,  cost:200,  sku:'BEB-006', stock:50},
+        {id:'beb7', name:'Té',                 price:600,  cost:150,  sku:'BEB-007', stock:50},
+      ]
+    },
+    { id:'comida',    name:'Comida',         icon:'🍕', color:'#f97316',
+      products:[
+        {id:'com1', name:'Empanadas x4',      price:2800, cost:1200, sku:'COM-001', stock:0},
+        {id:'com2', name:'Barrita proteína',  price:1500, cost:650,  sku:'COM-002', stock:7},
+        {id:'com3', name:'Sandwich jamón',    price:1800, cost:800,  sku:'COM-003', stock:5},
+      ]
+    },
+    { id:'paleta',    name:'Paletas',        icon:'🎾', color:'#5b7fff',
+      products:[
+        {id:'pal1', name:'Paleta HEAD Flash', price:85000,cost:52000,sku:'PAL-001', stock:2},
+        {id:'pal2', name:'Paleta Babolat',    price:95000,cost:58000,sku:'PAL-002', stock:1},
+        {id:'pal3', name:'Paleta Wilson',     price:72000,cost:44000,sku:'PAL-003', stock:3},
+      ]
+    },
+    { id:'pelota',    name:'Pelotas',        icon:'⚽', color:'#22c55e',
+      products:[
+        {id:'pel1', name:'Pelota HEAD x3',    price:4500, cost:2200, sku:'PEL-001', stock:8},
+        {id:'pel2', name:'Pelota Babolat x3', price:4200, cost:2000, sku:'PEL-002', stock:5},
+      ]
+    },
+    { id:'ropa',      name:'Ropa y calzado', icon:'👕', color:'#a855f7',
+      products:[
+        {id:'rop1', name:'Remera club',       price:12000,cost:5500, sku:'ROP-001', stock:6},
+        {id:'rop2', name:'Medias x2 pares',   price:3500, cost:1400, sku:'ROP-002', stock:12},
+        {id:'rop3', name:'Calza deportiva',   price:8500, cost:4000, sku:'ROP-003', stock:4},
+      ]
+    },
+    { id:'accesorio', name:'Accesorios',     icon:'🎽', color:'#f59e0b',
+      products:[
+        {id:'acc1', name:'Grip Wilson',       price:1800, cost:600,  sku:'ACC-001', stock:15},
+        {id:'acc2', name:'Overgrip x3',       price:2200, cost:750,  sku:'ACC-002', stock:10},
+        {id:'acc3', name:'Bolso deportivo',   price:14000,cost:6500, sku:'ACC-003', stock:3},
+      ]
+    },
+    { id:'alquiler',  name:'Alquileres',     icon:'🔑', color:'#2ecc71',
+      products:[
+        {id:'alq1', name:'Alquiler paleta',   price:2000, cost:200,  sku:'ALQ-001', stock:5},
+        {id:'alq2', name:'Alquiler pelota',   price:500,  cost:50,   sku:'ALQ-002', stock:8},
+      ]
+    },
+    { id:'suplemento',name:'Suplementos',    icon:'💊', color:'#ec4899',
+      products:[]
+    },
+  ],
+
+  paymentMethods: [
+    { id:'efectivo',      name:'Efectivo',       icon:'💵', active:true,  commission:0 },
+    { id:'transferencia', name:'Transferencia',  icon:'🏦', active:true,  commission:0 },
+    { id:'mercadopago',   name:'Mercado Pago',   icon:'💙', active:true,  commission:3.99 },
+    { id:'tarjeta',       name:'Tarjeta débito', icon:'💳', active:true,  commission:0.8 },
+    { id:'tarjeta_cred',  name:'Tarjeta crédito',icon:'💳', active:false, commission:3 },
+    { id:'rapipago',      name:'Rapipago',       icon:'📱', active:false, commission:2 },
+  ],
+
+  chartPreferences: {
+    revenue:    'bar',
+    bookings:   'line',
+    products:   'donut',
+    players:    'bar',
+    occupation: 'heatmap',
+    cashflow:   'area',
+  },
+
+  agentPersonality: {
+    name: 'Mati',
+    tone: 'informal',
+    greeting: '¡Hola! ¿En qué te puedo ayudar hoy?',
+    language: 'rioplatense',
+    responseStyle: 'concise',
+    showEmoji: true,
+  },
+
+  notifications: {
+    bookingReminder24h:  true,
+    bookingConfirmation: true,
+    lowStockAlert:       true,
+    debtAlert:           true,
+    dailySummary:        false,
+    weeklySummary:       true,
+    newPlayerWelcome:    true,
+  },
+
+  features: {
+    onlineBooking:   true,
+    playerApp:       true,
+    agentIA:         true,
+    tournamentModule:false,
+    membershipModule:true,
+    academyModule:   true,
+    loyaltyPoints:   false,
+    multiClub:       false,
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════════════════════
+const NAV = [
+  { section:'Club' },
+  { id:'club',         icon:'🏟', label:'Datos del complejo' },
+  { id:'visual',       icon:'🎨', label:'Apariencia y marca' },
+  { section:'Negocio' },
+  { id:'sports',       icon:'⚽', label:'Deportes',         badge: ()=>CONFIG.sports.filter(s=>s.active).length },
+  { id:'sectors',      icon:'🏠', label:'Sectores',         badge: ()=>CONFIG.sectors.length },
+  { id:'categories',   icon:'📦', label:'Categorías de productos', badge: ()=>CONFIG.productCategories.length },
+  { id:'payments',     icon:'💳', label:'Métodos de pago' },
+  { section:'Operación' },
+  { id:'suppliers',    icon:'🚚', label:'Proveedores',      badge: ()=>CONFIG.suppliers.length },
+  { id:'hours',        icon:'🕐', label:'Horarios y precios' },
+  { section:'Inteligencia' },
+  { id:'charts',       icon:'📊', label:'Gráficos y estadísticas' },
+  { id:'agent',        icon:'🤖', label:'Agente IA' },
+  { id:'notifications',icon:'🔔', label:'Notificaciones' },
+  { section:'Sistema' },
+  { id:'features',     icon:'⚡', label:'Módulos activos', superadmin:true },
+  { id:'users',        icon:'👤', label:'Usuarios y roles' },
+]
+
+let activeSection = 'club'
+
+function renderNav() {
+  const nav = document.getElementById('snav')
+  nav.innerHTML = NAV.map(item => {
+    if (item.section) return `<div class="snav-section">${item.section}</div>`
+    const badge = item.badge ? item.badge() : null
+    return `<div class="snav-item ${activeSection===item.id?'active':''}" onclick="goTo('${item.id}')">
+      <span class="snav-icon">${item.icon}</span>
+      <span style="flex:1">${item.label}</span>
+      ${badge!==null?`<span class="snav-badge">${badge}</span>`:''}
+      ${item.superadmin?`<span style="font-size:9px;background:#7c3aed22;color:#a78bfa;border-radius:6px;padding:1px 5px;font-weight:600">SA</span>`:''}
+    </div>`
+  }).join('')
+}
+
+function goTo(id) {
+  activeSection = id
+  renderNav()
+  renderContent()
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER PRINCIPAL
+// ══════════════════════════════════════════════════════════
+function renderContent() {
+  switch(activeSection) {
+    case 'club':         renderClub();         break
+    case 'visual':       renderVisual();       break
+    case 'sports':       renderSports();       break
+    case 'sectors':      renderSectors();      break
+    case 'categories':   renderCategories();   break
+    case 'payments':     renderPayments();     break
+    case 'suppliers':    renderSuppliers();    break
+    case 'hours':        renderHours();        break
+    case 'charts':       renderCharts();       break
+    case 'agent':        renderAgent();        break
+    case 'notifications':renderNotifications();break
+    case 'features':     renderFeatures();     break
+    case 'users':        renderUsers();        break
+    default:             renderClub()
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  DATOS DEL CLUB
+// ══════════════════════════════════════════════════════════
+function renderClub() {
+  const c = CONFIG.club
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">🏟 Datos del complejo</div>
+    <div class="section-sub">Información básica que aparece en reservas, comprobantes y en el agente IA</div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Información principal</span></div>
+      <div class="card-body">
+        <div class="frow" style="margin-bottom:10px">
+          <div><label class="flbl">Nombre del complejo</label><input class="finp" id="cfg-name" value="${c.name}"></div>
+          <div><label class="flbl">Eslogan / tagline</label><input class="finp" id="cfg-tagline" value="${c.tagline}"></div>
+        </div>
+        <div class="frow3" style="margin-bottom:10px">
+          <div><label class="flbl">Teléfono</label><input class="finp" id="cfg-phone" value="${c.phone}"></div>
+          <div><label class="flbl">Email</label><input class="finp" id="cfg-email" value="${c.email}"></div>
+          <div><label class="flbl">Ciudad</label><input class="finp" id="cfg-city" value="${c.city}"></div>
+        </div>
+        <div><label class="flbl">Dirección completa</label><input class="finp" id="cfg-address" value="${c.address}"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Configuración regional</span></div>
+      <div class="card-body">
+        <div class="frow3">
+          <div>
+            <label class="flbl">Zona horaria</label>
+            <select class="fsel">
+              <option selected>America/Argentina/Buenos_Aires</option>
+              <option>America/Montevideo</option>
+              <option>America/Santiago</option>
+              <option>America/Lima</option>
+              <option>America/Bogota</option>
+            </select>
+          </div>
+          <div>
+            <label class="flbl">Moneda</label>
+            <select class="fsel">
+              <option value="ARS" selected>ARS — Peso argentino</option>
+              <option value="UYU">UYU — Peso uruguayo</option>
+              <option value="CLP">CLP — Peso chileno</option>
+              <option value="USD">USD — Dólar</option>
+            </select>
+          </div>
+          <div>
+            <label class="flbl">Idioma del sistema</label>
+            <select class="fsel">
+              <option value="es" selected>Español</option>
+              <option value="en">English</option>
+              <option value="pt">Português</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Horario de atención</span></div>
+      <div class="card-body">
+        <div class="frow">
+          <div><label class="flbl">Apertura</label><input type="time" class="finp" value="${c.openTime}"></div>
+          <div><label class="flbl">Cierre</label><input type="time" class="finp" value="${c.closeTime}"></div>
+        </div>
+        <div style="margin-top:10px">
+          <label class="flbl">Días de atención</label>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
+            ${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map((d,i)=>`
+              <div onclick="this.classList.toggle('active')" class="btn btn-ghost btn-sm ${i<=5?'active':''}"
+                style="${i<=5?'border-color:var(--ac);color:var(--ac);background:var(--ac)10':''}">${d}</div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  APARIENCIA
+// ══════════════════════════════════════════════════════════
+function renderVisual() {
+  const c = CONFIG.club
+  const PALETTES = [
+    { name:'Sport Blue',    primary:'#3d63f0', accent:'#2ecc71',  label:'Azul deportivo' },
+    { name:'Forest',        primary:'#16a34a', accent:'#38bdf8',  label:'Verde bosque' },
+    { name:'Sunset',        primary:'#f97316', accent:'#f0c040',  label:'Naranja sunset' },
+    { name:'Purple Power',  primary:'#7c3aed', accent:'#ec4899',  label:'Violeta energía' },
+    { name:'Steel',         primary:'#334155', accent:'#5b7fff',  label:'Gris acero' },
+    { name:'Coral',         primary:'#e05050', accent:'#f0a020',  label:'Rojo coral' },
+    { name:'Teal Fresh',    primary:'#0d9488', accent:'#a855f7',  label:'Verde esmeralda' },
+    { name:'Gold',          primary:'#b45309', accent:'#22c55e',  label:'Oro clásico' },
+  ]
+  const logos = ['🏟','⚽','🎾','🏀','🏋','💪','🏊','🏐','🎯','🏆','🌟','🔥','🎪','🚀','💎','🦁']
+
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">🎨 Apariencia y marca</div>
+    <div class="section-sub">Personalizá cómo se ve el sistema para cada complejo. Cada club tiene su propia identidad.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:16px">
+      <div>
+
+        <!-- LOGO -->
+        <div class="card">
+          <div class="card-head"><span class="card-title">🖼 Logo del complejo</span></div>
+          <div class="card-body">
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <!-- Preview del logo actual -->
+              <div id="logo-preview-box" style="width:72px;height:72px;border-radius:14px;background:${c.primaryColor};display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0;position:relative;overflow:hidden">
+                ${c.logoImg ? `<img src="${c.logoImg}" style="width:100%;height:100%;object-fit:cover">` : `<span id="logo-preview-icon">${c.logo||'🏟'}</span>`}
+              </div>
+              <div style="flex:1">
+                <!-- Upload real -->
+                <label style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;border:1px dashed var(--bd2);cursor:pointer;font-size:12px;color:var(--tx2);transition:all .13s;margin-bottom:8px"
+                  onmouseover="this.style.borderColor='var(--ac)';this.style.color='var(--ac)'"
+                  onmouseout="this.style.borderColor='var(--bd2)';this.style.color='var(--tx2)'">
+                  <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(this)">
+                  📁 Subir imagen del logo
+                  <span style="font-size:10px;color:var(--tx3)">PNG, JPG, SVG</span>
+                </label>
+                <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">O elegí un ícono:</div>
+                <div class="icon-grid" style="flex-wrap:wrap">
+                  ${logos.map(ic=>`<div class="icon-opt ${(!c.logoImg&&c.logo===ic)?'active':''}" onclick="setLogo('${ic}')">${ic}</div>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PALETAS PREDEFINIDAS -->
+        <div class="card">
+          <div class="card-head"><span class="card-title">🎨 Paletas de colores</span></div>
+          <div class="card-body">
+            <label class="flbl" style="margin-bottom:8px">Paletas prediseñadas</label>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:14px">
+              ${PALETTES.map(pal=>`
+                <div onclick="applyPalette('${pal.primary}','${pal.accent}')"
+                  style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;transition:all .13s"
+                  onmouseover="this.style.borderColor='${pal.primary}'" onmouseout="this.style.borderColor='var(--bd2)'">
+                  <div style="display:flex;gap:3px">
+                    <div style="width:16px;height:16px;border-radius:4px;background:${pal.primary}"></div>
+                    <div style="width:16px;height:16px;border-radius:4px;background:${pal.accent}"></div>
+                  </div>
+                  <span style="font-size:11px;color:var(--tx2)">${pal.label}</span>
+                </div>`).join('')}
+            </div>
+
+            <label class="flbl">Color principal personalizado</label>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <input type="color" id="color-primary-picker" value="${c.primaryColor}"
+                style="width:40px;height:36px;border:1px solid var(--bd2);border-radius:7px;cursor:pointer;padding:2px;background:var(--s2)"
+                oninput="setPrimaryColor(this.value)">
+              <input type="text" id="color-primary-hex" value="${c.primaryColor}"
+                style="width:90px;padding:7px 10px;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;outline:none"
+                oninput="setPrimaryColor(this.value)">
+              <div style="flex:1;display:flex;gap:4px;flex-wrap:wrap">
+                ${['#3d63f0','#5b7fff','#16a34a','#f97316','#7c3aed','#e05050','#0d9488','#b45309','#334155','#ec4899'].map(col=>`
+                  <div class="swatch" style="background:${col};width:22px;height:22px;border-radius:5px" onclick="setPrimaryColor('${col}')"></div>`).join('')}
+              </div>
+            </div>
+
+            <label class="flbl">Color de acento personalizado</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="color-accent-picker" value="${c.accentColor}"
+                style="width:40px;height:36px;border:1px solid var(--bd2);border-radius:7px;cursor:pointer;padding:2px;background:var(--s2)"
+                oninput="setAccentColor(this.value)">
+              <input type="text" id="color-accent-hex" value="${c.accentColor}"
+                style="width:90px;padding:7px 10px;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;outline:none"
+                oninput="setAccentColor(this.value)">
+              <div style="flex:1;display:flex;gap:4px;flex-wrap:wrap">
+                ${['#2ecc71','#22c55e','#38bdf8','#f0c040','#5b7fff','#f0a020','#a855f7','#ec4899','#ef4444','#10b981'].map(col=>`
+                  <div class="swatch" style="background:${col};width:22px;height:22px;border-radius:5px" onclick="setAccentColor('${col}')"></div>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEMA -->
+        <div class="card">
+          <div class="card-head"><span class="card-title">Tema de la interfaz</span></div>
+          <div class="card-body">
+            <div style="display:flex;gap:10px">
+              ${[{id:'dark',label:'Oscuro 🌙'},{id:'light',label:'Claro ☀️'},{id:'auto',label:'Automático 🔄'}].map(t=>`
+                <div onclick="setTheme('${t.id}')" class="btn btn-ghost" style="flex:1;justify-content:center">${t.label}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW EN VIVO -->
+      <div>
+        <div class="card" style="position:sticky;top:24px">
+          <div class="card-head"><span class="card-title">Preview en vivo</span></div>
+          <div class="card-body">
+            <!-- Topbar simulada -->
+            <div style="background:var(--s2);border-radius:9px;overflow:hidden;margin-bottom:10px">
+              <div style="padding:9px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:7px" id="prev-topbar">
+                <div id="prev-logo-box" style="width:26px;height:26px;border-radius:6px;background:${c.primaryColor};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden">
+                  ${c.logoImg ? `<img src="${c.logoImg}" style="width:100%;height:100%;object-fit:cover">` : `<span id="prev-logo-icon">${c.logo||'🏟'}</span>`}
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:700;font-family:'Syne',sans-serif" id="prev-name">${c.name}</div>
+                  <div style="font-size:9px;color:var(--tx3)" id="prev-tagline">${c.tagline}</div>
+                </div>
+              </div>
+              <div style="padding:10px 12px">
+                <button style="width:100%;padding:7px;border-radius:7px;border:none;background:${c.primaryColor};color:#fff;font-size:11px;font-weight:600;cursor:pointer;margin-bottom:6px" id="prev-btn-1">Reservar cancha</button>
+                <button style="width:100%;padding:7px;border-radius:7px;border:1px solid ${c.accentColor};background:transparent;color:${c.accentColor};font-size:11px;font-weight:500;cursor:pointer" id="prev-btn-2">Ver disponibilidad</button>
+              </div>
+            </div>
+            <!-- Badge de estado -->
+            <div style="display:flex;gap:5px;justify-content:center;margin-bottom:8px">
+              <div style="font-size:10px;padding:2px 9px;border-radius:10px;background:${c.primaryColor}18;color:${c.primaryColor};font-weight:600">Activo</div>
+              <div style="font-size:10px;padding:2px 9px;border-radius:10px;background:${c.accentColor}18;color:${c.accentColor};font-weight:600">Online</div>
+            </div>
+            <div style="font-size:10px;color:var(--tx3);text-align:center">Preview en tiempo real</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function uploadLogo(input) {
+  const file = input.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = e => {
+    CONFIG.club.logoImg = e.target.result
+    CONFIG.club.logo    = null
+    // Actualizar preview grande
+    const box = document.getElementById('logo-preview-box')
+    if (box) box.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`
+    // Actualizar preview topbar
+    const prevBox = document.getElementById('prev-logo-box')
+    if (prevBox) prevBox.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`
+    toast('✓ Logo cargado')
+  }
+  reader.readAsDataURL(file)
+}
+
+function applyPalette(primary, accent) {
+  setPrimaryColor(primary)
+  setAccentColor(accent)
+  toast('✓ Paleta aplicada')
+}
+
+function setLogo(ic) {
+  CONFIG.club.logo    = ic
+  CONFIG.club.logoImg = null
+  document.querySelectorAll('.icon-opt').forEach(el => el.classList.toggle('active', el.textContent === ic))
+  // Actualizar preview grande
+  const bigBox = document.getElementById('logo-preview-box')
+  if (bigBox) bigBox.innerHTML = `<span id="logo-preview-icon">${ic}</span>`
+  // Actualizar preview topbar
+  const prevBox = document.getElementById('prev-logo-box')
+  if (prevBox) prevBox.innerHTML = `<span id="prev-logo-icon">${ic}</span>`
+}
+
+function setPrimaryColor(col) {
+  if (!col || col.length < 4) return
+  CONFIG.club.primaryColor = col
+  // Sync picker + hex input
+  const picker = document.getElementById('color-primary-picker')
+  const hex    = document.getElementById('color-primary-hex')
+  if (picker) picker.value = col
+  if (hex)    hex.value    = col
+  // Actualizar preview
+  const btn1   = document.getElementById('prev-btn-1')
+  const logoB  = document.getElementById('prev-logo-box')
+  const logoLg = document.getElementById('logo-preview-box')
+  if (btn1)   btn1.style.background = col
+  if (logoB)  logoB.style.background = col
+  if (logoLg) logoLg.style.background = col
+}
+
+function setAccentColor(col) {
+  if (!col || col.length < 4) return
+  CONFIG.club.accentColor = col
+  // Sync picker + hex input
+  const picker = document.getElementById('color-accent-picker')
+  const hex    = document.getElementById('color-accent-hex')
+  if (picker) picker.value = col
+  if (hex)    hex.value    = col
+  // Actualizar preview
+  const btn2 = document.getElementById('prev-btn-2')
+  if (btn2) { btn2.style.borderColor = col; btn2.style.color = col }
+}
+function setTheme(t) {
+  const theme = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t
+  document.documentElement.setAttribute('data-theme', theme)
+  toast('Tema aplicado')
+}
+
+// ══════════════════════════════════════════════════════════
+//  DEPORTES
+// ══════════════════════════════════════════════════════════
+function renderSports() {
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">⚽ Deportes del complejo</div>
+    <div class="section-sub">Activá los deportes que ofrecés. Podés agregar deportes personalizados y configurar las categorías de cada uno.</div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Deportes activos</span>
+        <button class="btn btn-primary btn-sm" onclick="openSportModal()">+ Agregar deporte</button>
+      </div>
+      <div class="card-body">
+        <div class="items-grid">
+          ${CONFIG.sports.map(s=>`
+            <div class="cfg-item ${!s.active?'opacity:0.5':''}">
+              <div class="cfg-item-icon" style="background:${s.color}22;font-size:20px">${s.icon}</div>
+              <div class="cfg-item-info">
+                <div class="cfg-item-name">${s.name}</div>
+                <div class="cfg-item-sub">${s.categories.length} categorías</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+                <div class="toggle ${s.active?'on':''}" onclick="toggleSport('${s.id}')"></div>
+                <div class="cfg-item-actions" style="opacity:1">
+                  <button class="btn btn-ghost btn-icon btn-sm" onclick="openSportModal('${s.id}')">✏</button>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">💡 ¿Cómo funciona?</span></div>
+      <div class="card-body" style="font-size:12px;color:var(--tx2);line-height:1.7">
+        Los deportes que activás aparecen en el selector de jugadores, en el agente IA y en los filtros del mapa.
+        Cada deporte tiene sus propias categorías (ej: pádel tiene 1ª a 8ª, fútbol tiene AFA, amateur, infantil...).
+        Podés agregar deportes completamente nuevos con nombre, ícono y categorías propias.
+      </div>
+    </div>
+  `
+}
+
+function toggleSport(id) {
+  const s = CONFIG.sports.find(x=>x.id===id)
+  if (s) { s.active = !s.active; renderSports(); renderNav() }
+}
+
+function openSportModal(id) {
+  const s = id ? CONFIG.sports.find(x=>x.id===id) : null
+  const icons = ['⚽','🎾','🏀','🏐','🏋','💪','🏊','🎯','🏑','🥊','🤸','🏇','🎱','🎿','🚴','🧘']
+  showModal(`
+    <div class="modal-title">${s?'Editar deporte':'Nuevo deporte'}</div>
+    <div class="modal-sub">${s?s.name:'Configurá el deporte y sus categorías'}</div>
+    <div class="frow" style="margin-bottom:10px">
+      <div><label class="flbl">Nombre</label><input class="finp" id="sp-name" value="${s?.name||''}"></div>
+      <div>
+        <label class="flbl">Color</label>
+        <div class="swatches">
+          ${['#5b7fff','#22c55e','#f59e0b','#ef4444','#a855f7','#06b6d4','#f97316','#ec4899'].map(c=>`
+            <div class="swatch ${s?.color===c?'active':''}" style="background:${c}" onclick="this.parentElement.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));this.classList.add('active')"></div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+    <label class="flbl">Ícono</label>
+    <div class="icon-grid">${icons.map(ic=>`<div class="icon-opt ${s?.icon===ic?'active':''}" onclick="this.parentElement.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('active'));this.classList.add('active')">${ic}</div>`).join('')}</div>
+    <label class="flbl">Categorías (una por línea)</label>
+    <textarea class="finp ftextarea" id="sp-cats" style="margin-bottom:0">${s?.categories?.join('\n')||''}</textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      ${s?`<button class="btn btn-err btn-sm" onclick="deleteSport('${s.id}')">Eliminar</button>`:''}
+      <button class="btn btn-primary" onclick="saveSport('${s?.id||''}')">Guardar</button>
+    </div>
+  `)
+}
+
+function saveSport(id) {
+  const name  = document.getElementById('sp-name')?.value.trim()
+  if (!name) { toast('Ingresá un nombre','warn'); return }
+  const icon  = document.querySelector('#modal-body .icon-opt.active')?.textContent || '⚽'
+  const color = document.querySelector('#modal-body .swatch.active')?.style.background || '#5b7fff'
+  const cats  = document.getElementById('sp-cats')?.value.split('\n').map(s=>s.trim()).filter(Boolean) || []
+  if (id) {
+    const s = CONFIG.sports.find(x=>x.id===id)
+    if (s) Object.assign(s, {name, icon, color, categories:cats})
+  } else {
+    CONFIG.sports.push({id:'sp_'+Date.now(), name, icon, color, active:true, categories:cats})
+  }
+  closeModal(); renderSports(); renderNav(); toast('✓ Deporte guardado')
+}
+
+function deleteSport(id) {
+  CONFIG.sports = CONFIG.sports.filter(s=>s.id!==id)
+  closeModal(); renderSports(); renderNav(); toast('Deporte eliminado','warn')
+}
+
+// ══════════════════════════════════════════════════════════
+//  SECTORES
+// ══════════════════════════════════════════════════════════
+function renderSectors() {
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">🏠 Sectores del complejo</div>
+    <div class="section-sub">Los sectores organizan los espacios físicos: canchas, clases, SUM, quinchos, etc. Podés crear los que necesites.</div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Sectores configurados</span>
+        <button class="btn btn-primary btn-sm" onclick="openSectorModal()">+ Agregar sector</button>
+      </div>
+      <div class="card-body">
+        <div class="items-grid">
+          ${CONFIG.sectors.map(s=>`
+            <div class="cfg-item">
+              <div class="cfg-item-icon" style="background:${s.color}22;font-size:20px">${s.icon}</div>
+              <div class="cfg-item-info">
+                <div class="cfg-item-name">${s.name}</div>
+                <div class="cfg-item-sub">${{court:'Cancha/pista',class:'Clase/actividad',space:'Espacio alquilable'}[s.type]}</div>
+              </div>
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="openSectorModal('${s.id}')">✏</button>
+            </div>`).join('')}
+        </div>
+        <div class="add-row" onclick="openSectorModal()">
+          <span>+</span> Agregar nuevo sector
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function openSectorModal(id) {
+  const s = id ? CONFIG.sectors.find(x=>x.id===id) : null
+  const icons = ['🏟','🏠','🍖','🏋','💪','🏊','🎾','⚽','🏀','🎯','🎪','🎭','🎬','🎵','🌳','🏕']
+  showModal(`
+    <div class="modal-title">${s?'Editar sector':'Nuevo sector'}</div>
+    <div class="modal-sub">Configurá el tipo y nombre del espacio</div>
+    <label class="flbl">Nombre del sector</label>
+    <input class="finp" id="sec-name" value="${s?.name||''}">
+    <label class="flbl">Tipo de espacio</label>
+    <select class="fsel" id="sec-type">
+      <option value="court" ${s?.type==='court'?'selected':''}>Cancha / pista deportiva</option>
+      <option value="class" ${s?.type==='class'?'selected':''}>Clase / actividad grupal</option>
+      <option value="space" ${s?.type==='space'?'selected':''}>Espacio alquilable (SUM, quincho, etc.)</option>
+    </select>
+    <label class="flbl">Ícono</label>
+    <div class="icon-grid">${icons.map(ic=>`<div class="icon-opt ${s?.icon===ic?'active':''}" onclick="this.parentElement.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('active'));this.classList.add('active')">${ic}</div>`).join('')}</div>
+    <label class="flbl">Color</label>
+    <div class="swatches">
+      ${['#5b7fff','#22c55e','#f59e0b','#ef4444','#a855f7','#06b6d4','#f97316','#ec4899','#d97706','#10b981'].map(c=>`
+        <div class="swatch ${s?.color===c?'active':''}" style="background:${c}" onclick="this.parentElement.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));this.classList.add('active')"></div>
+      `).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      ${s?`<button class="btn btn-err btn-sm" onclick="deleteSector('${s.id}')">Eliminar</button>`:''}
+      <button class="btn btn-primary" onclick="saveSector('${s?.id||''}')">Guardar</button>
+    </div>
+  `)
+}
+
+function saveSector(id) {
+  const name = document.getElementById('sec-name')?.value.trim()
+  if (!name) { toast('Ingresá un nombre','warn'); return }
+  const icon  = document.querySelector('#modal-body .icon-opt.active')?.textContent || '🏠'
+  const color = document.querySelector('#modal-body .swatch.active')?.style.background || '#5b7fff'
+  const type  = document.getElementById('sec-type')?.value || 'space'
+  if (id) {
+    const s = CONFIG.sectors.find(x=>x.id===id)
+    if (s) Object.assign(s, {name, icon, color, type})
+  } else {
+    CONFIG.sectors.push({id:'sec_'+Date.now(), name, icon, color, type})
+  }
+  closeModal(); renderSectors(); renderNav(); toast('✓ Sector guardado')
+}
+
+function deleteSector(id) {
+  CONFIG.sectors = CONFIG.sectors.filter(s=>s.id!==id)
+  closeModal(); renderSectors(); renderNav(); toast('Sector eliminado','warn')
+}
+
+// ══════════════════════════════════════════════════════════
+//  CATEGORÍAS DE PRODUCTOS
+// ══════════════════════════════════════════════════════════
+function renderCategories() {
+  const totalProducts = CONFIG.productCategories.reduce((a,c)=>a+(c.products?.length||0),0)
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">📦 Categorías y productos</div>
+    <div class="section-sub">Creá categorías y sumá los productos de cada una. Todo lo que vendés en la tienda se organiza desde acá.</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <div class="card" style="margin:0;flex:1;padding:14px 16px;text-align:center">
+        <div style="font-size:20px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ac)">${CONFIG.productCategories.length}</div>
+        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;margin-top:2px">Categorías</div>
+      </div>
+      <div class="card" style="margin:0;flex:1;padding:14px 16px;text-align:center">
+        <div style="font-size:20px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ok)">${totalProducts}</div>
+        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;margin-top:2px">Productos cargados</div>
+      </div>
+    </div>
+
+    ${CONFIG.productCategories.map(c => `
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-head">
+          <span class="card-title">
+            <span style="font-size:18px">${c.icon}</span>
+            <span style="color:${c.color}">${c.name}</span>
+            <span style="font-size:11px;font-weight:400;color:var(--tx3)">${c.products?.length||0} productos</span>
+          </span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-primary btn-sm" onclick="openProductModal('${c.id}')">+ Producto</button>
+            <button class="btn btn-ghost btn-sm" onclick="openCatModal('${c.id}')">✏ Categoría</button>
+          </div>
+        </div>
+
+        ${c.products?.length ? `
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead><tr style="border-bottom:1px solid var(--bd)">
+                <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em">Producto</th>
+                <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase">SKU</th>
+                <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase">Precio</th>
+                <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase">Costo</th>
+                <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase">Margen</th>
+                <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase">Stock</th>
+                <th></th>
+              </tr></thead>
+              <tbody>
+                ${c.products.map(p => {
+                  const m = p.price && p.cost ? Math.round((p.price-p.cost)/p.price*100) : 0
+                  const mc = m>=50?'var(--ok)':m>=30?'var(--warn)':'var(--err)'
+                  const fmt = n => n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+n
+                  return `<tr style="border-bottom:1px solid var(--bd)55;transition:background .1s" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+                    <td style="padding:9px 14px;font-weight:500">${p.name}</td>
+                    <td style="padding:9px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3)">${p.sku||'—'}</td>
+                    <td style="padding:9px 14px;text-align:right;font-family:'DM Mono',monospace;font-weight:600">${fmt(p.price)}</td>
+                    <td style="padding:9px 14px;text-align:right;font-family:'DM Mono',monospace;color:var(--tx2)">${fmt(p.cost)}</td>
+                    <td style="padding:9px 14px;text-align:right">
+                      <span style="font-size:11px;font-weight:600;border-radius:5px;padding:2px 7px;background:${mc}18;color:${mc}">${m}%</span>
+                    </td>
+                    <td style="padding:9px 14px;text-align:right;font-weight:600;color:${p.stock<=0?'var(--err)':p.stock<=3?'var(--warn)':'var(--ok)'}">${p.stock}</td>
+                    <td style="padding:9px 14px;white-space:nowrap">
+                      <button class="btn btn-ghost btn-sm" onclick="openProductModal('${c.id}','${p.id}')">✏</button>
+                      <button class="btn btn-sm" style="background:var(--err)15;color:var(--err);border:none;margin-left:3px" onclick="deleteProduct('${c.id}','${p.id}')">✕</button>
+                    </td>
+                  </tr>`
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : `
+          <div class="card-body" style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">
+            Sin productos aún. <span style="color:var(--ac);cursor:pointer" onclick="openProductModal('${c.id}')">Agregá el primero</span>
+          </div>
+        `}
+      </div>
+    `).join('')}
+
+    <div class="add-row" onclick="openCatModal()">+ Agregar nueva categoría</div>
+  `
+}
+
+// ── Modal de CATEGORÍA ──────────────────────────────────
+function openCatModal(id) {
+  const c = id ? CONFIG.productCategories.find(x=>x.id===id) : null
+  const icons = ['🧴','🍕','🎾','⚽','👕','👟','🎽','🔑','💊','🥤','🍺','🧃','🎿','🏋','📦','🛍','☕','🍫','🥐','🧁']
+  showModal(`
+    <div class="modal-title">${c?'Editar categoría':'Nueva categoría'}</div>
+    <div class="modal-sub">${c?c.name:'Creá un nuevo grupo de productos'}</div>
+    <label class="flbl">Nombre de la categoría</label>
+    <input class="finp" id="cat-name" value="${c?.name||''}">
+    <label class="flbl">Ícono</label>
+    <div class="icon-grid">${icons.map(ic=>`<div class="icon-opt ${c?.icon===ic?'active':''}" onclick="this.parentElement.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('active'));this.classList.add('active')">${ic}</div>`).join('')}</div>
+    <label class="flbl">Color</label>
+    <div class="swatches">
+      ${['#38bdf8','#f97316','#5b7fff','#22c55e','#a855f7','#f59e0b','#2ecc71','#ec4899','#ef4444','#06b6d4'].map(col=>`
+        <div class="swatch ${c?.color===col?'active':''}" style="background:${col}" onclick="this.parentElement.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));this.classList.add('active')"></div>
+      `).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      ${c?`<button class="btn btn-err btn-sm" onclick="deleteCat('${c.id}')">Eliminar categoría</button>`:''}
+      <button class="btn btn-primary" onclick="saveCat('${c?.id||''}')">Guardar</button>
+    </div>
+  `)
+}
+
+function saveCat(id) {
+  const name = document.getElementById('cat-name')?.value.trim()
+  if (!name) { toast('Ingresá un nombre','warn'); return }
+  const icon  = document.querySelector('#modal-body .icon-opt.active')?.textContent || '📦'
+  const color = document.querySelector('#modal-body .swatch.active')?.style.background || '#5b7fff'
+  if (id) {
+    const c = CONFIG.productCategories.find(x=>x.id===id)
+    if (c) Object.assign(c, {name, icon, color})
+  } else {
+    const newId = name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')
+    CONFIG.productCategories.push({id:newId+'_'+Date.now(), name, icon, color, products:[]})
+  }
+  closeModal(); renderCategories(); toast('✓ Categoría guardada')
+}
+
+function deleteCat(id) {
+  CONFIG.productCategories = CONFIG.productCategories.filter(c=>c.id!==id)
+  closeModal(); renderCategories(); toast('Categoría eliminada','warn')
+}
+
+// ── Modal de PRODUCTO dentro de categoría ──────────────
+// Estado del modal de producto (evita pasar IDs por string en template)
+let _prodModalCatId     = null
+let _prodModalProductId = null
+
+function openProductModal(catId, productId) {
+  _prodModalCatId     = catId
+  _prodModalProductId = productId || null
+
+  const cat = CONFIG.productCategories.find(x=>x.id===catId)
+  if (!cat) { toast('Categoría no encontrada','warn'); return }
+  const p = productId ? cat.products?.find(x=>x.id===productId) : null
+
+  const supplierOptions = CONFIG.suppliers.map(s=>
+    `<option value="${s.id}" ${p?.supplierId==s.id?'selected':''}>${s.name}</option>`
+  ).join('')
+
+  // Selector de categoría (para cambiar de categoría al editar)
+  const catOptions = CONFIG.productCategories.map(c=>
+    `<option value="${c.id}" ${c.id===catId?'selected':''}>${c.icon} ${c.name}</option>`
+  ).join('')
+
+  showModal(`
+    <div class="modal-title">${p?'Editar producto':'Nuevo producto'}</div>
+    <div class="modal-sub" style="display:flex;align-items:center;gap:6px">
+      <span style="font-size:16px">${cat.icon}</span>
+      <span>Categoría:</span>
+      <select id="prod-cat" style="background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:3px 8px;color:var(--tx);font-size:12px;outline:none" onchange="_prodModalCatId=this.value">
+        ${catOptions}
+      </select>
+    </div>
+
+    <div style="height:1px;background:var(--bd);margin:12px 0"></div>
+
+    <label class="flbl">Nombre del producto</label>
+    <input class="finp" id="prod-name" value="${p?.name||''}" placeholder="Ej: Agua mineral 500ml"
+      style="font-size:14px" autofocus>
+
+    <div class="frow3" style="margin-bottom:0">
+      <div>
+        <label class="flbl">Precio de venta</label>
+        <input type="number" class="finp" id="prod-price" value="${p?.price||''}"
+          placeholder="$0" min="0" oninput="calcMarginPreview()">
+      </div>
+      <div>
+        <label class="flbl">Costo unitario</label>
+        <input type="number" class="finp" id="prod-cost" value="${p?.cost||''}"
+          placeholder="$0" min="0" oninput="calcMarginPreview()">
+      </div>
+      <div>
+        <label class="flbl">Stock actual</label>
+        <input type="number" class="finp" id="prod-stock" value="${p?.stock!=null?p.stock:0}" min="0">
+      </div>
+    </div>
+
+    <!-- Preview de margen en vivo -->
+    <div id="margin-live" style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:12px">
+      <span style="color:var(--tx2)">💡 Margen bruto</span>
+      <span id="margin-live-val" style="font-family:'DM Mono',monospace;font-weight:700;color:var(--tx3)">Ingresá precio y costo</span>
+    </div>
+
+    <div class="frow">
+      <div>
+        <label class="flbl">Stock mínimo (alerta)</label>
+        <input type="number" class="finp" id="prod-minstock" value="${p?.minStock!=null?p.minStock:5}" min="0">
+      </div>
+      <div>
+        <label class="flbl">SKU / Código</label>
+        <input class="finp" id="prod-sku" value="${p?.sku||''}" placeholder="Opcional">
+      </div>
+    </div>
+
+    <label class="flbl">Proveedor</label>
+    <select class="fsel" id="prod-supplier">
+      <option value="">Sin asignar</option>
+      ${supplierOptions}
+    </select>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      ${p?`<button class="btn btn-err btn-sm" onclick="deleteProductAndClose('${catId}','${p.id}')">Eliminar</button>`:''}
+      <button class="btn btn-primary" id="prod-save-btn" onclick="saveProduct()">
+        ${p ? 'Guardar cambios' : 'Agregar producto'}
+      </button>
+    </div>
+  `)
+
+  // Calcular margen si hay valores al abrir (modo edición)
+  setTimeout(calcMarginPreview, 30)
+}
+
+function calcMarginPreview() {
+  const price = parseFloat(document.getElementById('prod-price')?.value) || 0
+  const cost  = parseFloat(document.getElementById('prod-cost')?.value)  || 0
+  const el    = document.getElementById('margin-live-val')
+  if (!el) return
+  if (!price || !cost) {
+    el.textContent = 'Ingresá precio y costo'
+    el.style.color = 'var(--tx3)'
+    return
+  }
+  const m      = Math.round((price - cost) / price * 100)
+  const profit = price - cost
+  el.textContent = `${m}% — ganás $${profit.toLocaleString()} por unidad`
+  el.style.color = m >= 50 ? 'var(--ok)' : m >= 30 ? 'var(--warn)' : 'var(--err)'
+}
+
+function saveProduct() {
+  const name = document.getElementById('prod-name')?.value?.trim()
+  if (!name) { toast('Ingresá el nombre del producto', 'warn'); return }
+
+  // Leer categoría destino desde el select (puede haber cambiado)
+  const targetCatId = document.getElementById('prod-cat')?.value || _prodModalCatId
+  const cat = CONFIG.productCategories.find(x=>x.id===targetCatId)
+  if (!cat) { toast('Categoría no encontrada', 'warn'); return }
+  if (!cat.products) cat.products = []
+
+  const price = parseFloat(document.getElementById('prod-price')?.value) || 0
+  const cost  = parseFloat(document.getElementById('prod-cost')?.value)  || 0
+  if (!price) { toast('Ingresá el precio de venta', 'warn'); return }
+
+  const data = {
+    name,
+    price,
+    cost,
+    stock:      parseInt(document.getElementById('prod-stock')?.value)    || 0,
+    minStock:   parseInt(document.getElementById('prod-minstock')?.value) || 5,
+    sku:        document.getElementById('prod-sku')?.value?.trim()        || '',
+    supplierId: document.getElementById('prod-supplier')?.value           || '',
+  }
+
+  if (_prodModalProductId) {
+    // Edición — puede cambiar de categoría
+    if (targetCatId !== _prodModalCatId) {
+      // Mover a otra categoría
+      const oldCat = CONFIG.productCategories.find(x=>x.id===_prodModalCatId)
+      if (oldCat) oldCat.products = oldCat.products.filter(p=>p.id!==_prodModalProductId)
+      cat.products.push({ id: _prodModalProductId, ...data })
+    } else {
+      const idx = cat.products.findIndex(x=>x.id===_prodModalProductId)
+      if (idx >= 0) cat.products[idx] = { ...cat.products[idx], ...data }
+    }
+    toast(`✓ ${name} actualizado`)
+  } else {
+    // Nuevo producto
+    cat.products.push({ id: 'p_' + Date.now(), ...data })
+    toast(`✓ ${name} agregado a ${cat.icon} ${cat.name}`)
+  }
+
+  closeModal()
+  renderCategories()
+}
+
+function deleteProductAndClose(catId, productId) {
+  const cat = CONFIG.productCategories.find(x=>x.id===catId)
+  if (!cat) return
+  cat.products = cat.products.filter(p=>p.id!==productId)
+  closeModal()
+  renderCategories()
+  toast('Producto eliminado', 'warn')
+}
+
+function deleteProduct(catId, productId) {
+  deleteProductAndClose(catId, productId)
+}
+
+// ══════════════════════════════════════════════════════════
+//  MÉTODOS DE PAGO
+// ══════════════════════════════════════════════════════════
+function renderPayments() {
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">💳 Métodos de pago</div>
+    <div class="section-sub">Activá los métodos que aceptás y configurá las comisiones de cada uno.</div>
+    <div class="card">
+      <div class="card-body">
+        ${CONFIG.paymentMethods.map(pm=>`
+          <div class="toggle-row">
+            <div style="font-size:20px;margin-right:8px">${pm.icon}</div>
+            <div class="toggle-info">
+              <div class="toggle-label">${pm.name}</div>
+              <div class="toggle-desc">Comisión: ${pm.commission}%</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              ${pm.active?`<span style="font-size:10px;color:var(--tx3)">Comisión:</span>
+                <input type="number" value="${pm.commission}" min="0" max="10" step="0.1"
+                  style="width:50px;padding:3px 6px;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;color:var(--tx);font-size:11px;text-align:center;outline:none"
+                  onchange="setPayCommission('${pm.id}',this.value)">
+                <span style="font-size:10px;color:var(--tx3)">%</span>`:''}
+              <div class="toggle ${pm.active?'on':''}" onclick="togglePayment('${pm.id}')"></div>
+            </div>
+          </div>`).join('')}
+        <div class="add-row" onclick="toast('Próximamente: agregar método personalizado')">+ Agregar método de pago</div>
+      </div>
+    </div>
+  `
+}
+
+function togglePayment(id) {
+  const pm = CONFIG.paymentMethods.find(x=>x.id===id)
+  if (pm) { pm.active = !pm.active; renderPayments(); toast(`${pm.name} ${pm.active?'activado':'desactivado'}`) }
+}
+
+function setPayCommission(id, val) {
+  const pm = CONFIG.paymentMethods.find(x=>x.id===id)
+  if (pm) pm.commission = parseFloat(val)||0
+}
+
+// ══════════════════════════════════════════════════════════
+//  PROVEEDORES
+// ══════════════════════════════════════════════════════════
+function renderSuppliers() {
+  const totalDebt = CONFIG.suppliers.reduce((a,s)=>a+s.debt,0)
+  const fmt = n => n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+n
+
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">🚚 Proveedores</div>
+    <div class="section-sub">Gestioná tus proveedores, condiciones de pago y deuda acumulada.</div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div class="card" style="margin:0">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:22px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ac)">${CONFIG.suppliers.length}</div>
+          <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;margin-top:3px">Proveedores activos</div>
+        </div>
+      </div>
+      <div class="card" style="margin:0">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:22px;font-weight:700;font-family:'Syne',sans-serif;color:${totalDebt>0?'var(--err)':'var(--ok)'}">${fmt(totalDebt)}</div>
+          <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;margin-top:3px">Deuda total</div>
+        </div>
+      </div>
+      <div class="card" style="margin:0">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:22px;font-weight:700;font-family:'Syne',sans-serif;color:var(--warn)">${CONFIG.suppliers.filter(s=>s.debt>0).length}</div>
+          <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;margin-top:3px">Con deuda pendiente</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Lista de proveedores</span>
+        <button class="btn btn-primary btn-sm" onclick="openSupplierModal()">+ Agregar proveedor</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="sup-table">
+          <thead><tr>
+            <th>Proveedor</th><th>Contacto</th><th>Categoría</th>
+            <th>Plazo pago</th><th style="text-align:right">Deuda</th><th>Notas</th><th></th>
+          </tr></thead>
+          <tbody>
+            ${CONFIG.suppliers.map(s=>`<tr>
+              <td><strong>${s.name}</strong><div style="font-size:10px;color:var(--tx3)">${s.email||'Sin email'}</div></td>
+              <td style="color:var(--tx2)">${s.contact}<br><span style="font-size:10px;font-family:'DM Mono',monospace">${s.phone}</span></td>
+              <td><span style="background:var(--ac)15;color:var(--ac);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:500">${s.category}</span></td>
+              <td style="color:var(--tx2)">${s.paymentTerms} días</td>
+              <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:${s.debt>0?'var(--err)':'var(--ok)'}">${fmt(s.debt)}</td>
+              <td style="color:var(--tx3);font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.notes||'—'}</td>
+              <td style="white-space:nowrap">
+                <button class="btn btn-ghost btn-sm" onclick="openSupplierModal(${s.id})">✏ Editar</button>
+                ${s.debt>0?`<button class="btn btn-sm" style="background:var(--ok)15;color:var(--ok);border:1px solid var(--ok)33;margin-left:4px" onclick="registerPayment(${s.id})">Pagar</button>`:''}
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+}
+
+function openSupplierModal(id) {
+  const s = id ? CONFIG.suppliers.find(x=>x.id===id) : null
+  const cats = ['bebidas','deportivo','comida','ropa','suplementos','limpieza','tecnología','servicios','otro']
+  showModal(`
+    <div class="modal-title">${s?'Editar proveedor':'Nuevo proveedor'}</div>
+    <div class="modal-sub">${s?s.name:'Agregá los datos del proveedor'}</div>
+    <div class="frow">
+      <div><label class="flbl">Nombre</label><input class="finp" id="sup-name" value="${s?.name||''}"></div>
+      <div><label class="flbl">Contacto</label><input class="finp" id="sup-contact" value="${s?.contact||''}"></div>
+    </div>
+    <div class="frow">
+      <div><label class="flbl">Teléfono</label><input class="finp" id="sup-phone" value="${s?.phone||''}"></div>
+      <div><label class="flbl">Email</label><input class="finp" id="sup-email" value="${s?.email||''}"></div>
+    </div>
+    <div class="frow">
+      <div>
+        <label class="flbl">Categoría</label>
+        <select class="fsel" id="sup-cat">
+          ${cats.map(c=>`<option value="${c}" ${s?.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="flbl">Plazo de pago (días)</label><input type="number" class="finp" id="sup-terms" value="${s?.paymentTerms||30}"></div>
+    </div>
+    <div class="frow">
+      <div><label class="flbl">Deuda actual ($)</label><input type="number" class="finp" id="sup-debt" value="${s?.debt||0}"></div>
+      <div></div>
+    </div>
+    <label class="flbl">Notas internas</label>
+    <textarea class="finp ftextarea" id="sup-notes" style="min-height:50px">${s?.notes||''}</textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      ${s?`<button class="btn btn-err btn-sm" onclick="deleteSupplier(${s.id})">Eliminar</button>`:''}
+      <button class="btn btn-primary" onclick="saveSupplier(${s?.id||0})">Guardar</button>
+    </div>
+  `)
+}
+
+function saveSupplier(id) {
+  const name = document.getElementById('sup-name')?.value.trim()
+  if (!name) { toast('Ingresá el nombre','warn'); return }
+  const data = {
+    name,
+    contact:      document.getElementById('sup-contact')?.value || '',
+    phone:        document.getElementById('sup-phone')?.value || '',
+    email:        document.getElementById('sup-email')?.value || '',
+    category:     document.getElementById('sup-cat')?.value || 'otro',
+    paymentTerms: parseInt(document.getElementById('sup-terms')?.value)||30,
+    debt:         parseFloat(document.getElementById('sup-debt')?.value)||0,
+    notes:        document.getElementById('sup-notes')?.value || '',
+  }
+  if (id) {
+    const s = CONFIG.suppliers.find(x=>x.id===id)
+    if (s) Object.assign(s, data)
+  } else {
+    CONFIG.suppliers.push({id: Date.now(), ...data})
+  }
+  closeModal(); renderSuppliers(); renderNav(); toast('✓ Proveedor guardado')
+}
+
+function deleteSupplier(id) {
+  CONFIG.suppliers = CONFIG.suppliers.filter(s=>s.id!==id)
+  closeModal(); renderSuppliers(); renderNav(); toast('Proveedor eliminado','warn')
+}
+
+function registerPayment(id) {
+  const s = CONFIG.suppliers.find(x=>x.id===id)
+  if (!s) return
+  const amount = prompt(`Registrar pago a ${s.name}\nDeuda actual: $${s.debt.toLocaleString()}\n\n¿Cuánto se pagó?`)
+  if (!amount || isNaN(amount)) return
+  s.debt = Math.max(0, s.debt - parseFloat(amount))
+  renderSuppliers()
+  toast(`✓ Pago de $${parseFloat(amount).toLocaleString()} registrado`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  HORARIOS Y PRECIOS
+// ══════════════════════════════════════════════════════════
+function renderHours() {
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">🕐 Horarios y precios</div>
+    <div class="section-sub">Configurá las franjas horarias y los precios pico de cada sector.</div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Horarios pico generales</span></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--tx2);margin-bottom:14px">Los horarios pico tienen un precio diferente. Podés sobreescribir en cada espacio individual.</p>
+        ${['Lunes a viernes','Sábados','Domingos y feriados'].map((day,i)=>`
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">${day}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'].map(h=>{
+                const isPeak = i===0 ? ['18:00','19:00','20:00','21:00'].includes(h) :
+                               i===1 ? ['10:00','11:00','12:00','18:00','19:00'].includes(h) :
+                               ['11:00','12:00','13:00'].includes(h)
+                return `<div onclick="this.classList.toggle('active')" class="btn btn-sm ${isPeak?'active':''}"
+                  style="${isPeak?'background:var(--warn)20;border-color:var(--warn);color:var(--warn)':''}">${h}</div>`
+              }).join('')}
+            </div>
+          </div>`).join('')}
+        <div style="font-size:11px;color:var(--tx3);margin-top:4px">Los horarios en naranja son pico. Tocá para activar/desactivar.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Incremento de precio en horario pico</span></div>
+      <div class="card-body">
+        <div class="frow">
+          <div>
+            <label class="flbl">Incremento pico (%)</label>
+            <input type="range" min="0" max="100" value="30" id="peak-pct" oninput="document.getElementById('peak-val').textContent=this.value+'%'">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-top:2px"><span>0%</span><span id="peak-val" style="color:var(--warn);font-weight:600">30%</span><span>100%</span></div>
+          </div>
+          <div>
+            <label class="flbl">Aplicar a</label>
+            <select class="fsel">
+              <option>Todos los sectores</option>
+              <option>Solo canchas</option>
+              <option>Solo clases</option>
+              <option>Solo espacios</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  GRÁFICOS
+// ══════════════════════════════════════════════════════════
+function renderCharts() {
+  const chartTypes = [
+    { id:'bar',     icon:'📊', name:'Barras' },
+    { id:'line',    icon:'📈', name:'Líneas' },
+    { id:'area',    icon:'🏔', name:'Área' },
+    { id:'donut',   icon:'🍩', name:'Donut' },
+    { id:'heatmap', icon:'🔥', name:'Heatmap' },
+    { id:'table',   icon:'📋', name:'Tabla' },
+  ]
+  const metrics = [
+    { id:'revenue',    label:'Ingresos y egresos',   current: CONFIG.chartPreferences.revenue },
+    { id:'bookings',   label:'Reservas por período', current: CONFIG.chartPreferences.bookings },
+    { id:'products',   label:'Ventas de tienda',     current: CONFIG.chartPreferences.products },
+    { id:'players',    label:'Actividad de jugadores',current: CONFIG.chartPreferences.players },
+    { id:'occupation', label:'Ocupación de canchas', current: CONFIG.chartPreferences.occupation },
+    { id:'cashflow',   label:'Flujo de caja',        current: CONFIG.chartPreferences.cashflow },
+  ]
+
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">📊 Gráficos y estadísticas</div>
+    <div class="section-sub">Elegí el tipo de gráfico para cada métrica. Se aplica en todos los módulos del sistema.</div>
+
+    ${metrics.map(m=>`
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-head"><span class="card-title">${m.label}</span></div>
+        <div class="card-body" style="padding:12px">
+          <div class="chart-grid">
+            ${chartTypes.map(ct=>`
+              <div class="chart-opt ${m.current===ct.id?'active':''}"
+                onclick="setChartPref('${m.id}','${ct.id}',this)">
+                <div class="chart-opt-icon">${ct.icon}</div>
+                <div class="chart-opt-name">${ct.name}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`).join('')}
+  `
+}
+
+function setChartPref(metric, type, el) {
+  CONFIG.chartPreferences[metric] = type
+  el.closest('.card').querySelectorAll('.chart-opt').forEach(x=>x.classList.remove('active'))
+  el.classList.add('active')
+  toast(`✓ ${metric}: tipo ${type}`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  AGENTE IA
+// ══════════════════════════════════════════════════════════
+function renderAgent() {
+  const a = CONFIG.agentPersonality
+  const greetings = [
+    '¡Hola! ¿En qué te puedo ayudar?',
+    '¡Buenas! ¿Qué necesitás?',
+    '¡Hola! Soy el asistente del complejo, decime.',
+    '¡Bienvenido! ¿Te ayudo con algo?',
+  ]
+
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">🤖 Personalidad del agente IA</div>
+    <div class="section-sub">Configurá cómo habla el asistente virtual de tu complejo. Cada club tiene su propia voz.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:16px">
+      <div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Nombre e identidad</span></div>
+          <div class="card-body">
+            <div class="frow">
+              <div>
+                <label class="flbl">Nombre del asistente</label>
+                <input class="finp" id="ag-name" value="${a.name}" oninput="updateAgentPreview()">
+              </div>
+              <div>
+                <label class="flbl">Tono de conversación</label>
+                <select class="fsel" id="ag-tone" onchange="updateAgentPreview()">
+                  <option value="informal" ${a.tone==='informal'?'selected':''}>Informal y cercano</option>
+                  <option value="professional" ${a.tone==='professional'?'selected':''}>Profesional</option>
+                  <option value="friendly" ${a.tone==='friendly'?'selected':''}>Amigable y divertido</option>
+                </select>
+              </div>
+            </div>
+            <div class="frow">
+              <div>
+                <label class="flbl">Variante del español</label>
+                <select class="fsel" id="ag-lang" onchange="updateAgentPreview()">
+                  <option value="rioplatense" ${a.language==='rioplatense'?'selected':''}>Rioplatense (vos, che)</option>
+                  <option value="neutral"     ${a.language==='neutral'?'selected':''}>Español neutro (tú)</option>
+                  <option value="chileno"     ${a.language==='chileno'?'selected':''}>Chileno (po, cachai)</option>
+                </select>
+              </div>
+              <div>
+                <label class="flbl">Estilo de respuesta</label>
+                <select class="fsel" id="ag-style">
+                  <option value="concise"  ${a.responseStyle==='concise'?'selected':''}>Conciso (respuestas cortas)</option>
+                  <option value="detailed" ${a.responseStyle==='detailed'?'selected':''}>Detallado (más contexto)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="card-title">Saludo inicial</span></div>
+          <div class="card-body">
+            <label class="flbl">Mensaje de bienvenida</label>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">
+              ${greetings.map(g=>`
+                <div onclick="document.getElementById('ag-greeting').value=this.dataset.text;updateAgentPreview()" data-text="${g}"
+                  style="padding:7px 12px;border-radius:7px;border:1px solid var(--bd2);background:var(--s2);cursor:pointer;font-size:12px;color:var(--tx2);transition:all .12s"
+                  onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bd2)'">${g}</div>
+              `).join('')}
+            </div>
+            <label class="flbl">O escribí el tuyo:</label>
+            <input class="finp" id="ag-greeting" value="${a.greeting}" oninput="updateAgentPreview()">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="card-title">Opciones adicionales</span></div>
+          <div class="card-body">
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Usar emojis en respuestas</div><div class="toggle-desc">El agente usa emojis para hacer las respuestas más amigables</div></div>
+              <div class="toggle ${a.showEmoji?'on':''}" onclick="this.classList.toggle('on');CONFIG.agentPersonality.showEmoji=!CONFIG.agentPersonality.showEmoji"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Responder preguntas frecuentes</div><div class="toggle-desc">Preguntas sobre horarios, precios y ubicación sin tool calling</div></div>
+              <div class="toggle on"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Sugerir alternativas automáticamente</div><div class="toggle-desc">Cuando un horario está ocupado, el agente ofrece opciones</div></div>
+              <div class="toggle on"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div>
+        <div class="card" style="position:sticky;top:24px">
+          <div class="card-head"><span class="card-title">Preview del agente</span></div>
+          <div class="card-body">
+            <div class="agent-preview" id="agent-preview-box">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px">🤖</div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:var(--ok)" id="agent-preview-name">${a.name}</div>
+                  <div style="font-size:10px;color:var(--tx3)">Asistente del complejo</div>
+                </div>
+              </div>
+              <div class="agent-bubble" id="agent-preview-bubble">${a.greeting}</div>
+            </div>
+            <div style="font-size:11px;color:var(--tx3);text-align:center;margin-top:8px">Así se presenta a los jugadores</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function updateAgentPreview() {
+  const name     = document.getElementById('ag-name')?.value || ''
+  const greeting = document.getElementById('ag-greeting')?.value || ''
+  const nameEl   = document.getElementById('agent-preview-name')
+  const bubbleEl = document.getElementById('agent-preview-bubble')
+  if (nameEl) nameEl.textContent = name
+  if (bubbleEl) bubbleEl.textContent = greeting
+  CONFIG.agentPersonality.name     = name
+  CONFIG.agentPersonality.greeting = greeting
+}
+
+// ══════════════════════════════════════════════════════════
+//  NOTIFICACIONES
+// ══════════════════════════════════════════════════════════
+function renderNotifications() {
+  const n = CONFIG.notifications
+  const items = [
+    { id:'bookingReminder24h',  label:'Recordatorio 24hs antes de la reserva', desc:'WhatsApp automático al jugador' },
+    { id:'bookingConfirmation', label:'Confirmación de reserva',               desc:'Al confirmar un turno' },
+    { id:'lowStockAlert',       label:'Alerta de stock bajo',                  desc:'Cuando un producto baja del mínimo' },
+    { id:'debtAlert',           label:'Aviso de deuda al jugador',             desc:'Reservas sin cobrar' },
+    { id:'dailySummary',        label:'Resumen diario al admin',               desc:'Reporte al cierre del día' },
+    { id:'weeklySummary',       label:'Resumen semanal al admin',              desc:'Reporte los lunes a las 9hs' },
+    { id:'newPlayerWelcome',    label:'Bienvenida a nuevo jugador',            desc:'Al registrarse por primera vez' },
+  ]
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">🔔 Notificaciones automáticas</div>
+    <div class="section-sub">Configurá qué eventos generan mensajes automáticos a jugadores y al staff.</div>
+    <div class="card">
+      <div class="card-body">
+        ${items.map(item=>`
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">${item.label}</div>
+              <div class="toggle-desc">${item.desc}</div>
+            </div>
+            <div class="toggle ${n[item.id]?'on':''}" onclick="toggleNotif('${item.id}',this)"></div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `
+}
+
+function toggleNotif(id, el) {
+  CONFIG.notifications[id] = !CONFIG.notifications[id]
+  el.classList.toggle('on', CONFIG.notifications[id])
+}
+
+// ══════════════════════════════════════════════════════════
+//  MÓDULOS
+// ══════════════════════════════════════════════════════════
+function renderFeatures() {
+  const f = CONFIG.features
+  const items = [
+    { id:'onlineBooking',    label:'Reservas online',       desc:'Jugadores pueden reservar desde el app o web',   icon:'📱' },
+    { id:'playerApp',        label:'App del jugador',       desc:'Portal web para que los jugadores gestionen sus turnos', icon:'👤' },
+    { id:'agentIA',          label:'Agente IA',             desc:'Asistente inteligente por WhatsApp',             icon:'🤖' },
+    { id:'tournamentModule', label:'Torneos y fixtures',    desc:'Gestión completa de torneos internos',           icon:'🏆' },
+    { id:'membershipModule', label:'Membresías',            desc:'Planes mensuales y anuales para jugadores',      icon:'⭐' },
+    { id:'academyModule',    label:'Academia / clases',     desc:'Gestión de clases con profesores',               icon:'🎓' },
+    { id:'loyaltyPoints',    label:'Puntos de fidelidad',   desc:'Sistema de rewards para jugadores frecuentes',   icon:'🎯' },
+    { id:'multiClub',        label:'Multi-sede',            desc:'Gestionar múltiples complejos desde un panel',   icon:'🌐' },
+  ]
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">⚡ Módulos activos</div>
+    <div style="background:#7c3aed18;border:1px solid #7c3aed44;border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:12px">
+      <span style="font-size:14px">🔐</span>
+      <div>
+        <div style="font-weight:600;color:#a78bfa">Panel SuperAdmin</div>
+        <div style="color:var(--tx2);margin-top:1px">La asignación de módulos por cliente se gestiona desde el panel de SuperAdministrador. Aquí ves la configuración de este complejo.</div>
+      </div>
+    </div>
+    <div class="section-sub">Módulos habilitados para este complejo por el SuperAdmin.</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+      ${items.map(item=>`
+        <div class="card" style="margin:0;${f[item.id]?'border-color:var(--ac)33':''}" onclick="toggleFeature('${item.id}',this)">
+          <div class="card-body" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:14px">
+            <div style="font-size:24px;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${f[item.id]?'var(--ac)15':'var(--s2)'};">${item.icon}</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;color:var(--tx)">${item.label}</div>
+              <div style="font-size:11px;color:var(--tx3);margin-top:2px">${item.desc}</div>
+            </div>
+            <div class="toggle ${f[item.id]?'on':''}" onclick="event.stopPropagation();toggleFeature('${item.id}',this.closest('.card'))"></div>
+          </div>
+        </div>`).join('')}
+    </div>
+  `
+}
+
+function toggleFeature(id, card) {
+  CONFIG.features[id] = !CONFIG.features[id]
+  card.style.borderColor = CONFIG.features[id] ? 'var(--ac)33' : ''
+  card.querySelector('.toggle').classList.toggle('on', CONFIG.features[id])
+  card.querySelector('[style*="background"]').style.background = CONFIG.features[id] ? 'var(--ac)15' : 'var(--s2)'
+  toast(`${id}: ${CONFIG.features[id]?'activado':'desactivado'}`)
+}
+
+// ══════════════════════════════════════════════════════════
+//  USUARIOS
+// ══════════════════════════════════════════════════════════
+function renderUsers() {
+  const users = [
+    { name:'Martín García',  role:'admin',      email:'martin@sporthubos.app', active:true },
+    { name:'Laura Vega',     role:'reception',  email:'laura@sporthubos.app',  active:true },
+    { name:'Carlos Ruiz',    role:'cashier',    email:'carlos@sporthubos.app', active:true },
+    { name:'Ana Torres',     role:'coach',      email:'ana@sporthubos.app',    active:false },
+  ]
+  const roleLabels = { admin:'Administrador', reception:'Recepción', cashier:'Cajero/a', coach:'Profesor/a' }
+  const roleColors = { admin:'var(--ac)', reception:'var(--ok)', cashier:'var(--warn)', coach:'var(--info)' }
+  document.getElementById('content').innerHTML = `
+    <div class="section-title">👤 Usuarios y roles</div>
+    <div class="section-sub">Gestioná quién puede acceder al sistema y con qué permisos.</div>
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Usuarios del sistema</span>
+        <button class="btn btn-primary btn-sm" onclick="toast('Próximamente: invitar usuario por email')">+ Invitar usuario</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="sup-table">
+          <thead><tr><th>Usuario</th><th>Rol</th><th>Email</th><th>Estado</th><th></th></tr></thead>
+          <tbody>
+            ${users.map(u=>`<tr>
+              <td><strong>${u.name}</strong></td>
+              <td><span style="font-size:11px;font-weight:600;border-radius:10px;padding:2px 9px;background:${roleColors[u.role]}18;color:${roleColors[u.role]}">${roleLabels[u.role]||u.role}</span></td>
+              <td style="color:var(--tx3)">${u.email}</td>
+              <td><span style="font-size:10px;border-radius:10px;padding:2px 8px;background:${u.active?'var(--ok-bg,#091a0f)':'var(--s3)'};color:${u.active?'var(--ok)':'var(--tx3)'}">${u.active?'Activo':'Inactivo'}</span></td>
+              <td><button class="btn btn-ghost btn-sm" onclick="toast('Editar usuario — próximamente')">✏ Editar</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Permisos por rol</span></div>
+      <div class="card-body" style="overflow-x:auto">
+        <table class="sup-table">
+          <thead><tr><th>Módulo</th><th style="text-align:center">Admin</th><th style="text-align:center">Recepción</th><th style="text-align:center">Cajero/a</th><th style="text-align:center">Profesor/a</th></tr></thead>
+          <tbody>
+            ${[
+              ['Reservas',      true,  true,  true,  false],
+              ['Caja',          true,  false, true,  false],
+              ['Jugadores',     true,  true,  false, false],
+              ['Tienda',        true,  true,  true,  false],
+              ['Estadísticas',  true,  false, false, false],
+              ['Configuración', true,  false, false, false],
+              ['Clases',        true,  true,  false, true ],
+            ].map(([mod,...perms])=>`<tr>
+              <td>${mod}</td>
+              ${perms.map(p=>`<td style="text-align:center">${p?'<span style="color:var(--ok)">✓</span>':'<span style="color:var(--tx3)">—</span>'}</td>`).join('')}
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html
+  document.getElementById('modal').style.display  = 'flex'
+}
+function closeModal() { document.getElementById('modal').style.display = 'none' }
+
+function saveAll() {
+  localStorage.setItem('sporthubos-config', JSON.stringify(CONFIG))
+  toast('✓ Configuración guardada correctamente')
+}
+
+function toast(msg, type='success') {
+  const colors = { success:'var(--ok)', warn:'var(--warn)', error:'var(--err)' }
+  const t = document.createElement('div'); t.className = 'toast'
+  t.innerHTML = `<span style="color:${colors[type]||colors.success}">●</span> ${msg}`
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2600)
+}
+
+function toggleTheme() {
+  const h = document.documentElement
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme', h.getAttribute('data-theme'))
+}
+const st = localStorage.getItem('shos-theme')
+if (st) document.documentElement.setAttribute('data-theme', st)
+
+// Cargar config guardada si existe
+try {
+  const saved = localStorage.getItem('sporthubos-config')
+  if (saved) Object.assign(CONFIG, JSON.parse(saved))
+} catch(e) {}
+
+// INIT
+renderNav()
+renderContent()
+</script>
+</body>
+</html>

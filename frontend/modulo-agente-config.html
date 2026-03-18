@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Configuración del Agente IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05070e;--s1:#090d18;--s2:#0e1220;--s3:#121828;
+  --bd:#182032;--bd2:#1e2a44;--bd3:#283858;
+  --tx:#dde3f4;--tx2:#7a8db0;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --green:#25d366;--green2:#128c47;
+  --sh:0 8px 40px #00000099
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#9aaac8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --green:#128c47;--green2:#075e2e;
+  --sh:0 4px 20px #0000001a
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:0 2px 12px #00000044}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b7fff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;font-family:'Syne',sans-serif}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ac);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+
+/* TABS */
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;gap:2px}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--ac)}
+
+.main{display:grid;grid-template-columns:1fr 360px;gap:0;height:calc(100vh - 88px)}
+.left{overflow-y:auto;padding:22px 24px;border-right:1px solid var(--bd)}
+.right{overflow-y:auto;background:var(--s1)}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:7px}
+.card-body{padding:14px 16px}
+
+/* FORM */
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--ac)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ftextarea{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;outline:none;resize:vertical;transition:border-color .15s;line-height:1.6}
+.ftextarea:focus{border-color:var(--ac)}
+
+/* STATUS BADGE */
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-active{background:var(--ok);box-shadow:0 0 6px var(--ok)88}
+.status-inactive{background:var(--tx3)}
+
+/* DOC ITEMS */
+.doc-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--s2);margin-bottom:6px;transition:border-color .13s}
+.doc-item:hover{border-color:var(--bd2)}
+.doc-icon{font-size:18px;flex-shrink:0}
+.doc-info{flex:1;min-width:0}
+.doc-name{font-size:12px;font-weight:500;color:var(--tx)}
+.doc-meta{font-size:10px;color:var(--tx3);margin-top:1px}
+.doc-tag{font-size:10px;border-radius:5px;padding:1px 7px;font-weight:600}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--bd2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:10px}
+.upload-zone:hover{border-color:var(--ac);background:var(--ac)08}
+.upload-zone input{display:none}
+
+/* WA CHAT SIMULATOR */
+.wa-header{background:#1f2c34;padding:10px 14px;display:flex;align-items:center;gap:10px;border-radius:10px 10px 0 0}
+[data-theme="light"] .wa-header{background:#075e54}
+.wa-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.wa-name{font-size:13px;font-weight:600;color:#e9edef}
+.wa-status{font-size:11px;color:#8696a0}
+.wa-body{background:#0d1117;min-height:280px;padding:12px;display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto}
+[data-theme="light"] .wa-body{background:#efeae2}
+.wa-msg{max-width:80%;padding:8px 11px;border-radius:8px;font-size:12px;line-height:1.5;position:relative}
+.wa-msg-user{background:#005c4b;color:#e9edef;align-self:flex-end;border-radius:8px 2px 8px 8px}
+[data-theme="light"] .wa-msg-user{background:#d9fdd3;color:#111b21}
+.wa-msg-bot{background:#202c33;color:#e9edef;align-self:flex-start;border-radius:2px 8px 8px 8px}
+[data-theme="light"] .wa-msg-bot{background:#fff;color:#111b21;box-shadow:0 1px 2px #0002}
+.wa-time{font-size:10px;color:#8696a0;text-align:right;margin-top:2px}
+.wa-input-row{background:#1f2c34;padding:8px;display:flex;gap:8px;align-items:center;border-radius:0 0 10px 10px}
+[data-theme="light"] .wa-input-row{background:#f0f2f5}
+.wa-input{flex:1;background:#2a3942;border:none;border-radius:8px;padding:8px 12px;color:#e9edef;font-size:12px;outline:none;font-family:'DM Sans',sans-serif}
+[data-theme="light"] .wa-input{background:#fff;color:#111b21}
+.wa-send{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:background .14s}
+.wa-send:hover{background:var(--green2)}
+.wa-typing{display:flex;gap:3px;padding:8px 11px;background:#202c33;border-radius:2px 8px 8px 8px;width:fit-content}
+[data-theme="light"] .wa-typing{background:#fff}
+.wa-typing span{width:6px;height:6px;border-radius:50%;background:#8696a0;animation:blink 1.2s infinite}
+.wa-typing span:nth-child(2){animation-delay:.2s}
+.wa-typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+
+/* WEBHOOK CONFIG */
+.code-block{background:#0a0e18;border:1px solid var(--bd2);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#c8e3ff;line-height:1.7;overflow-x:auto;margin-bottom:10px;position:relative}
+[data-theme="light"] .code-block{background:#f0f4ff;color:#1a2a5e}
+.copy-btn{position:absolute;top:8px;right:8px;padding:3px 9px;border-radius:5px;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.copy-btn:hover{color:var(--tx);border-color:var(--ac)}
+
+/* STEPS */
+.step-row{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--ac)20;border:1px solid var(--ac)44;color:var(--ac);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--tx2);line-height:1.55}
+
+/* TOGGLE */
+.tog{width:36px;height:20px;border-radius:10px;background:var(--bd2);cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tog.on{background:var(--ok)}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog.on::after{transform:translateX(16px)}
+
+/* BTNS */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.btn-err{background:var(--err)15;color:var(--err);border:1px solid var(--err)33}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;z-index:300;box-shadow:var(--sh);animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:translateX(0)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">S</div>
+  <div>
+    <div class="ln">Sport Hub OS — Agente IA</div>
+    <div style="font-size:10px;color:var(--tx3)">Sport Hub Norte · WhatsApp Bot</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+      <div class="status-dot status-active"></div>
+      <span style="color:var(--ok)">Bot activo · +54 11 4500-1234</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="switchTab('webhook')">⚙ Conectar número</button>
+    <button class="btn btn-primary" onclick="saveConfig()">💾 Guardar</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-personalidad" onclick="switchTab('personalidad')">🤖 Personalidad</div>
+  <div class="tab" id="tab-raw"            onclick="switchTab('raw')">📝 Información raw</div>
+  <div class="tab" id="tab-docs"           onclick="switchTab('docs')">📎 Documentos</div>
+  <div class="tab" id="tab-webhook"        onclick="switchTab('webhook')">🔌 Conectar WhatsApp</div>
+  <div class="tab" id="tab-logs"           onclick="switchTab('logs')">💬 Conversaciones</div>
+  <div class="tab" id="tab-stats"          onclick="switchTab('stats')">📈 Estadísticas</div>
+  <div class="tab" id="tab-escalados"      onclick="switchTab('escalados')" style="position:relative">🚨 Intervención <span id="esc-badge" style="position:absolute;top:6px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--err)"></span></div>
+</div>
+
+<div class="main">
+  <div class="left" id="left-panel"></div>
+
+  <!-- SIMULADOR WHATSAPP — siempre visible -->
+  <div class="right">
+    <div style="padding:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">
+        Simulador — probá el bot antes de activarlo
+      </div>
+      <div style="border-radius:10px;overflow:hidden;border:1px solid var(--bd2)">
+        <div class="wa-header">
+          <div class="wa-avatar">🤖</div>
+          <div>
+            <div class="wa-name" id="sim-name">Mati · Sport Hub Norte</div>
+            <div class="wa-status" id="sim-status">en línea</div>
+          </div>
+        </div>
+        <div class="wa-body" id="wa-body"></div>
+        <div class="wa-input-row">
+          <input class="wa-input" id="wa-input" placeholder="Escribí un mensaje..."
+            onkeydown="if(event.key==='Enter')sendSimMsg()">
+          <button class="wa-send" onclick="sendSimMsg()">➤</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:5px">
+        ${['¿Tienen canchas disponibles?','Quiero reservar pádel mañana','¿Cuánto sale la cancha?','Cancelar mi turno','¿Hay clases de fútbol para niños?'].map(s=>
+          `<div class="btn btn-ghost btn-sm" onclick="quickMsg('${s}')">${s}</div>`
+        ).join('')}
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--tx3);line-height:1.5">
+        El simulador usa la configuración actual. Los cambios guardados aplican inmediatamente.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════════
+const AGENT_CONFIG = {
+  name: 'Mati',
+  tone: 'informal',
+  language: 'rioplatense',
+  responseStyle: 'concise',
+  showEmoji: true,
+  greeting: '¡Hola! Soy Mati, el asistente de Sport Hub Norte. ¿En qué te puedo ayudar?',
+  farewell: '¡Hasta la próxima! Cualquier cosa me avisás. 🎾',
+  rawInstructions: `- Si preguntan por el quincho, decirles que tiene capacidad para 30 personas y que hay que reservar con 48hs de anticipación.
+- Las clases de pádel para menores son los sábados de 9 a 11hs con el profe Rodrigo.
+- No confirmar reservas del salón de eventos — derivar a Martín al 11-4500-5678.
+- El estacionamiento es gratuito para socios, $500 para no socios.
+- Descuento del 10% los martes y miércoles para jubilados.
+- Los torneos mensuales se inscriben hasta el viernes anterior.`,
+  active: true,
+  phoneNumberId: '123456789012345',
+  webhookVerifyToken: 'shos_webhook_2025_norte',
+  waNumber: '+54 11 4500-1234',
+}
+
+const DOCS = [
+  { id:1, name:'Reglamento interno del club.pdf', type:'pdf', size:'84 KB', date:'10 Jun', active:true, tag:'Reglamento' },
+  { id:2, name:'Precios temporada 2025.txt',       type:'txt', size:'2 KB',  date:'1 Jun',  active:true, tag:'Precios' },
+  { id:3, name:'Descripción de profesores.txt',    type:'txt', size:'3 KB',  date:'15 May', active:true, tag:'Staff' },
+  { id:4, name:'FAQ jugadores frecuentes.txt',     type:'txt', size:'5 KB',  date:'20 Abr', active:false,tag:'FAQ' },
+]
+
+let activeTab = 'personalidad'
+
+// ══════════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderLeft()
+}
+
+function renderLeft() {
+  switch(activeTab) {
+    case 'personalidad': renderPersonalidad(); break
+    case 'raw':          renderRaw();          break
+    case 'docs':         renderDocs();         break
+    case 'webhook':      renderWebhook();      break
+    case 'logs':         renderLogs();         break
+    case 'stats':        renderStats();        break
+    case 'escalados':    renderEscalados();    break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  PERSONALIDAD
+// ══════════════════════════════════════════════════════════
+function renderPersonalidad() {
+  document.getElementById('left-panel').innerHTML = `
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">Personalidad del agente</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:18px">Configurá cómo habla y se presenta el bot de este complejo</div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Identidad</span></div>
+      <div class="card-body">
+        <div class="frow">
+          <div>
+            <label class="flbl">Nombre del asistente</label>
+            <input class="finp" id="ag-name" value="${AGENT_CONFIG.name}" oninput="AGENT_CONFIG.name=this.value;updateSimHeader()">
+          </div>
+          <div>
+            <label class="flbl">Estado del bot</label>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+              <div class="tog ${AGENT_CONFIG.active?'on':''}" id="active-tog" onclick="toggleActive()"></div>
+              <span id="active-lbl" style="font-size:12px;color:${AGENT_CONFIG.active?'var(--ok)':'var(--tx3)'}">
+                ${AGENT_CONFIG.active?'Activo — recibiendo mensajes':'Pausado'}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="frow">
+          <div>
+            <label class="flbl">Tono de conversación</label>
+            <select class="fsel" id="ag-tone">
+              <option value="informal"     ${AGENT_CONFIG.tone==='informal'?'selected':''}>Informal y cercano</option>
+              <option value="professional" ${AGENT_CONFIG.tone==='professional'?'selected':''}>Profesional</option>
+              <option value="friendly"     ${AGENT_CONFIG.tone==='friendly'?'selected':''}>Amigable y divertido</option>
+            </select>
+          </div>
+          <div>
+            <label class="flbl">Variante del español</label>
+            <select class="fsel" id="ag-lang">
+              <option value="rioplatense" ${AGENT_CONFIG.language==='rioplatense'?'selected':''}>Rioplatense (vos, che)</option>
+              <option value="neutral"     ${AGENT_CONFIG.language==='neutral'?'selected':''}>Español neutro</option>
+              <option value="chileno"     ${AGENT_CONFIG.language==='chileno'?'selected':''}>Chileno</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Mensajes clave</span></div>
+      <div class="card-body">
+        <label class="flbl">Saludo inicial (primera vez que escribe)</label>
+        <textarea class="ftextarea" id="ag-greeting" rows="2" oninput="AGENT_CONFIG.greeting=this.value">${AGENT_CONFIG.greeting}</textarea>
+        <label class="flbl">Despedida</label>
+        <textarea class="ftextarea" id="ag-farewell" rows="2" oninput="AGENT_CONFIG.farewell=this.value">${AGENT_CONFIG.farewell}</textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Capacidades habilitadas</span></div>
+      <div class="card-body">
+        ${[
+          {id:'cap-reservas',  label:'Crear reservas',             desc:'El bot puede confirmar turnos directamente', on:true},
+          {id:'cap-cancel',    label:'Cancelar reservas',          desc:'El bot puede cancelar turnos a pedido',     on:true},
+          {id:'cap-consultas', label:'Responder consultas de info',desc:'Horarios, precios, ubicación',              on:true},
+          {id:'cap-pagos',     label:'Enviar links de pago',       desc:'Mercado Pago, transferencia',               on:false},
+          {id:'cap-escalate',  label:'Derivar a humano',           desc:'Si no puede resolver, llama al admin',      on:true},
+        ].map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)55">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500;color:var(--tx)">${c.label}</div>
+            <div style="font-size:11px;color:var(--tx3)">${c.desc}</div>
+          </div>
+          <div class="tog ${c.on?'on':''}" onclick="this.classList.toggle('on')"></div>
+        </div>`).join('')}
+      </div>
+    </div>
+  `
+}
+
+function toggleActive() {
+  AGENT_CONFIG.active = !AGENT_CONFIG.active
+  const tog = document.getElementById('active-tog')
+  const lbl = document.getElementById('active-lbl')
+  tog?.classList.toggle('on', AGENT_CONFIG.active)
+  if (lbl) {
+    lbl.textContent = AGENT_CONFIG.active ? 'Activo — recibiendo mensajes' : 'Pausado'
+    lbl.style.color = AGENT_CONFIG.active ? 'var(--ok)' : 'var(--tx3)'
+  }
+  toast(AGENT_CONFIG.active ? '✓ Bot activado' : 'Bot pausado', AGENT_CONFIG.active ? 'success' : 'warn')
+}
+
+// ══════════════════════════════════════════════════════════
+//  RAW INSTRUCTIONS
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  PLANTILLAS POR DEPORTE / SECTOR
+// ══════════════════════════════════════════════════════════
+const TEMPLATES = {
+  padel: {
+    label:'🎾 Pádel', color:'#5b7fff',
+    sections:[
+      { id:'canchas', title:'Canchas', fields:[
+        {id:'cant',         label:'Cantidad de canchas',      type:'number',    ph:'Ej: 4'},
+        {id:'superficie',   label:'Superficie',               type:'select',    opts:['Césped sintético','Cristal','Moqueta','Mixta']},
+        {id:'ilum',         label:'Canchas con iluminación',  type:'text',      ph:'Ej: Todas / Canchas 1 y 2 / Ninguna'},
+        {id:'precio_dia',   label:'Precio horario normal ($)',type:'number',    ph:'Ej: 2800'},
+        {id:'precio_pico',  label:'Precio horario pico ($)',  type:'number',    ph:'Ej: 3400'},
+        {id:'horario_pico', label:'Horario pico',             type:'text',      ph:'Ej: Lun-Vie 18-23hs'},
+      ]},
+      { id:'reservas', title:'Reservas', fields:[
+        {id:'anticip',      label:'Anticipación mínima',      type:'select',    opts:['30 minutos','1 hora','2 horas','24 horas']},
+        {id:'cancelacion',  label:'Política de cancelación',  type:'select',    opts:['Sin penalidad hasta 2hs antes','Sin penalidad hasta 24hs antes','No se cancela','Crédito para próxima reserva']},
+        {id:'pago',         label:'Cuándo se paga',           type:'select',    opts:['Al llegar al complejo','Por adelantado online','Ambas opciones']},
+        {id:'minJugadores', label:'Mínimo de jugadores',      type:'number',    ph:'Ej: 2'},
+      ]},
+      { id:'extras', title:'Extras y reglas', fields:[
+        {id:'alquiler',     label:'Alquiler de paletas',      type:'select',    opts:['Sí disponible','No disponible']},
+        {id:'precioAlq',    label:'Precio alquiler ($)',       type:'number',    ph:'Ej: 2000'},
+        {id:'vestuarios',   label:'Vestuarios',               type:'select',    opts:['Sí con duchas','Sí sin duchas','No']},
+        {id:'reglas',       label:'Reglas especiales',        type:'textarea',  ph:'Ej: No se permite comer en las canchas. Calzado deportivo obligatorio.'},
+      ]},
+    ]
+  },
+  futbol: {
+    label:'⚽ Fútbol', color:'#22c55e',
+    sections:[
+      { id:'canchas', title:'Canchas', fields:[
+        {id:'formatos',     label:'Formatos disponibles',     type:'checkboxes',opts:['Fútbol 5','Fútbol 7','Fútbol 11']},
+        {id:'superficie',   label:'Superficie',               type:'select',    opts:['Césped sintético','Natural','Futsal (parquet)','Hormigón']},
+        {id:'precio_hora',  label:'Precio por hora ($)',      type:'number',    ph:'Ej: 5000'},
+        {id:'precio_finde', label:'Precio fin de semana ($)', type:'number',    ph:'Ej: 6500'},
+      ]},
+      { id:'reservas', title:'Reservas', fields:[
+        {id:'senia',        label:'¿Se pide seña?',           type:'select',    opts:['No','50% al reservar','100% al reservar']},
+        {id:'minJug',       label:'Jugadores mínimos',        type:'number',    ph:'Ej: 6'},
+        {id:'contacto',     label:'Contacto para eventos',    type:'text',      ph:'Ej: Martín 11-xxxx para partidos de 11'},
+      ]},
+      { id:'extras', title:'Servicios', fields:[
+        {id:'vestuarios',   label:'Vestuarios',               type:'select',    opts:['Sí con duchas','Sí sin duchas','No']},
+        {id:'pelota',       label:'Pelota incluida',          type:'select',    opts:['Sí incluida','No, traer la propia','Alquiler disponible']},
+        {id:'arbitro',      label:'Servicio de árbitro',      type:'select',    opts:['No','Sí disponible','Obligatorio torneos']},
+        {id:'reglas',       label:'Reglas especiales',        type:'textarea',  ph:'Ej: Botines de tapones solo en césped. No tacos.'},
+      ]},
+    ]
+  },
+  crossfit: {
+    label:'💪 Crossfit / Gym', color:'#ef4444',
+    sections:[
+      { id:'clases', title:'Clases', fields:[
+        {id:'horarios',     label:'Horarios de clases',       type:'textarea',  ph:'Ej: Lun-Vie 7hs, 9hs, 18hs, 20hs\nSáb 9hs y 11hs'},
+        {id:'capacidad',    label:'Capacidad por clase',      type:'number',    ph:'Ej: 15'},
+        {id:'duracion',     label:'Duración',                 type:'select',    opts:['45 minutos','60 minutos','75 minutos','90 minutos']},
+        {id:'precio_clase', label:'Precio clase suelta ($)',  type:'number',    ph:'Ej: 2500'},
+        {id:'planes',       label:'Planes de membresía',      type:'textarea',  ph:'Ej: 8 clases/mes $18.000 · 12 clases/mes $24.000 · Ilimitado $30.000'},
+      ]},
+      { id:'niveles', title:'Niveles', fields:[
+        {id:'niveles',      label:'Niveles disponibles',      type:'checkboxes',opts:['Beginner','Scaled','RX','Masters +50']},
+        {id:'requisito',    label:'Requisito para empezar',   type:'select',    opts:['Sin requisito','Evaluación inicial obligatoria','Clase introducción $800']},
+        {id:'profes',       label:'Profesores por nivel',     type:'textarea',  ph:'Ej: Beginner: Lucas. RX: Carla y Rodrigo.'},
+      ]},
+      { id:'extras', title:'Info extra', fields:[
+        {id:'vestuarios',   label:'Vestuarios y duchas',      type:'select',    opts:['Sí','No','Solo vestuarios sin ducha']},
+        {id:'extra',        label:'Info para el bot',         type:'textarea',  ph:'Ej: Los primeros 5 días son de prueba gratuita. Traer toalla y botella de agua.'},
+      ]},
+    ]
+  },
+  tenis: {
+    label:'🎾 Tenis', color:'#f59e0b',
+    sections:[
+      { id:'canchas', title:'Canchas', fields:[
+        {id:'cant',         label:'Cantidad de canchas',      type:'number',    ph:'Ej: 3'},
+        {id:'superficie',   label:'Superficie',               type:'select',    opts:['Polvo de ladrillo','Cemento','Sintético','Pasto natural']},
+        {id:'techadas',     label:'Canchas techadas',         type:'select',    opts:['Todas','Parcialmente','Ninguna']},
+        {id:'precio_hora',  label:'Precio por hora ($)',      type:'number',    ph:'Ej: 3500'},
+        {id:'precio_pico',  label:'Precio pico ($)',          type:'number',    ph:'Ej: 4200'},
+      ]},
+      { id:'clases', title:'Academia', fields:[
+        {id:'academia',     label:'¿Tienen academia?',        type:'select',    opts:['Sí','No']},
+        {id:'horarios',     label:'Horarios de clases',       type:'textarea',  ph:'Ej: Principiantes Sáb 9hs. Intermedios Mar/Jue 18hs.'},
+        {id:'precio_grupo', label:'Precio clase grupal ($)',  type:'number',    ph:'Ej: 3000'},
+        {id:'precio_priv',  label:'Precio clase privada ($)', type:'number',    ph:'Ej: 8000/hora'},
+        {id:'profes',       label:'Profesores disponibles',   type:'textarea',  ph:'Ej: Carlos Méndez cat 2ª. Ana Torres principiantes.'},
+      ]},
+    ]
+  },
+  yoga: {
+    label:'🧘 Yoga / Pilates', color:'#06b6d4',
+    sections:[
+      { id:'clases', title:'Clases', fields:[
+        {id:'disciplinas',  label:'Disciplinas',              type:'checkboxes',opts:['Yoga','Pilates reformer','Pilates mat','Meditación','Stretching']},
+        {id:'horarios',     label:'Horarios',                 type:'textarea',  ph:'Ej: Yoga: Lun/Mié/Vie 8hs y 19hs\nPilates: Mar/Jue 10hs y 18hs'},
+        {id:'capacidad',    label:'Cupo por clase',           type:'number',    ph:'Ej: 10'},
+        {id:'precio_clase', label:'Precio clase suelta ($)',  type:'number',    ph:'Ej: 2800'},
+        {id:'planes',       label:'Planes disponibles',       type:'textarea',  ph:'Ej: 4 clases/mes $9.000 · 8 clases/mes $16.000'},
+      ]},
+      { id:'info', title:'Info extra', fields:[
+        {id:'traer',        label:'Qué traer',                type:'textarea',  ph:'Ej: Ropa cómoda. Colchoneta incluida. Descalzos.'},
+        {id:'nivel',        label:'Nivel previo requerido',   type:'select',    opts:['No, todas las clases para todos','Sí hay clases por nivel','Consultar']},
+        {id:'extra',        label:'Info adicional',           type:'textarea',  ph:'Ej: Las clases de reformer son con máquinas, cupo 6 personas.'},
+      ]},
+    ]
+  },
+  general: {
+    label:'🏟 General / Complejo', color:'#8b5cf6',
+    sections:[
+      { id:'acceso', title:'Ubicación y acceso', fields:[
+        {id:'como_llegar',  label:'Cómo llegar',              type:'textarea',  ph:'Ej: Subte B estación Medrano. Colectivos 39, 111, 168.'},
+        {id:'referencias',  label:'Referencias físicas',       type:'text',      ph:'Ej: Frente al McDonald\'s de Av. Corrientes'},
+        {id:'parking',      label:'Estacionamiento',          type:'select',    opts:['Gratis','Pago $500/hora','Calle libre','No disponible']},
+      ]},
+      { id:'servicios', title:'Servicios', fields:[
+        {id:'wifi',         label:'WiFi',                     type:'select',    opts:['Sí gratis','Sí solo socios','No']},
+        {id:'buffet',       label:'Buffet / cantina',         type:'select',    opts:['Sí todo el día','Sí horario limitado','Solo máquinas','No']},
+        {id:'vestuarios',   label:'Vestuarios',               type:'select',    opts:['Sí con duchas','Sí sin duchas','No']},
+      ]},
+      { id:'pagos', title:'Pagos y políticas', fields:[
+        {id:'metodos',      label:'Métodos de pago',          type:'checkboxes',opts:['Efectivo','Transferencia','Mercado Pago','Tarjeta débito','Tarjeta crédito']},
+        {id:'cuando_paga',  label:'Cuándo se paga',          type:'select',    opts:['Al llegar','Al reservar online','Ambas opciones']},
+        {id:'cancelacion',  label:'Política de cancelación', type:'select',    opts:['Sin penalidad hasta 2hs antes','Sin penalidad hasta 24hs','Se cobra el 50%','Sin devolución']},
+        {id:'socios_benef', label:'Beneficios para socios',  type:'textarea',  ph:'Ej: 20% descuento en canchas, acceso libre al gym, prioridad de reserva.'},
+      ]},
+      { id:'contacto', title:'Contacto y derivaciones', fields:[
+        {id:'contacto_adm', label:'Contacto del admin',       type:'text',      ph:'Ej: Martín - 11-4500-1234'},
+        {id:'eventos_cont', label:'Contacto para SUM/eventos',type:'text',      ph:'Ej: Laura - 11-xxxx (solo WhatsApp)'},
+        {id:'urgencias',    label:'Número de urgencias',      type:'text',      ph:'Ej: Guardia 11-xxxx hasta las 23hs'},
+        {id:'derivar',      label:'Consultas para derivar',   type:'textarea',  ph:'Ej: Sponsorships: Carlos. Torneos externos: Rodrigo.'},
+      ]},
+    ]
+  },
+}
+
+let rawView        = 'editor'
+let activeTemplate = 'general'
+let templateData   = {}
+
+function renderRaw() {
+  const panel = document.getElementById('left-panel')
+  panel.innerHTML = `
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">Información para el bot</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Completá las plantillas por deporte o escribí instrucciones libres. El sistema genera el texto automáticamente.</div>
+    <div style="display:flex;gap:5px;margin-bottom:16px">
+      <button class="btn btn-sm ${rawView==='templates'?'btn-primary':'btn-ghost'}"
+        onclick="rawView='templates';renderRaw()">📋 Plantillas guiadas</button>
+      <button class="btn btn-sm ${rawView==='editor'?'btn-primary':'btn-ghost'}"
+        onclick="rawView='editor';renderRaw()">✏ Editor libre</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="previewRaw()">👁 Preview</button>
+    </div>
+    <div id="raw-inner"></div>`
+
+  if (rawView === 'templates') renderTemplateView()
+  else                         renderEditorView()
+}
+
+function renderTemplateView() {
+  const inner = document.getElementById('raw-inner')
+  if (!inner) return
+  const tplKeys = Object.keys(TEMPLATES)
+  inner.innerHTML = `
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">
+      ${tplKeys.map(k=>`
+        <div onclick="activeTemplate='${k}';renderRaw()"
+          style="padding:5px 12px;border-radius:8px;border:1px solid ${activeTemplate===k?TEMPLATES[k].color:'var(--bd2)'};background:${activeTemplate===k?TEMPLATES[k].color+'18':'var(--s2)'};color:${activeTemplate===k?TEMPLATES[k].color:'var(--tx2)'};font-size:12px;font-weight:500;cursor:pointer;transition:all .13s">
+          ${TEMPLATES[k].label}
+        </div>`).join('')}
+    </div>
+    <div id="tpl-form"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" onclick="generateFromTemplate()" style="flex:1;justify-content:center">✨ Generar instrucciones</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearTemplate()">Limpiar</button>
+    </div>`
+  renderTemplateForm()
+}
+
+function renderTemplateForm() {
+  const tpl  = TEMPLATES[activeTemplate]
+  const form = document.getElementById('tpl-form')
+  if (!tpl || !form) return
+  form.innerHTML = tpl.sections.map(sec=>`
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-head"><span class="card-title">${sec.title}</span></div>
+      <div class="card-body" style="padding:12px">
+        ${sec.fields.map(f=>{
+          const key = activeTemplate+'_'+f.id
+          const val = templateData[key]||''
+          if (f.type==='select') return `
+            <label class="flbl">${f.label}</label>
+            <select class="fsel" onchange="templateData['${key}']=this.value" style="margin-bottom:8px">
+              <option value="">— elegí —</option>
+              ${f.opts.map(o=>`<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('')}
+            </select>`
+          if (f.type==='checkboxes') return `
+            <label class="flbl">${f.label}</label>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">
+              ${f.opts.map(o=>{
+                const cbKey=key+'_'+o.replace(/\s+/g,'_')
+                const chk=templateData[cbKey]
+                return `<label style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:7px;border:1px solid ${chk?'var(--ac)':'var(--bd2)'};background:${chk?'var(--ac)12':'var(--s2)'};cursor:pointer;font-size:11px;transition:all .13s">
+                  <input type="checkbox" ${chk?'checked':''} onchange="templateData['${cbKey}']=this.checked;this.closest('label').style.borderColor=this.checked?'var(--ac)':'var(--bd2)';this.closest('label').style.background=this.checked?'var(--ac)12':'var(--s2)'" style="display:none">${o}
+                </label>`
+              }).join('')}
+            </div>`
+          if (f.type==='textarea') return `
+            <label class="flbl">${f.label}</label>
+            <textarea class="ftextarea" rows="3" placeholder="${f.ph||''}" oninput="templateData['${key}']=this.value" style="margin-bottom:8px">${val}</textarea>`
+          return `
+            <label class="flbl">${f.label}</label>
+            <input class="finp" type="${f.type==='number'?'number':'text'}" placeholder="${f.ph||''}" value="${val}" oninput="templateData['${key}']=this.value">`
+        }).join('')}
+      </div>
+    </div>`).join('')
+}
+
+function generateFromTemplate() {
+  const tpl = TEMPLATES[activeTemplate]
+  if (!tpl) return
+  const lines = [`=== ${tpl.label.replace(/[^\w\s]/g,'').trim()} ===`]
+  tpl.sections.forEach(sec=>{
+    const sl=[]
+    sec.fields.forEach(f=>{
+      const key=activeTemplate+'_'+f.id
+      if (f.type==='checkboxes'){
+        const sel=f.opts.filter(o=>templateData[key+'_'+o.replace(/\s+/g,'_')])
+        if (sel.length) sl.push(`- ${f.label}: ${sel.join(', ')}.`)
+      } else {
+        const v=templateData[key]?.trim()
+        if (v) sl.push(`- ${f.label}: ${v}.`)
+      }
+    })
+    if (sl.length){ lines.push(`\n[${sec.title}]`); lines.push(...sl) }
+  })
+  if (lines.length<=1){ toast('Completá al menos un campo','warn'); return }
+  const sep=AGENT_CONFIG.rawInstructions.trim()?'\n\n':''
+  AGENT_CONFIG.rawInstructions+=sep+lines.join('\n')
+  rawView='editor'; renderRaw()
+  toast('✨ Instrucciones generadas')
+}
+
+function clearTemplate(){
+  const tpl=TEMPLATES[activeTemplate]
+  if (!tpl) return
+  tpl.sections.forEach(sec=>sec.fields.forEach(f=>{
+    const key=activeTemplate+'_'+f.id
+    delete templateData[key]
+    if (f.type==='checkboxes') f.opts.forEach(o=>delete templateData[key+'_'+o.replace(/\s+/g,'_')])
+  }))
+  renderRaw(); toast('Formulario limpiado')
+}
+
+function renderEditorView(){
+  const inner=document.getElementById('raw-inner')
+  if (!inner) return
+  inner.innerHTML=`
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">📝 Instrucciones personalizadas</span>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-ghost btn-sm" onclick="rawView='templates';renderRaw()">← Plantillas</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearRaw()">Limpiar</button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:12px">
+        <textarea class="ftextarea" id="raw-text" rows="16"
+          placeholder="Instrucciones en lenguaje natural, una por línea. Por ejemplo:\n- El quincho tiene capacidad para 30 personas.\n- Las clases de niños son los sábados con el profe Rodrigo.\n- Descuento del 10% los martes para jubilados."
+          oninput="AGENT_CONFIG.rawInstructions=this.value;updateCharCount()">${AGENT_CONFIG.rawInstructions}</textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+          <span style="font-size:10px;color:var(--tx3)" id="char-count">${AGENT_CONFIG.rawInstructions.length} caracteres · aprox. ${Math.ceil(AGENT_CONFIG.rawInstructions.length/4)} tokens</span>
+          <span style="font-size:10px;color:var(--ok)">✓ Inyectado en cada conversación</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">⚡ Instrucciones rápidas</span></div>
+      <div class="card-body" style="padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px">
+        ${[
+          ['Anticip. mínima','No se aceptan reservas con menos de 2 horas de anticipación.'],
+          ['Cierre mensual','El club cierra el último lunes de cada mes para mantenimiento.'],
+          ['Desc. jubilados','Descuento del 15% para jubilados los martes y miércoles.'],
+          ['Parking','El estacionamiento es gratis para socios y $500 para no socios.'],
+          ['Primer clase gratis','Los nuevos alumnos tienen la primera clase gratis.'],
+          ['Quincho — derivar','Para alquilar el quincho contactar a Martín al 11-xxxx.'],
+          ['Torneos mensuales','Los torneos son el primer sábado del mes. Inscripción hasta el viernes anterior.'],
+          ['Cumpleaños','Ofrecemos paquetes de cumpleaños. Para cotizar, escribir a este número.'],
+        ].map(([l,t])=>`<button class="btn btn-ghost btn-sm" onclick="appendRaw('${t.replace(/'/g,"\\'")}')">+ ${l}</button>`).join('')}
+      </div>
+    </div>`
+}
+
+function updateCharCount(){
+  const ta=document.getElementById('raw-text'), el=document.getElementById('char-count')
+  if (!ta||!el) return
+  el.textContent=`${ta.value.length} caracteres · aprox. ${Math.ceil(ta.value.length/4)} tokens`
+}
+
+function clearRaw(){
+  if (!AGENT_CONFIG.rawInstructions.trim()) return
+  if (!confirm('¿Borrar todas las instrucciones?')) return
+  AGENT_CONFIG.rawInstructions=''; renderRaw(); toast('Instrucciones borradas','warn')
+}
+
+function previewRaw(){
+  alert('SYSTEM PROMPT (fragmento):\n\n--- INSTRUCCIONES DEL CLUB ---\n'+(AGENT_CONFIG.rawInstructions||'(vacío)')+'\n\n--- FIN ---')
+}
+
+function appendRaw(text){
+  AGENT_CONFIG.rawInstructions+=(AGENT_CONFIG.rawInstructions.trim()?'\n':'')+'- '+text
+  const ta=document.getElementById('raw-text')
+  if (ta){ ta.value=AGENT_CONFIG.rawInstructions; updateCharCount() }
+  toast('✓ Instrucción agregada')
+}
+
+// ══════════════════════════════════════════════════════════
+//  DOCUMENTOS
+// ══════════════════════════════════════════════════════════
+const DOC_CATEGORIES=['Reglamento','Precios','Staff','FAQ','Servicios','Torneos','Clases','Otro']
+
+function renderDocs(){
+  const activeCount=DOCS.filter(d=>d.active).length
+  document.getElementById('left-panel').innerHTML=`
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">Documentos del agente</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Subí archivos con información del club. El sistema extrae el texto y se lo entrega al bot automáticamente.</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {label:'Archivos subidos',val:DOCS.length,color:'var(--ac)'},
+        {label:'Activos en bot',  val:activeCount, color:'var(--ok)'},
+        {label:'Formatos',        val:'5',          color:'var(--tx2)'},
+      ].map(k=>`<div style="background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:10px;text-align:center">
+        <div style="font-size:16px;font-weight:700;font-family:'Syne',sans-serif;color:${k.color}">${k.val}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${k.label}</div>
+      </div>`).join('')}
+    </div>
+    <div id="drop-zone" class="upload-zone"
+      ondragover="event.preventDefault();this.style.borderColor='var(--ac)';this.style.background='var(--ac)10'"
+      ondragleave="this.style.borderColor='';this.style.background=''"
+      ondrop="handleDrop(event)">
+      <label style="cursor:pointer;display:block">
+        <input type="file" accept=".pdf,.txt,.docx,.csv,.md" multiple onchange="handleUpload(this)" style="display:none">
+        <div style="font-size:28px;margin-bottom:6px">📂</div>
+        <div style="font-size:13px;font-weight:600;color:var(--tx)">Arrastrá archivos acá o hacé clic para subir</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:4px">PDF · TXT · DOCX · CSV · Markdown · hasta 10 MB</div>
+      </label>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Documentos cargados</div>
+    <div id="docs-list">
+      ${DOCS.length ? DOCS.map(d=>buildDocItem(d)).join('') : `<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px;border:1px dashed var(--bd2);border-radius:10px">Sin documentos. Subí un archivo para empezar.</div>`}
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:12px;color:var(--tx2);line-height:1.6">
+      <div style="font-weight:600;color:var(--tx);margin-bottom:5px">💡 Qué podés subir</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        ${[['📄 PDF','Reglamento, precios, contratos'],['📝 TXT','FAQ, instrucciones libres'],['📃 DOCX','Documentos Word'],['📊 CSV','Listas de precios, horarios'],['📋 Markdown','Documentación técnica']].map(([t,d])=>`<div style="font-size:11px"><strong style="color:var(--tx)">${t}</strong> — ${d}</div>`).join('')}
+      </div>
+    </div>`
+}
+
+function buildDocItem(d){
+  const icons={pdf:'📄',txt:'📝',docx:'📃',csv:'📊',md:'📋'}
+  return `<div class="doc-item" id="doc-${d.id}" style="align-items:flex-start">
+    <div class="doc-icon" style="margin-top:2px">${icons[d.type]||'📎'}</div>
+    <div class="doc-info">
+      <div class="doc-name">${d.name}</div>
+      <div class="doc-meta" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+        <span>${d.size}</span><span style="color:var(--bd3)">·</span><span>${d.date}</span><span style="color:var(--bd3)">·</span>
+        <select onchange="updateDocCat(${d.id},this.value)" style="background:var(--ac)15;color:var(--ac);border:none;font-size:10px;font-weight:600;border-radius:4px;padding:1px 5px;outline:none;cursor:pointer;font-family:'DM Sans',sans-serif">
+          ${DOC_CATEGORIES.map(c=>`<option value="${c}" ${d.tag===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      ${d.preview?`<div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.4;font-style:italic">"${d.preview.slice(0,100)}..."</div>`:''}
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+      <div class="tog ${d.active?'on':''}" onclick="toggleDoc(${d.id})"></div>
+      <button class="btn btn-err btn-sm" onclick="removeDoc(${d.id})" style="padding:2px 7px;font-size:10px">✕</button>
+    </div>
+  </div>`
+}
+
+function handleDrop(e){
+  e.preventDefault()
+  const z=document.getElementById('drop-zone')
+  if (z){z.style.borderColor='';z.style.background=''}
+  processFiles(Array.from(e.dataTransfer?.files||[]))
+}
+
+function handleUpload(input){ processFiles(Array.from(input.files||[])) }
+
+function processFiles(files){
+  if (!files.length) return
+  let processed=0
+  files.forEach(f=>{
+    const ext=f.name.split('.').pop().toLowerCase()
+    const base={ id:DOCS.length+1, name:f.name, type:ext, size:(f.size/1024).toFixed(0)+' KB', date:'Ahora', active:true, tag:'Otro' }
+    if (['txt','md','csv'].includes(ext)){
+      const reader=new FileReader()
+      reader.onload=ev=>{
+        const text=ev.target?.result||''
+        DOCS.push({...base, preview:text.slice(0,120).replace(/\s+/g,' ').trim(), content:text})
+        processed++; if(processed===files.length) renderDocs()
+      }
+      reader.readAsText(f)
+    } else {
+      DOCS.push({...base, preview:'(contenido extraído del archivo)'})
+      processed++; if(processed===files.length) renderDocs()
+    }
+  })
+  toast(`✓ ${files.length} archivo${files.length>1?'s':''} cargado${files.length>1?'s':''}`)
+}
+
+function updateDocCat(id,cat){ const d=DOCS.find(x=>x.id===id); if(d) d.tag=cat }
+
+function toggleDoc(id){
+  const d=DOCS.find(x=>x.id===id); if(!d) return
+  d.active=!d.active
+  const tog=document.querySelector(`#doc-${d.id} .tog`)
+  if (tog) tog.classList.toggle('on',d.active)
+  toast(d.active?`✓ "${d.name}" activo`:`"${d.name}" desactivado`,d.active?'success':'warn')
+}
+
+function removeDoc(id){
+  const idx=DOCS.findIndex(x=>x.id===id); if(idx>=0) DOCS.splice(idx,1)
+  renderDocs(); toast('Documento eliminado','warn')
+}
+
+
+// ══════════════════════════════════════════════════════════
+//  WEBHOOK / CONECTAR WHATSAPP
+// ══════════════════════════════════════════════════════════
+function renderWebhook() {
+  document.getElementById('left-panel').innerHTML = `
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">Conectar número de WhatsApp</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:18px">Seguí estos pasos para vincular el número del club con el bot.</div>
+
+    <!-- ESTADO ACTUAL -->
+    <div style="background:var(--ok)0c;border:1px solid var(--ok)33;border-radius:10px;padding:12px 14px;margin-bottom:18px;display:flex;align-items:center;gap:10px">
+      <div class="status-dot status-active"></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--ok)">Número conectado</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:1px">${AGENT_CONFIG.waNumber} · Phone Number ID: ${AGENT_CONFIG.phoneNumberId}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="toast('Desconectando...','warn')">Desconectar</button>
+    </div>
+
+    <!-- PASO 1 -->
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Crear cuenta de Meta for Developers</div>
+        <div class="step-desc">Necesitás una cuenta en <strong>developers.facebook.com</strong> y un Business Manager verificado. Si el club ya tiene página de Facebook, usá ese mismo Business Manager.</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:7px" onclick="toast('Abriendo Meta for Developers...')">Ir a Meta for Developers →</button>
+      </div>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Crear app y habilitar WhatsApp Business</div>
+        <div class="step-desc">Dentro de Meta for Developers, creá una app de tipo <strong>"Business"</strong>. Luego en "Agregar productos" elegí <strong>"WhatsApp"</strong>. Esto te da acceso al panel de WhatsApp Manager.</div>
+      </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Agregar el número del club</div>
+        <div class="step-desc">En WhatsApp Manager → "Números de teléfono" → "Agregar número". <strong>Importante:</strong> el número no puede tener la app de WhatsApp instalada. Si ya la tiene, hay que desinstalarla y esperar 24hs antes de registrarlo acá.</div>
+        <div style="background:var(--warn)10;border:1px solid var(--warn)33;border-radius:7px;padding:8px 12px;margin-top:8px;font-size:11px;color:var(--warn)">
+          ⚠ Una vez registrado en la API, ese número no puede usarse en la app de WhatsApp normal.
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Pegar las credenciales acá</div>
+        <div class="step-desc">Meta te da un <strong>Phone Number ID</strong> y un <strong>Access Token permanente</strong>. Pegálos acá.</div>
+        <input class="finp" id="wh-phone-id" value="${AGENT_CONFIG.phoneNumberId}" placeholder="Phone Number ID" style="margin-top:8px">
+        <input class="finp" id="wh-token" value="EAAx...token permanente" placeholder="Access Token permanente">
+      </div>
+    </div>
+
+    <!-- PASO 5 -->
+    <div class="step-row">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Configurar el webhook en Meta</div>
+        <div class="step-desc">En Meta, en la sección "Webhook", pegá esta URL y este token de verificación:</div>
+        <div style="margin-top:8px">
+          <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em">URL del webhook</div>
+          <div class="code-block" style="padding:8px 12px">
+            https://api.sporthubos.app/webhook/whatsapp/${AGENT_CONFIG.phoneNumberId}
+            <button class="copy-btn" onclick="copyText('https://api.sporthubos.app/webhook/whatsapp/${AGENT_CONFIG.phoneNumberId}')">Copiar</button>
+          </div>
+          <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em">Token de verificación</div>
+          <div class="code-block" style="padding:8px 12px">
+            ${AGENT_CONFIG.webhookVerifyToken}
+            <button class="copy-btn" onclick="copyText('${AGENT_CONFIG.webhookVerifyToken}')">Copiar</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:6px">Subscriptions a habilitar en el webhook: <code style="font-family:'DM Mono',monospace;color:var(--ac)">messages</code></div>
+      </div>
+    </div>
+
+    <!-- PASO 6 -->
+    <div class="step-row">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">Verificar la conexión</div>
+        <div class="step-desc">Una vez configurado, Meta envía un mensaje de verificación al webhook. Si todo está bien, el estado arriba pasa a "Conectado".</div>
+        <button class="btn btn-green" style="margin-top:8px" onclick="toast('✓ Webhook verificado correctamente')">
+          ✓ Verificar conexión
+        </button>
+      </div>
+    </div>
+
+    <!-- COSTO -->
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--tx2);line-height:1.6">
+      💰 <strong style="color:var(--tx)">Costo de Meta:</strong> Las primeras 1.000 conversaciones por mes son gratis. De ahí, aproximadamente USD 0.005 por conversación iniciada por el usuario. Para un club con 200 conversaciones/mes el costo es prácticamente cero.
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOGS / CONVERSACIONES
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  DATOS COMPARTIDOS DE CONVERSACIONES
+// ══════════════════════════════════════════════════════════
+const CONVS = [
+  { id:1,  player:'Carlos M.',   phone:'11-4521-3344', time:'hace 12 min', msgs:8,  outcome:'reserva',    sport:'Pádel',    preview:'Reservó cancha 2 mañana 20hs',       escalado:false, score:95,
+    thread:[
+      {r:'user', text:'Hola, ¿tienen cancha de pádel disponible mañana a las 20?'},
+      {r:'bot',  text:'¡Hola Carlos! Sí, la cancha 2 y la 4 están libres mañana a las 20hs. ¿Cuántos van a jugar?'},
+      {r:'user', text:'Somos 4. ¿Cuánto sale?'},
+      {r:'bot',  text:'Horario pico (18-23hs): $3.400/hora. ¿La reservo?'},
+      {r:'user', text:'Sí dale, a nombre de Carlos Martínez'},
+      {r:'bot',  text:'✅ ¡Listo! Reservé la cancha 2 para mañana viernes a las 20hs, a nombre de Carlos Martínez. El pago es al llegar al complejo. Te mando un recordatorio mañana a las 8hs. 🎾'},
+      {r:'user', text:'Perfecto gracias'},
+      {r:'bot',  text:'¡Un placer! Cualquier cosa me avisás. 🙌'},
+    ]
+  },
+  { id:2,  player:'Laura V.',    phone:'11-5533-2211', time:'hace 45 min', msgs:4,  outcome:'consulta',   sport:'General',  preview:'Consultó horarios y precios',        escalado:false, score:88,
+    thread:[
+      {r:'user', text:'Buenas tardes, ¿a qué hora abren?'},
+      {r:'bot',  text:'¡Buenas! Abrimos de lunes a sábado de 8 a 23hs y los domingos de 9 a 21hs. 🏟'},
+      {r:'user', text:'¿Y tienen canchas de tenis?'},
+      {r:'bot',  text:'Sí, tenemos 2 canchas de tenis de polvo de ladrillo. El precio es $3.500/hora en horario normal y $4.200 en horario pico. ¿Querés ver disponibilidad?'},
+    ]
+  },
+  { id:3,  player:'Matías R.',   phone:'11-9988-4455', time:'hace 1 hora', msgs:10, outcome:'reserva',    sport:'Fútbol 5', preview:'Reservó cancha fútbol el sábado',    escalado:false, score:92,
+    thread:[
+      {r:'user', text:'Necesito cancha de fútbol 5 para el sábado'},
+      {r:'bot',  text:'¡Buenas! ¿A qué hora del sábado?'},
+      {r:'user', text:'Como a las 11 o 12'},
+      {r:'bot',  text:'Tengo disponible: 11hs ($5.000/hora) o 12hs ($5.000/hora). ¿Cuál preferís?'},
+      {r:'user', text:'Las 11, para cuántos es la cancha?'},
+      {r:'bot',  text:'La cancha de fútbol 5 es para hasta 10 jugadores. ¿La reservo a las 11hs?'},
+      {r:'user', text:'Sí, somos 8. A nombre de Matías Rodríguez'},
+      {r:'bot',  text:'✅ Reservado. Cancha Fútbol 5 — Sábado 11hs — a nombre de Matías Rodríguez. Pago al llegar. 📅'},
+    ]
+  },
+  { id:4,  player:'Ana P.',      phone:'11-7744-8899', time:'hace 2 horas',msgs:5,  outcome:'cancelación',sport:'Pádel',    preview:'Canceló reserva de hoy 18hs',        escalado:false, score:70,
+    thread:[
+      {r:'user', text:'Hola, tengo una reserva hoy a las 18hs que necesito cancelar'},
+      {r:'bot',  text:'Hola Ana. Encontré tu reserva: Cancha 1 — Hoy 18hs. La política de cancelación permite hacerlo hasta 2hs antes sin penalidad. ¿La cancelo?'},
+      {r:'user', text:'Sí por favor, me surgió algo'},
+      {r:'bot',  text:'✅ Reserva cancelada. El horario quedó liberado. ¿Querés reservar para otro día?'},
+      {r:'user', text:'No, gracias'},
+    ]
+  },
+  { id:5,  player:'Diego H.',    phone:'11-3322-6677', time:'hace 3 horas',msgs:14, outcome:'escalado',   sport:'Quincho',  preview:'Pide cotización evento — derivado',  escalado:true,  score:40,
+    escMotivo:'Solicita cotización para evento corporativo de 80 personas. El bot no tiene información sobre precios de eventos ni disponibilidad del SUM para grupos grandes.',
+    escUrgencia:'media',
+    thread:[
+      {r:'user', text:'Hola necesito cotizar un evento corporativo para 80 personas'},
+      {r:'bot',  text:'¡Hola! Para eventos grandes tenemos el SUM y el quincho disponibles. ¿Qué tipo de evento sería?'},
+      {r:'user', text:'Un almuerzo de empresa, necesitamos catering, proyector y estacionamiento'},
+      {r:'bot',  text:'Entiendo. Para cotizaciones de eventos con catering y equipamiento especial, necesito derivarte con el equipo de eventos. ¿Puedo agendar que te llamen?'},
+      {r:'user', text:'Sí, ¿cuándo me pueden llamar?'},
+      {r:'bot',  text:'Voy a pasarle tu consulta al equipo ahora. Te van a contactar hoy antes de las 18hs al número desde el que me estás escribiendo. 📞'},
+      {r:'user', text:'Perfecto, ¿hay algún precio orientativo?'},
+      {r:'bot',  text:'No tengo los precios de eventos en mi información actual. El equipo te va a dar una cotización completa con todas las opciones disponibles.'},
+    ]
+  },
+  { id:6,  player:'Rodrigo F.',  phone:'11-5544-7788', time:'hace 4 horas',msgs:7,  outcome:'escalado',   sport:'Reclamo', preview:'Reclama cobro doble — requiere admin', escalado:true,  score:30,
+    escMotivo:'Jugador reclama que se le cobró dos veces la misma reserva. Dice que tiene el comprobante de transferencia. Requiere revisión de caja y posible devolución.',
+    escUrgencia:'alta',
+    thread:[
+      {r:'user', text:'Hola, me cobraron dos veces la cancha del miércoles'},
+      {r:'bot',  text:'Hola Rodrigo. Lamentamos el inconveniente. ¿Podés decirme el día y horario de la reserva para verificar?'},
+      {r:'user', text:'Miércoles 19hs, cancha 3. Tengo los dos comprobantes de transferencia'},
+      {r:'bot',  text:'Entiendo la situación. Este tipo de reclamo requiere revisión directa por el área de caja. Voy a escalar esto con urgencia al administrador.'},
+      {r:'user', text:'Necesito que me devuelvan el dinero'},
+      {r:'bot',  text:'Absolutamente. El administrador va a revisar los movimientos de caja y se va a comunicar con vos antes de las 2 horas. Quedás registrado como urgente. ⚠️'},
+    ]
+  },
+  { id:7,  player:'Sofía L.',    phone:'11-8899-1122', time:'ayer',        msgs:5,  outcome:'reserva',    sport:'Tenis',    preview:'Reservó tenis domingo 10hs',         escalado:false, score:98,
+    thread:[
+      {r:'user', text:'Buen día, quiero reservar tenis para el domingo'},
+      {r:'bot',  text:'¡Buen día Sofía! Tengo disponible el domingo: 9hs, 10hs, 11hs y 15hs. ¿Cuál preferís?'},
+      {r:'user', text:'Las 10, para dos personas'},
+      {r:'bot',  text:'Perfecto. Cancha de tenis — Domingo 10hs — $3.500. ¿La confirmo a tu nombre?'},
+      {r:'user', text:'Sí, gracias'},
+    ]
+  },
+  { id:8,  player:'Marcela G.',  phone:'11-6677-3344', time:'ayer',        msgs:9,  outcome:'escalado',   sport:'Clase',   preview:'Consulta sobre lesión — derivó a prof', escalado:true, score:55,
+    escMotivo:'Jugadora con lesión en rodilla pregunta si puede hacer clases. El bot detectó que necesita evaluación profesional y derivó al profesor de clases.',
+    escUrgencia:'baja',
+    thread:[
+      {r:'user', text:'Hola, tengo una lesión en la rodilla y quiero saber si puedo empezar clases de pádel'},
+      {r:'bot',  text:'Hola Marcela. Para casos con lesiones previas, necesitamos que el profe haga una evaluación antes de empezar. ¿Tenés autorización médica para actividad física?'},
+      {r:'user', text:'Tengo el alta médica pero me dijeron que con cuidado'},
+      {r:'bot',  text:'Perfecto. Con el alta médica podés hacer la evaluación con Rodrigo (nuestro profe de clases) para ver qué nivel de actividad es el adecuado. ¿Querés que te agende una sesión de evaluación?'},
+    ]
+  },
+]
+
+const OUT_COLORS  = { reserva:'var(--ok)', consulta:'var(--ac)', cancelación:'var(--warn)', escalado:'var(--err)' }
+const OUT_LABELS  = { reserva:'Reserva', consulta:'Consulta', cancelación:'Cancelación', escalado:'Escalado' }
+const URG_COLORS  = { alta:'var(--err)', media:'var(--warn)', baja:'var(--ac)' }
+const URG_LABELS  = { alta:'Urgente', media:'Media', baja:'Baja' }
+
+let logsFilter = 'all'
+let activeConvId = null
+
+// ══════════════════════════════════════════════════════════
+//  CONVERSACIONES
+// ══════════════════════════════════════════════════════════
+function renderLogs() {
+  const today      = CONVS.filter(c=>!c.time.includes('ayer'))
+  const reservas   = CONVS.filter(c=>c.outcome==='reserva').length
+  const escalados  = CONVS.filter(c=>c.escalado).length
+  const conversion = Math.round(reservas/CONVS.length*100)
+
+  let shown = logsFilter==='all' ? CONVS
+    : logsFilter==='escalados' ? CONVS.filter(c=>c.escalado)
+    : CONVS.filter(c=>c.outcome===logsFilter)
+
+  document.getElementById('left-panel').innerHTML = `
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:14px">💬 Conversaciones</div>
+
+    <!-- KPIs -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {label:'Hoy',              val:today.length,  color:'var(--ac)'},
+        {label:'Reservas',         val:reservas,      color:'var(--ok)'},
+        {label:'Conversión',       val:conversion+'%',color:'var(--warn)'},
+        {label:'Escalados',        val:escalados,     color:'var(--err)'},
+      ].map(k=>`<div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:${k.color}">${k.val}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${k.label}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- Filtros -->
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+      ${['all','reserva','consulta','cancelación','escalados'].map(f=>`
+        <div onclick="logsFilter='${f}';renderLogs()"
+          style="padding:4px 11px;border-radius:7px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid ${logsFilter===f?'var(--ac)':'var(--bd2)'};background:${logsFilter===f?'var(--ac)15':'var(--s2)'};color:${logsFilter===f?'var(--ac)':'var(--tx2)'}">
+          ${{all:'Todas',reserva:'Reservas',consulta:'Consultas',cancelación:'Cancelaciones',escalados:'Escalados'}[f]}
+        </div>`).join('')}
+    </div>
+
+    <!-- Lista + detalle en 2 columnas -->
+    <div style="display:grid;grid-template-columns:220px 1fr;gap:10px;min-height:400px">
+
+      <!-- Lista -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+        ${shown.map(c=>`
+          <div id="conv-row-${c.id}" onclick="openConv(${c.id})"
+            style="display:flex;gap:8px;padding:9px 10px;border-bottom:1px solid var(--bd)44;cursor:pointer;transition:background .12s;${activeConvId===c.id?'background:var(--ac)10;border-left:2px solid var(--ac)':''}">
+            <div style="width:30px;height:30px;border-radius:50%;background:${OUT_COLORS[c.outcome]+'20'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${OUT_COLORS[c.outcome]};flex-shrink:0">
+              ${c.player[0]}${c.player.split(' ')[1]?.[0]||''}
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:11px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.player}</div>
+              <div style="font-size:10px;color:var(--tx3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.preview}</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+                <span style="font-size:9px;font-weight:600;border-radius:4px;padding:1px 5px;background:${OUT_COLORS[c.outcome]+'18'};color:${OUT_COLORS[c.outcome]}">${OUT_LABELS[c.outcome]}</span>
+                ${c.escalado?'<span style="font-size:9px;font-weight:700;color:var(--err)">⚠</span>':''}
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Detalle -->
+      <div id="conv-detail" style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;display:flex;flex-direction:column">
+        ${activeConvId ? buildConvDetail(activeConvId) : `
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:12px;flex-direction:column;gap:8px;padding:20px">
+            <div style="font-size:28px">💬</div>
+            Seleccioná una conversación para ver el detalle
+          </div>`}
+      </div>
+    </div>
+  `
+}
+
+function buildConvDetail(id) {
+  const c = CONVS.find(x=>x.id===id)
+  if (!c) return ''
+  const oc  = OUT_COLORS[c.outcome] || 'var(--ac)'
+  const ol  = OUT_LABELS[c.outcome]  || c.outcome
+  const sc  = scoreColor(c.score)
+  const ini = c.player[0] + (c.player.split(' ')[1]?.[0]||'')
+  const stars = '⭐'.repeat(Math.ceil(c.score/20))
+
+  let html = ''
+  html += '<div style="padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px">'
+  html += '<div style="width:36px;height:36px;border-radius:50%;background:'+oc+'33;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:'+oc+';flex-shrink:0">'+ini+'</div>'
+  html += '<div style="flex:1">'
+  html += '<div style="font-size:13px;font-weight:600;color:var(--tx)">'+c.player+'</div>'
+  html += '<div style="font-size:11px;color:var(--tx3)">'+c.phone+' · '+c.time+' · '+c.msgs+' mensajes · '+c.sport+'</div>'
+  html += '</div>'
+  html += '<div style="display:flex;gap:5px;align-items:center">'
+  html += '<span style="font-size:10px;font-weight:600;border-radius:6px;padding:3px 9px;background:'+oc+'22;color:'+oc+'">'+ol+'</span>'
+  html += '<span style="font-size:10px;font-weight:600;border-radius:6px;padding:3px 9px;background:'+sc+'22;color:'+sc+'">Score '+c.score+'</span>'
+  html += '</div>'
+  html += '</div>'
+
+  // Hilo de mensajes
+  html += '<div style="flex:1;overflow-y:auto;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:7px;min-height:200px;max-height:320px">'
+  html += c.thread.map(m=>bubbleHtml(m)).join('')
+  html += '</div>'
+
+  // Footer
+  html += '<div style="padding:10px 12px;border-top:1px solid var(--bd);display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
+  html += '<button class="btn btn-ghost btn-sm" onclick="toast(\'Abriendo WhatsApp...\')">💬 Responder</button>'
+  if (c.escalado) html += '<button class="btn btn-sm" style="background:var(--ok)22;color:var(--ok);border:1px solid var(--ok)44" onclick="resolveEscalado('+c.id+')">✓ Marcar resuelto</button>'
+  html += '<button class="btn btn-ghost btn-sm" onclick="toast(\'Exportando...\')">↓ Exportar</button>'
+  html += '<span style="margin-left:auto;font-size:11px;color:var(--tx3)">Satisfacción: '+stars+'</span>'
+  html += '</div>'
+  return html
+}
+
+function openConv(id) {
+  activeConvId = id
+  // Actualizar resaltado en lista
+  CONVS.forEach(c => {
+    const row = document.getElementById('conv-row-'+c.id)
+    if (!row) return
+    row.style.background = c.id===id ? 'var(--ac)10' : ''
+    row.style.borderLeft  = c.id===id ? '2px solid var(--ac)' : ''
+  })
+  // Renderizar detalle
+  const det = document.getElementById('conv-detail')
+  if (det) det.innerHTML = buildConvDetail(id)
+}
+
+// ══════════════════════════════════════════════════════════
+//  ESTADÍSTICAS
+// ══════════════════════════════════════════════════════════
+function renderStats() {
+  const byOutcome = {}
+  CONVS.forEach(c => { byOutcome[c.outcome]=(byOutcome[c.outcome]||0)+1 })
+
+  const bySport = {}
+  CONVS.forEach(c => { bySport[c.sport]=(bySport[c.sport]||0)+1 })
+  const topSports = Object.entries(bySport).sort((a,b)=>b[1]-a[1])
+  const maxSport  = topSports[0]?.[1]||1
+
+  // Horas del día simuladas
+  const byHour = {8:2,9:3,10:2,11:4,12:3,13:2,14:5,15:6,16:7,17:8,18:12,19:15,20:13,21:10,22:7}
+  const maxHour = Math.max(...Object.values(byHour))
+
+  // Días de la semana
+  const byDay  = {Lun:14,Mar:12,Mié:16,Jue:11,Vie:18,Sáb:22,Dom:8}
+  const maxDay = Math.max(...Object.values(byDay))
+
+  const avgScore = Math.round(CONVS.reduce((a,c)=>a+c.score,0)/CONVS.length)
+  const totalMsgs= CONVS.reduce((a,c)=>a+c.msgs,0)
+  const escalPct = Math.round(CONVS.filter(c=>c.escalado).length/CONVS.length*100)
+
+  document.getElementById('left-panel').innerHTML = `
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:14px">📈 Estadísticas del bot</div>
+
+    <!-- KPI strip -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+      ${[
+        {label:'Conversaciones',   val:CONVS.length,   color:'var(--ac)',     sub:'últimos 7 días'},
+        {label:'Mensajes totales', val:totalMsgs,      color:'var(--info)',   sub:'promedio '+(totalMsgs/CONVS.length).toFixed(1)+'/conv'},
+        {label:'Score promedio',   val:avgScore,       color:avgScore>=75?'var(--ok)':'var(--warn)', sub:'satisfacción'},
+        {label:'Tasa escalado',    val:escalPct+'%',   color:escalPct>25?'var(--err)':'var(--ok)',   sub:'intervención humana'},
+      ].map(k=>`<div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:${k.color}">${k.val}</div>
+        <div style="font-size:11px;font-weight:500;color:var(--tx);margin-top:2px">${k.label}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:1px">${k.sub}</div>
+      </div>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+
+      <!-- Distribución por resultado -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600;font-family:'Syne',sans-serif">Resultados</div>
+        <div style="padding:12px 14px">
+          ${Object.entries(byOutcome).map(([out,cnt])=>{
+            const pct=Math.round(cnt/CONVS.length*100)
+            return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+              <span style="font-size:11px;color:var(--tx2);width:80px;flex-shrink:0">${OUT_LABELS[out]||out}</span>
+              <div style="flex:1;background:var(--bd);border-radius:4px;height:20px;overflow:hidden">
+                <div style="width:${pct}%;height:100%;background:${OUT_COLORS[out]||'var(--ac)'};border-radius:4px;display:flex;align-items:center;padding:0 7px">
+                  ${pct>15?`<span style="font-size:10px;font-weight:600;color:#fff">${cnt}</span>`:''}
+                </div>
+              </div>
+              <span style="font-size:11px;color:var(--tx3);width:28px;text-align:right;flex-shrink:0">${pct}%</span>
+            </div>`
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Por deporte -->
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600;font-family:'Syne',sans-serif">Por deporte / tema</div>
+        <div style="padding:12px 14px">
+          ${topSports.map(([sport,cnt])=>{
+            const pct=Math.round(cnt/maxSport*100)
+            return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:11px;color:var(--tx2);width:72px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sport}</span>
+              <div style="flex:1;background:var(--bd);border-radius:4px;height:16px;overflow:hidden">
+                <div style="width:${pct}%;height:100%;background:var(--ac)88;border-radius:4px"></div>
+              </div>
+              <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--tx3);width:16px;text-align:right">${cnt}</span>
+            </div>`
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividad por hora -->
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px">
+      <div style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600;font-family:'Syne',sans-serif">Actividad por hora del día</div>
+      <div style="padding:14px 16px">
+        <div style="display:flex;align-items:flex-end;gap:3px;height:70px;margin-bottom:6px">
+          ${Object.entries(byHour).map(([h,v])=>{
+            const pct=Math.round(v/maxHour*100)
+            const isTop = v>=maxHour*0.8
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+              <div style="width:100%;height:${4+Math.round(v/maxHour*62)}px;background:${isTop?'var(--err)':v>=maxHour*0.5?'var(--warn)':'var(--ac)'+'44'};border-radius:3px 3px 0 0;min-height:4px"></div>
+              <span style="font-size:8px;color:var(--tx3)">${h}</span>
+            </div>`
+          }).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--tx3);text-align:center">Pico: 19hs · Menor actividad: 8hs</div>
+      </div>
+    </div>
+
+    <!-- Actividad por día -->
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+      <div style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600;font-family:'Syne',sans-serif">Actividad por día de la semana</div>
+      <div style="padding:14px 16px">
+        <div style="display:flex;align-items:flex-end;gap:4px;height:60px;margin-bottom:6px">
+          ${Object.entries(byDay).map(([day,v])=>{
+            const pct=Math.round(v/maxDay*100)
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+              <div style="width:100%;height:${4+Math.round(v/maxDay*52)}px;background:${v>=maxDay*0.8?'var(--ok)':'var(--ac)'+'55'};border-radius:3px 3px 0 0;min-height:4px"></div>
+              <span style="font-size:9px;color:var(--tx3)">${day}</span>
+            </div>`
+          }).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--tx3);text-align:center">Día más activo: Sábado · Menor: Domingo</div>
+      </div>
+    </div>
+  `
+}
+
+// ══════════════════════════════════════════════════════════
+//  ESCALADOS / INTERVENCIÓN HUMANA
+// ══════════════════════════════════════════════════════════
+const ESC_RULES = [
+  {id:'cobro_doble',    label:'Reclamo de cobro',           keywords:['cobr','pago doble','dos veces','reintegro','devoluci'],    accion:'Revisar caja y contactar al jugador'},
+  {id:'lesion',         label:'Consulta de salud/lesión',   keywords:['lesion','dolor','cirugía','médico','operaci','rehabilit'], accion:'Derivar al profesor o kinesiólogo'},
+  {id:'evento_grande',  label:'Evento corporativo/grande',  keywords:['evento','empresa','corporativo','80 personas','catering'], accion:'Cotizar con el equipo de eventos'},
+  {id:'queja_grave',    label:'Queja o mala experiencia',   keywords:['pésim','horrible','reclamo','nunca más','vergüenza'],      accion:'Llamar personalmente al jugador'},
+  {id:'negociacion',    label:'Negociación de precios',     keywords:['descuento especial','precio mejor','rebaja','negoci'],    accion:'Revisar política comercial'},
+  {id:'situacion_legal',label:'Consulta legal/contractual', keywords:['contrato','abogado','legal','demanda','denuncia'],         accion:'Consultar con asesor legal'},
+]
+
+function renderEscalados() {
+  const pending  = CONVS.filter(c=>c.escalado && !c.resolved)
+  const resolved = CONVS.filter(c=>c.escalado && c.resolved)
+
+  document.getElementById('left-panel').innerHTML = `
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">🚨 Intervención humana requerida</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">El bot detectó estas conversaciones que necesitan atención del equipo.</div>
+
+    <!-- Resumen -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+      ${[
+        {label:'Pendientes',  val:pending.length,  color:'var(--err)'},
+        {label:'Resueltos hoy',val:resolved.length, color:'var(--ok)'},
+        {label:'Tiempo prom.', val:'18 min',         color:'var(--ac)'},
+      ].map(k=>`<div style="background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:10px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:${k.color}">${k.val}</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:2px">${k.label}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- Pendientes -->
+    ${pending.length ? `
+      <div style="font-size:11px;font-weight:700;color:var(--err);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">
+        ● Pendientes de atención
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        ${pending.map(c=>buildEscCard(c)).join('')}
+      </div>` : `
+      <div style="background:var(--ok)0a;border:1px solid var(--ok)33;border-radius:10px;padding:14px;text-align:center;margin-bottom:16px;font-size:13px;color:var(--ok)">
+        ✓ No hay escalados pendientes
+      </div>`}
+
+    <!-- Reglas de detección automática -->
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+      <div style="padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;font-weight:600;font-family:'Syne',sans-serif">Reglas de detección automática</span>
+        <button class="btn btn-ghost btn-sm" onclick="openNewRule()">+ Nueva regla</button>
+      </div>
+      ${ESC_RULES.map(r=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bd)44">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:500;color:var(--tx)">${r.label}</div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:2px">
+              Palabras clave: <span style="font-family:'DM Mono',monospace;color:var(--ac)">${r.keywords.slice(0,3).join(', ')}${r.keywords.length>3?'...':''}</span>
+            </div>
+            <div style="font-size:10px;color:var(--tx2);margin-top:1px">Acción sugerida: ${r.accion}</div>
+          </div>
+          <div class="tog on" onclick="this.classList.toggle('on')"></div>
+        </div>`).join('')}
+    </div>
+  `
+}
+
+function buildEscCard(c) {
+  const urgColor = URG_COLORS[c.escUrgencia]||'var(--warn)'
+  const urgLabel = URG_LABELS[c.escUrgencia]||'Media'
+  return `<div style="background:var(--s1);border:1px solid ${urgColor+'44'};border-radius:12px;overflow:hidden">
+
+    <!-- Header de la tarjeta -->
+    <div style="padding:11px 14px;border-bottom:1px solid var(--bd)55;display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;border-radius:50%;background:${urgColor+'20'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:${urgColor};flex-shrink:0">
+        ${c.player[0]}${c.player.split(' ')[1]?.[0]||''}
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-size:13px;font-weight:600;color:var(--tx)">${c.player}</span>
+          <span style="font-size:10px;font-weight:700;border-radius:5px;padding:2px 7px;background:${urgColor+'20'};color:${urgColor}">${urgLabel}</span>
+        </div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:1px">${c.phone} · ${c.time} · ${c.sport}</div>
+      </div>
+      <div style="font-size:11px;font-family:'DM Mono',monospace;font-weight:600;color:var(--tx3)">${c.msgs} msgs</div>
+    </div>
+
+    <!-- Motivo del escalado -->
+    <div style="padding:10px 14px;background:${urgColor+'08'};border-bottom:1px solid var(--bd)44">
+      <div style="font-size:10px;font-weight:700;color:${urgColor};text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Por qué lo escaló el bot</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.5">${c.escMotivo}</div>
+    </div>
+
+    <!-- Último mensaje -->
+    <div style="padding:9px 14px;border-bottom:1px solid var(--bd)44">
+      <div style="font-size:10px;color:var(--tx3);margin-bottom:4px">Último mensaje del jugador:</div>
+      <div style="font-size:12px;color:var(--tx);background:var(--s2);border-radius:7px;padding:7px 10px;font-style:italic">
+        "${c.thread[c.thread.length-1]?.text||''}"
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div style="padding:9px 14px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:${urgColor+'15'};color:${urgColor};border:1px solid ${urgColor+'33'}"
+        onclick="toast('Abriendo WhatsApp con ${c.player}...')">
+        💬 Responder ahora
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="openConv(${c.id});switchTab('logs')">
+        Ver conversación completa
+      </button>
+      <button class="btn btn-sm" style="background:var(--ok)15;color:var(--ok);border:1px solid var(--ok)33;margin-left:auto"
+        onclick="resolveEscalado(${c.id})">
+        ✓ Marcar resuelto
+      </button>
+    </div>
+  </div>`
+}
+
+function resolveEscalado(id) {
+  const c = CONVS.find(x=>x.id===id)
+  if (!c) return
+  c.resolved  = true
+  c.escalado  = false
+  c.outcome   = 'consulta'
+  // Actualizar badge
+  const pendCount = CONVS.filter(x=>x.escalado&&!x.resolved).length
+  const badge = document.getElementById('esc-badge')
+  if (badge) badge.style.display = pendCount ? '' : 'none'
+  renderEscalados()
+  toast(`✓ ${c.player} — marcado como resuelto`)
+}
+
+function openNewRule() {
+  toast('Próximamente: editor de reglas de detección', 'warn')
+}
+
+
+// ══════════════════════════════════════════════════════════
+//  SIMULADOR
+// ══════════════════════════════════════════════════════════
+const SIM_RESPONSES = {
+  default: [
+    '¡Hola! Soy {name}. ¿En qué te puedo ayudar hoy?',
+    '¡Buenas! ¿Qué necesitás?',
+  ],
+  disponible: ['Sí, tenemos lugar. ¿Para qué día y horario? 🎾', 'Tenemos disponibilidad. ¿Cuántas personas van a jugar?'],
+  reservar:   ['¡Perfecto! ¿Para qué día necesitás la cancha? Tenemos de las 8 a las 23hs.', '¡Dale! ¿Qué horario te viene bien?'],
+  precio:     ['La cancha de pádel sale $2.800/hora en horario normal y $3.400 en horario pico (18-22hs). 💰', 'Los precios varían según el horario. ¿Querés que te diga la disponibilidad y precios para una fecha específica?'],
+  cancelar:   ['Para cancelar necesito que me des tu nombre o el número de reserva. ¿Tenés alguno de los dos?', 'Sin problema, buscamos tu reserva. ¿A nombre de quién está?'],
+  clase:      ['¡Tenemos clases de fútbol para chicos! Son los sábados de 9 a 11hs con el profe Rodrigo. Grupos por edades: 6-9 años y 10-14 años. ¿Querés anotarlos?', 'Sí, las clases para niños son los sábados. ¿Qué edad tienen?'],
+  gracias:    ['¡De nada! Cualquier cosa estoy acá. 🙌', '¡Un placer! Hasta la próxima. 🎾'],
+}
+
+let simMsgs = []
+let simTyping = false
+
+function initSim() {
+  simMsgs = []
+  const body = document.getElementById('wa-body')
+  if (!body) return
+  body.innerHTML = ''
+  setTimeout(()=>{
+    addBotMsg(AGENT_CONFIG.greeting.replace('{name}', AGENT_CONFIG.name))
+  }, 400)
+}
+
+function addUserMsg(text) {
+  const body = document.getElementById('wa-body')
+  if (!body) return
+  const now = new Date()
+  const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`
+  const div = document.createElement('div')
+  div.innerHTML = `<div class="wa-msg wa-msg-user">${text}<div class="wa-time">${time} ✓✓</div></div>`
+  body.appendChild(div.firstChild)
+  body.scrollTop = body.scrollHeight
+}
+
+function addBotMsg(text) {
+  const body = document.getElementById('wa-body')
+  if (!body) return
+
+  // Mostrar typing
+  const typing = document.createElement('div')
+  typing.className = 'wa-typing'
+  typing.innerHTML = '<span></span><span></span><span></span>'
+  body.appendChild(typing)
+  body.scrollTop = body.scrollHeight
+
+  const delay = 600 + text.length * 12
+  setTimeout(()=>{
+    body.removeChild(typing)
+    const now = new Date()
+    const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`
+    const div = document.createElement('div')
+    div.innerHTML = `<div class="wa-msg wa-msg-bot">${text.replace(/\n/g,'<br>')}<div class="wa-time">${time}</div></div>`
+    body.appendChild(div.firstChild)
+    body.scrollTop = body.scrollHeight
+  }, Math.min(delay, 2000))
+}
+
+function sendSimMsg() {
+  const input = document.getElementById('wa-input')
+  const text  = input?.value?.trim()
+  if (!text) return
+  input.value = ''
+  addUserMsg(text)
+
+  // Lógica de respuesta
+  const tl = text.toLowerCase()
+  let responses = SIM_RESPONSES.default
+  if (tl.match(/disponib|cancha|hay lugar|libre/))    responses = SIM_RESPONSES.disponible
+  else if (tl.match(/reservar|quiero|turno|anotar/))  responses = SIM_RESPONSES.reservar
+  else if (tl.match(/precio|cuánto|cuanto|cuesta|vale/)) responses = SIM_RESPONSES.precio
+  else if (tl.match(/cancelar|cancela|anular/))       responses = SIM_RESPONSES.cancelar
+  else if (tl.match(/clase|niño|nene|chico|hijo/))    responses = SIM_RESPONSES.clase
+  else if (tl.match(/gracias|ok|bueno|dale/))         responses = SIM_RESPONSES.gracias
+
+  const r = responses[Math.floor(Math.random()*responses.length)]
+  addBotMsg(r.replace('{name}', AGENT_CONFIG.name))
+}
+
+function quickMsg(text) {
+  const input = document.getElementById('wa-input')
+  if (input) { input.value = text; sendSimMsg() }
+}
+
+function updateSimHeader() {
+  const el = document.getElementById('sim-name')
+  if (el) el.textContent = `${AGENT_CONFIG.name} · Sport Hub Norte`
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function saveConfig() {
+  localStorage.setItem('shos-agent-config', JSON.stringify(AGENT_CONFIG))
+  toast('✓ Configuración guardada')
+}
+
+function copyText(text) {
+  navigator.clipboard?.writeText(text).catch(()=>{})
+  toast('✓ Copiado al portapapeles')
+}
+
+function toast(msg, type='success') {
+  const cols = {success:'var(--ok)', warn:'var(--warn)', error:'var(--err)'}
+  const t = document.createElement('div'); t.className='toast'
+  t.style.cssText = `color:var(--tx);display:flex;align-items:center;gap:8px`
+  t.innerHTML = `<span style="color:${cols[type]||cols.success}">●</span> ${msg}`
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2500)
+}
+
+function toggleTheme() {
+  const h = document.documentElement
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark')
+}
+
+// INIT
+renderLeft()
+initSim()
+</script>
+</body>
+</html>

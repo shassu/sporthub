@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sport Hub OS — Fidelidad y Rewards</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#05060e;--s1:#090b16;--s2:#0d1020;--s3:#111525;
+  --bd:#171e30;--bd2:#1e2840;--bd3:#283450;
+  --tx:#dde3f5;--tx2:#7a8db2;--tx3:#5a739a;
+  --ac:#5b7fff;--ok:#2ecc71;--warn:#f0a020;--err:#e05050;
+  --gold:#f0c040;--purple:#8b5cf6;--teal:#06b6d4;--pink:#ec4899;
+  --sh:0 8px 40px #00000099;--sh2:0 2px 12px #00000055
+}
+:root[data-theme="light"]{
+  --bg:#eef1f9;--s1:#fff;--s2:#f5f7fd;--s3:#edf0f8;
+  --bd:#dde3f0;--bd2:#c8d0e8;--bd3:#b0bed8;
+  --tx:#0d1530;--tx2:#5a6a90;--tx3:#8a9ab8;
+  --ac:#3d63f0;--ok:#16a34a;--warn:#d97706;--err:#dc2626;
+  --gold:#ca8a04;--purple:#7c3aed;--teal:#0891b2;--pink:#db2777;
+  --sh:0 4px 20px #0000001a;--sh2:0 2px 8px #00000012
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px}
+.top{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;box-shadow:var(--sh2)}
+.lb{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--warn));display:flex;align-items:center;justify-content:center;font-size:14px}
+.ln{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.ttog{width:40px;height:22px;border-radius:11px;background:var(--bd2);cursor:pointer;position:relative;margin-left:auto;flex-shrink:0}
+.ttog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--gold);transition:transform .2s}
+[data-theme="light"] .ttog::after{transform:translateX(18px)}
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.tab.on{color:var(--tx);border-bottom-color:var(--gold)}
+.main{padding:22px 26px;max-width:1400px;margin:0 auto}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px}
+.kpi::before{content:'';display:block;height:3px;border-radius:2px;margin-bottom:10px}
+.kv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1}
+.kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* NIVELES */
+.niveles-row{display:flex;gap:0;margin-bottom:20px;background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.nivel-block{flex:1;padding:16px;border-right:1px solid var(--bd);text-align:center;transition:background .13s;cursor:pointer;position:relative}
+.nivel-block:last-child{border-right:none}
+.nivel-block:hover{background:var(--s2)}
+.nivel-icon{font-size:28px;margin-bottom:6px}
+.nivel-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:800}
+.nivel-pts{font-size:11px;color:var(--tx3);margin-top:2px}
+.nivel-bar{height:3px;border-radius:2px;margin-top:8px}
+.nivel-count{font-size:18px;font-weight:800;font-family:'Syne',sans-serif;margin-top:4px}
+
+/* JUGADORES RANKING */
+.fid-row{display:grid;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bd)44;transition:background .12s;cursor:pointer}
+.fid-row:hover{background:var(--s2)}
+.pts-pill{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;border-radius:8px;padding:3px 10px}
+.pts-bar-wrap{background:var(--bd);border-radius:3px;height:4px;overflow:hidden;margin-top:4px}
+.pts-bar{height:100%;border-radius:3px;transition:width .5s}
+
+/* REWARDS GRID */
+.rewards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.reward-card{background:var(--s1);border:2px solid var(--bd);border-radius:14px;padding:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.reward-card:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.reward-card.agotado{opacity:.5}
+.reward-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.reward-icon{font-size:32px;margin-bottom:8px}
+.reward-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px}
+.reward-desc{font-size:11px;color:var(--tx2);line-height:1.5;margin-bottom:10px}
+.reward-pts{font-family:'DM Mono',monospace;font-size:20px;font-weight:800}
+.reward-stock{font-size:10px;color:var(--tx3);margin-top:3px}
+
+/* HISTORIAL */
+.hist-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bd)44;font-size:12px}
+.hist-row:hover{background:var(--s2)}
+.hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;font-family:'Syne',sans-serif}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .14s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{opacity:.85}
+.btn-gold{background:var(--gold);color:#0d1020}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2)}
+.btn-ghost:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-ok{background:var(--ok)18;color:var(--ok);border:1px solid var(--ok)44}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:left}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--bd)55;vertical-align:middle}
+.tbl tr:hover td{background:var(--s2)}
+.finp,.fsel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.finp:focus,.fsel:focus{border-color:var(--gold)}
+.flbl{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block;font-weight:500}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.overlay{position:fixed;inset:0;background:#00000099;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;width:100%;max-width:520px;box-shadow:var(--sh);max-height:92vh;overflow-y:auto;animation:su .18s}
+@keyframes su{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx);z-index:300;box-shadow:var(--sh);display:flex;align-items:center;gap:8px;animation:ts .2s}
+@keyframes ts{from{transform:translateX(110%)}to{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="lb">⭐</div>
+  <div>
+    <div class="ln">Sport Hub OS — Fidelidad y Rewards</div>
+    <div style="font-size:10px;color:var(--tx3)">Sport Hub Norte · Temporada 2025</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-ghost btn-sm" onclick="switchTab('historial')">Ver movimientos</button>
+    <button class="btn btn-gold" onclick="openAjusteManual()">+ Sumar puntos</button>
+    <div class="ttog" onclick="toggleTheme()"></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tab-ranking"  onclick="switchTab('ranking')">🏅 Ranking puntos</div>
+  <div class="tab"    id="tab-rewards"  onclick="switchTab('rewards')">🎁 Rewards</div>
+  <div class="tab"    id="tab-historial"onclick="switchTab('historial')">📋 Movimientos</div>
+  <div class="tab"    id="tab-reglas"   onclick="switchTab('reglas')">⚙ Reglas</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modal-body"></div>
+</div>
+
+<script>
+const fmt = n => n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n.toLocaleString()
+const fmtPts = n => n.toLocaleString()+' pts'
+
+// ══════════════════════════════════════════════════════════
+//  NIVELES
+// ══════════════════════════════════════════════════════════
+const NIVELES = [
+  { id:'bronce',    nombre:'Bronce',    icon:'🥉', color:'#cd7f32', min:0,     max:999,   beneficios:['5% descuento tienda','Acceso a torneos recreativos'] },
+  { id:'plata',     nombre:'Plata',     icon:'🥈', color:'#a8b8c8', min:1000,  max:2999,  beneficios:['10% descuento tienda','Reserva anticipada 24hs','1 clase de prueba gratis/mes'] },
+  { id:'oro',       nombre:'Oro',       icon:'🥇', color:'#f0c040', min:3000,  max:5999,  beneficios:['15% descuento tienda','Reserva anticipada 48hs','1 clase gratis/mes','Acceso eventos VIP'] },
+  { id:'platino',   nombre:'Platino',   icon:'💎', color:'#8b5cf6', min:6000,  max:9999,  beneficios:['20% descuento tienda','Reserva 72hs antes','2 clases gratis/mes','Invitado gratis/mes','Locker asignado'] },
+  { id:'elite',     nombre:'Elite',     icon:'👑', color:'#f0c040', min:10000, max:999999,beneficios:['25% descuento tienda','Sin límite reservas','Clases ilimitadas','2 invitados/mes','Locker VIP','Nombre en tabla de honor'] },
+]
+
+function getNivel(pts) {
+  return NIVELES.slice().reverse().find(n=>pts>=n.min) || NIVELES[0]
+}
+function getNivelSiguiente(pts) {
+  return NIVELES.find(n=>n.min>pts) || null
+}
+
+// ══════════════════════════════════════════════════════════
+//  JUGADORES CON PUNTOS
+// ══════════════════════════════════════════════════════════
+const JUGADORES = [
+  {id:1,  nombre:'Laura V.',      genero:'F', pts:9840,  ptsMes:420, histElo:{}, deportes:['Pádel','Tenis'],   canjes:8,  racha:12},
+  {id:2,  nombre:'Sofía L.',      genero:'F', pts:7320,  ptsMes:380, histElo:{}, deportes:['Pádel'],           canjes:5,  racha:8},
+  {id:3,  nombre:'Carlos M.',     genero:'M', pts:6150,  ptsMes:310, histElo:{}, deportes:['Pádel'],           canjes:6,  racha:6},
+  {id:4,  nombre:'Rodrigo F.',    genero:'M', pts:5480,  ptsMes:290, histElo:{}, deportes:['Pádel'],           canjes:4,  racha:4},
+  {id:5,  nombre:'Valentina R.',  genero:'F', pts:4920,  ptsMes:260, histElo:{}, deportes:['Pádel'],           canjes:3,  racha:7},
+  {id:6,  nombre:'Facundo T.',    genero:'M', pts:4210,  ptsMes:230, histElo:{}, deportes:['Pádel','Fútbol 5'],canjes:2,  racha:3},
+  {id:7,  nombre:'Carlos Méndez', genero:'M', pts:3890,  ptsMes:200, histElo:{}, deportes:['Tenis'],           canjes:3,  racha:5},
+  {id:8,  nombre:'Camila V.',     genero:'F', pts:3450,  ptsMes:180, histElo:{}, deportes:['Pádel'],           canjes:2,  racha:2},
+  {id:9,  nombre:'Lucas M.',      genero:'M', pts:2980,  ptsMes:170, histElo:{}, deportes:['Pádel','Fútbol 5'],canjes:1,  racha:4},
+  {id:10, nombre:'Ana Torres',    genero:'F', pts:2540,  ptsMes:150, histElo:{}, deportes:['Tenis'],           canjes:1,  racha:3},
+  {id:11, nombre:'Tomás H.',      genero:'M', pts:1920,  ptsMes:130, histElo:{}, deportes:['Pádel'],           canjes:1,  racha:2},
+  {id:12, nombre:'Pablo R.',      genero:'M', pts:1340,  ptsMes:110, histElo:{}, deportes:['Fútbol 5'],        canjes:0,  racha:1},
+  {id:13, nombre:'Ana C.',        genero:'F', pts:870,   ptsMes:90,  histElo:{}, deportes:['Pádel'],           canjes:0,  racha:1},
+  {id:14, nombre:'Martín S.',     genero:'M', pts:520,   ptsMes:60,  histElo:{}, deportes:['Fútbol 5','Pádel'],canjes:0,  racha:0},
+]
+
+// ══════════════════════════════════════════════════════════
+//  REWARDS / PREMIOS
+// ══════════════════════════════════════════════════════════
+const REWARDS = [
+  // Descuentos
+  {id:1,  cat:'descuento', nombre:'10% en tienda',          icon:'🏷',  pts:500,   desc:'Cupón de descuento del 10% para usar en tienda del club',     stock:null,  agotado:false, color:'var(--ac)'},
+  {id:2,  cat:'descuento', nombre:'20% en tienda',          icon:'🏷',  pts:900,   desc:'Cupón de descuento del 20% válido por 30 días',               stock:null,  agotado:false, color:'var(--ac)'},
+  {id:3,  cat:'descuento', nombre:'50% en próxima clase',   icon:'🎓',  pts:700,   desc:'Mitad de precio en cualquier clase suelta',                   stock:20,    agotado:false, color:'var(--purple)'},
+  // Clases y cancha
+  {id:4,  cat:'cancha',    nombre:'1 hora de cancha gratis',icon:'🎾',  pts:1200,  desc:'Una hora en cualquier cancha disponible (lunes a jueves)',    stock:10,    agotado:false, color:'var(--ok)'},
+  {id:5,  cat:'cancha',    nombre:'1 clase gratis',         icon:'🎓',  pts:1500,  desc:'Acceso a cualquier clase disponible del mes',                 stock:null,  agotado:false, color:'var(--ok)'},
+  {id:6,  cat:'cancha',    nombre:'Paquete 3 horas cancha', icon:'🎾',  pts:3000,  desc:'Tres horas de cancha para usar cuando quieras',               stock:5,     agotado:false, color:'var(--ok)'},
+  // Productos
+  {id:7,  cat:'producto',  nombre:'Pelota de pádel',        icon:'⚽',  pts:800,   desc:'Pelota oficial Head o Dunlop a elección',                     stock:15,    agotado:false, color:'var(--warn)'},
+  {id:8,  cat:'producto',  nombre:'Overgrip pack x3',       icon:'🎾',  pts:400,   desc:'Pack de 3 overgrips para raqueta o pala',                     stock:30,    agotado:false, color:'var(--warn)'},
+  {id:9,  cat:'producto',  nombre:'Botella Sport Hub',      icon:'🥤',  pts:600,   desc:'Botella térmica 750ml con logo del club',                     stock:8,     agotado:false, color:'var(--warn)'},
+  {id:10, cat:'producto',  nombre:'Remera Sport Hub',       icon:'👕',  pts:1800,  desc:'Remera oficial del club en talle a elección',                 stock:3,     agotado:false, color:'var(--warn)'},
+  // Experiencias
+  {id:11, cat:'exp',       nombre:'Clase con el profesor',  icon:'🏆',  pts:2500,  desc:'1 hora de clase privada con el mejor jugador del club',       stock:4,     agotado:false, color:'var(--gold)'},
+  {id:12, cat:'exp',       nombre:'Acceso evento VIP',      icon:'🎉',  pts:3500,  desc:'Invitación a la noche exclusiva de fin de temporada',         stock:20,    agotado:false, color:'var(--gold)'},
+  {id:13, cat:'exp',       nombre:'Membresía 1 mes gratis', icon:'⭐',  pts:5000,  desc:'Un mes de membresía Sport sin cargo en la renovación',        stock:null,  agotado:false, color:'var(--gold)'},
+  {id:14, cat:'exp',       nombre:'Kit Pádel Premium',      icon:'🎁',  pts:6000,  desc:'Pala + pelotas + overgrips + bolso del club',                 stock:2,     agotado:false, color:'var(--gold)'},
+]
+
+// ══════════════════════════════════════════════════════════
+//  REGLAS DE PUNTOS
+// ══════════════════════════════════════════════════════════
+const REGLAS = [
+  {id:1,  accion:'Reservar cancha',        pts:50,   activo:true,  desc:'Por cada reserva confirmada y jugada'},
+  {id:2,  accion:'Asistir a clase',        pts:80,   activo:true,  desc:'Por cada clase a la que asiste'},
+  {id:3,  accion:'Ganar partido torneo',   pts:150,  activo:true,  desc:'Victoria en torneo oficial del club'},
+  {id:4,  accion:'Participar torneo',      pts:50,   activo:true,  desc:'Solo por inscribirse y jugar'},
+  {id:5,  accion:'Compra en tienda',       pts:1,    activo:true,  desc:'1 punto por cada $100 gastados'},
+  {id:6,  accion:'Cumpleaños del socio',   pts:200,  activo:true,  desc:'Puntos bonus el día del cumpleaños'},
+  {id:7,  accion:'Referir un amigo',       pts:500,  activo:true,  desc:'El amigo debe inscribirse y jugar 5 veces'},
+  {id:8,  accion:'Llenar perfil completo', pts:100,  activo:true,  desc:'Una sola vez, al completar todos los datos'},
+  {id:9,  accion:'Racha 30 días',          pts:300,  activo:true,  desc:'Por visitar el club al menos 1 vez por semana durante 1 mes'},
+  {id:10, nombre:'Cancelación sin aviso',  pts:-100, activo:true,  desc:'Se restan puntos por cancelar sin 4hs de anticipación', penalidad:true},
+]
+
+// Historial de movimientos
+const MOVIMIENTOS = [
+  {id:1,  jug:1,  tipo:'suma',    accion:'Reservar cancha',      pts:50,   fecha:'20 Jun 2025'},
+  {id:2,  jug:2,  tipo:'suma',    accion:'Ganar partido torneo', pts:150,  fecha:'20 Jun 2025'},
+  {id:3,  jug:3,  tipo:'canje',   accion:'Canje: Pelota pádel',  pts:-800, fecha:'19 Jun 2025'},
+  {id:4,  jug:1,  tipo:'suma',    accion:'Asistir a clase',      pts:80,   fecha:'19 Jun 2025'},
+  {id:5,  jug:4,  tipo:'suma',    accion:'Referir un amigo',     pts:500,  fecha:'18 Jun 2025'},
+  {id:6,  jug:5,  tipo:'penalidad',accion:'Cancelación sin aviso',pts:-100,fecha:'17 Jun 2025'},
+  {id:7,  jug:2,  tipo:'suma',    accion:'Racha 30 días',        pts:300,  fecha:'15 Jun 2025'},
+  {id:8,  jug:6,  tipo:'suma',    accion:'Compra en tienda',     pts:85,   fecha:'14 Jun 2025'},
+  {id:9,  jug:1,  tipo:'suma',    accion:'Cumpleaños del socio', pts:200,  fecha:'10 Jun 2025'},
+  {id:10, jug:3,  tipo:'canje',   accion:'Canje: 1 clase gratis',pts:-1500,fecha:'8 Jun 2025'},
+  {id:11, jug:7,  tipo:'suma',    accion:'Participar torneo',    pts:50,   fecha:'7 Jun 2025'},
+  {id:12, jug:8,  tipo:'suma',    accion:'Llenar perfil completo',pts:100, fecha:'5 Jun 2025'},
+]
+
+let activeTab = 'ranking'
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'))
+  document.getElementById('tab-'+t)?.classList.add('on')
+  renderMain()
+}
+
+function renderMain() {
+  const totalPts   = JUGADORES.reduce((a,j)=>a+j.pts,0)
+  const totalCanje = JUGADORES.reduce((a,j)=>a+j.canjes,0)
+  const topJug     = [...JUGADORES].sort((a,b)=>b.pts-a.pts)[0]
+  const nivelCounts= {}
+  JUGADORES.forEach(j=>{ const n=getNivel(j.pts).id; nivelCounts[n]=(nivelCounts[n]||0)+1 })
+
+  const kpiHtml = `<div class="kpis">
+    <div class="kpi" style="border-top:3px solid var(--gold)">
+      <div style="font-size:11px;color:var(--tx2)">Puntos en circulación</div>
+      <div class="kv" style="color:var(--gold)">${totalPts.toLocaleString()}</div>
+      <div class="kl">todos los socios</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ok)">
+      <div style="font-size:11px;color:var(--tx2)">Canjes este mes</div>
+      <div class="kv" style="color:var(--ok)">${totalCanje}</div>
+      <div class="kl">rewards usados</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--purple)">
+      <div style="font-size:11px;color:var(--tx2)">Socios Elite + Platino</div>
+      <div class="kv" style="color:var(--purple)">${(nivelCounts.elite||0)+(nivelCounts.platino||0)}</div>
+      <div class="kl">nivel alto</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--ac)">
+      <div style="font-size:11px;color:var(--tx2)">Líder del ranking</div>
+      <div class="kv" style="font-size:15px;margin-top:3px;color:var(--ac)">${topJug.nombre}</div>
+      <div class="kl">${fmtPts(topJug.pts)}</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--warn)">
+      <div style="font-size:11px;color:var(--tx2)">Participación activa</div>
+      <div class="kv" style="color:var(--warn)">${JUGADORES.filter(j=>j.ptsMes>0).length}/${JUGADORES.length}</div>
+      <div class="kl">sumaron pts este mes</div>
+    </div>
+  </div>`
+
+  const content = document.getElementById('main')
+  switch(activeTab) {
+    case 'ranking':  content.innerHTML = kpiHtml + renderRanking();  break
+    case 'rewards':  content.innerHTML = kpiHtml + renderRewards();  break
+    case 'historial':content.innerHTML = kpiHtml + renderHistorial();break
+    case 'reglas':   content.innerHTML = kpiHtml + renderReglas();   break
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  RANKING DE PUNTOS
+// ══════════════════════════════════════════════════════════
+function renderRanking() {
+  const sorted = [...JUGADORES].sort((a,b)=>b.pts-a.pts)
+  const maxPts = sorted[0].pts
+
+  // Barra de niveles
+  let html = '<div class="niveles-row">'
+  NIVELES.forEach(n => {
+    const count = JUGADORES.filter(j=>getNivel(j.pts).id===n.id).length
+    html += `<div class="nivel-block" onclick="filterNivel('${n.id}')">
+      <div class="nivel-icon">${n.icon}</div>
+      <div class="nivel-name" style="color:${n.color}">${n.nombre}</div>
+      <div class="nivel-pts" style="color:var(--tx3)">${n.min.toLocaleString()}+ pts</div>
+      <div class="nivel-bar" style="background:${n.color}"></div>
+      <div class="nivel-count" style="color:${n.color}">${count}</div>
+    </div>`
+  })
+  html += '</div>'
+
+  // Tabla ranking
+  html += '<div class="card"><div class="card-head">'
+  html += '<span class="card-title">🏅 Ranking de puntos</span>'
+  html += '<div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="toast(\'Exportando ranking...\')">↓ Exportar</button>'
+  html += '<button class="btn btn-gold btn-sm" onclick="openAjusteManual()">+ Sumar puntos</button></div></div>'
+
+  sorted.forEach((j, i) => {
+    const nivel     = getNivel(j.pts)
+    const nivelNext = getNivelSiguiente(j.pts)
+    const pct       = nivelNext ? Math.round((j.pts-nivel.min)/(nivelNext.min-nivel.min)*100) : 100
+    const pctBar    = Math.round(j.pts/maxPts*100)
+    const ini       = j.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')
+    const posColors = ['var(--gold)','#a8b8c8','#cd7f32']
+    const posColor  = i<3 ? posColors[i] : 'var(--tx3)'
+    const gColor    = j.genero==='M' ? 'var(--ac)' : 'var(--err)'
+
+    html += `<div class="fid-row" style="grid-template-columns:44px 44px 1fr 120px auto auto auto;gap:10px" onclick="openJugadorFid(${j.id})">
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;text-align:center;color:${posColor}">
+        ${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}
+      </div>
+      <div style="width:36px;height:36px;border-radius:50%;background:${nivel.color}22;color:${nivel.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">${ini}</div>
+      <div>
+        <div style="font-weight:600;color:var(--tx)">${j.nombre} <span style="font-size:10px;color:${gColor}">${j.genero==='M'?'♂':'♀'}</span></div>
+        <div style="font-size:10px;color:var(--tx3)">${j.deportes.join(' · ')} · Racha: ${j.racha} semanas</div>
+        <div class="pts-bar-wrap" style="margin-top:5px;width:140px">
+          <div class="pts-bar" style="width:${pctBar}%;background:${nivel.color}"></div>
+        </div>
+      </div>
+      <div>
+        <span class="badge" style="background:${nivel.color}22;color:${nivel.color}">${nivel.icon} ${nivel.nombre}</span>
+        <div style="font-size:10px;color:var(--tx3);margin-top:3px">
+          ${nivelNext?pct+'% → '+nivelNext.nombre:'Nivel máximo ✓'}
+        </div>
+      </div>
+      <div style="text-align:right;color:var(--ok);font-size:11px;font-weight:600">
+        +${j.ptsMes.toLocaleString()}<br>
+        <span style="font-size:9px;color:var(--tx3)">este mes</span>
+      </div>
+      <div>
+        <span class="pts-pill" style="background:${nivel.color}22;color:${nivel.color}">${j.pts.toLocaleString()}</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openJugadorFid(${j.id})">Ver perfil</button>
+    </div>`
+  })
+
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  REWARDS
+// ══════════════════════════════════════════════════════════
+function renderRewards() {
+  const cats = [
+    {key:'descuento', label:'🏷 Descuentos'},
+    {key:'cancha',    label:'🎾 Canchas y clases'},
+    {key:'producto',  label:'📦 Productos'},
+    {key:'exp',       label:'✨ Experiencias'},
+  ]
+
+  let html = ''
+  cats.forEach(cat => {
+    const items = REWARDS.filter(r=>r.cat===cat.key)
+    html += `<div style="margin-bottom:20px">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:10px;color:var(--tx)">${cat.label}</div>
+      <div class="rewards-grid">`
+    items.forEach(r => {
+      html += `<div class="reward-card ${r.agotado?'agotado':''}" onclick="openRewardDetail(${r.id})" style="border-color:${r.agotado?'var(--bd)':'var(--bd)'};--acc:${r.color}">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${r.color}"></div>
+        <div class="reward-icon">${r.icon}</div>
+        <div class="reward-name">${r.nombre}</div>
+        <div class="reward-desc">${r.desc}</div>
+        <div class="reward-pts" style="color:${r.color}">${r.pts.toLocaleString()} pts</div>
+        <div class="reward-stock" style="color:${r.agotado?'var(--err)':'var(--tx3)'}">
+          ${r.agotado?'Agotado':r.stock!==null?r.stock+' disponibles':'Sin límite'}
+        </div>
+        <button class="btn btn-sm" style="width:100%;justify-content:center;margin-top:10px;background:${r.agotado?'var(--s2)':''+r.color+'18'};color:${r.agotado?'var(--tx3)':r.color};border:1px solid ${r.agotado?'var(--bd2)':r.color+'44'}"
+          onclick="event.stopPropagation();${r.agotado?'toast(\'Reward agotado\',\'warn\')':'openCanjear('+r.id+')'}">
+          ${r.agotado?'Agotado':'Canjear →'}
+        </button>
+      </div>`
+    })
+    html += '</div></div>'
+  })
+
+  // Total rewards canjeados
+  html += `<div class="card" style="margin-top:10px">
+    <div class="card-head"><span class="card-title">📊 Rewards más canjeados</span></div>
+    <table class="tbl">
+      <thead><tr><th>Reward</th><th>Categoría</th><th>Puntos</th><th>Canjes</th></tr></thead>
+      <tbody>
+        ${[
+          {r:REWARDS.find(x=>x.id===1), canjes:45},
+          {r:REWARDS.find(x=>x.id===4), canjes:32},
+          {r:REWARDS.find(x=>x.id===5), canjes:28},
+          {r:REWARDS.find(x=>x.id===8), canjes:24},
+          {r:REWARDS.find(x=>x.id===7), canjes:19},
+        ].map(({r,canjes})=>r?`<tr>
+          <td><span style="font-size:16px">${r.icon}</span> <strong>${r.nombre}</strong></td>
+          <td style="color:var(--tx2)">${r.cat}</td>
+          <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.color}">${r.pts.toLocaleString()}</td>
+          <td style="font-weight:600;color:var(--ok)">${canjes} canjes</td>
+        </tr>`:'').join('')}
+      </tbody>
+    </table>
+  </div>`
+
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  HISTORIAL
+// ══════════════════════════════════════════════════════════
+function renderHistorial() {
+  const jugMap = {}
+  JUGADORES.forEach(j=>jugMap[j.id]=j)
+
+  let html = `<div style="display:grid;grid-template-columns:1fr 300px;gap:14px">`
+
+  // Tabla de movimientos
+  html += '<div class="card" style="margin:0"><div class="card-head">'
+  html += '<span class="card-title">📋 Todos los movimientos</span>'
+  html += '<button class="btn btn-ghost btn-sm" onclick="toast(\'Exportando...\')">↓ Exportar</button></div>'
+
+  ;[...MOVIMIENTOS].sort((a,b)=>b.id-a.id).forEach(m => {
+    const j    = jugMap[m.jug]
+    const suma = m.pts > 0
+    const tipo = {suma:'var(--ok)', canje:'var(--ac)', penalidad:'var(--err)'}[m.tipo]
+    html += `<div class="hist-row">
+      <div class="hist-dot" style="background:${tipo}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${j?.nombre||'—'}</div>
+        <div style="font-size:10px;color:var(--tx3)">${m.accion}</div>
+      </div>
+      <span class="badge" style="background:${tipo}18;color:${tipo}">${m.tipo}</span>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;min-width:70px;text-align:right;color:"+(m.pts>0?'var(--ok)':'var(--err)')+"">
+        ${m.pts>0?'+':''}${m.pts.toLocaleString()}
+      </div>
+      <div style="font-size:10px;color:var(--tx3);min-width:80px;text-align:right">${m.fecha}</div>
+    </div>`
+  })
+  html += '</div>'
+
+  // Sidebar — resumen por jugador
+  html += '<div><div class="card" style="margin:0"><div class="card-head"><span class="card-title">Top actividad este mes</span></div>'
+  ;[...JUGADORES].sort((a,b)=>b.ptsMes-a.ptsMes).slice(0,8).forEach((j,i)=>{
+    const nivel = getNivel(j.pts)
+    const ini   = j.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')
+    html += `<div style="display:flex;align-items:center;gap:9px;padding:8px 14px;border-bottom:1px solid var(--bd)44;cursor:pointer;transition:background .12s" onclick="openJugadorFid(${j.id})" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+      <div style="font-size:12px;font-weight:700;color:var(--tx3);width:18px;text-align:center">${i+1}</div>
+      <div style="width:28px;height:28px;border-radius:50%;background:${nivel.color}22;color:${nivel.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${ini}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${j.nombre}</div>
+        <div style="font-size:9px;color:var(--tx3)">${nivel.icon} ${nivel.nombre}</div>
+      </div>
+      <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--ok)">+${j.ptsMes}</span>
+    </div>`
+  })
+  html += '</div></div></div>'
+
+  html += '</div>'
+  return html
+}
+
+// ══════════════════════════════════════════════════════════
+//  REGLAS
+// ══════════════════════════════════════════════════════════
+function renderReglas() {
+  return `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div class="card" style="margin:0">
+          <div class="card-head">
+            <span class="card-title">⚙ Reglas de acumulación</span>
+            <button class="btn btn-gold btn-sm" onclick="toast('Guardando reglas...')">Guardar cambios</button>
+          </div>
+          ${REGLAS.filter(r=>!r.penalidad).map(r=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bd)44">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;font-weight:600;color:var(--tx)">${r.accion}</div>
+                <div style="font-size:11px;color:var(--tx3);margin-top:2px">${r.desc}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                <input type="number" value="${r.pts}" min="1" max="9999"
+                  style="width:65px;padding:4px 8px;background:var(--s2);border:1px solid var(--bd2);border-radius:6px;color:var(--gold);font-family:'DM Mono',monospace;font-weight:700;text-align:center;outline:none;font-size:12px">
+                <span style="font-size:10px;color:var(--tx3)">pts</span>
+                <div style="width:34px;height:19px;border-radius:10px;background:${r.activo?'var(--ok)':'var(--bd2)'};cursor:pointer;position:relative;transition:background .2s" onclick="this.style.background=this.style.background.includes('ok')?'var(--bd2)':'var(--ok)'">
+                  <div style="position:absolute;top:2px;${r.activo?'left:17px':'left:2px'};width:15px;height:15px;border-radius:50%;background:#fff;transition:left .2s"></div>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin:0 0 14px">
+          <div class="card-head"><span class="card-title" style="color:var(--err)">⚠ Penalidades</span></div>
+          ${REGLAS.filter(r=>r.penalidad).map(r=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bd)44">
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:600;color:var(--tx)">${r.nombre||r.accion}</div>
+                <div style="font-size:11px;color:var(--tx3)">${r.desc}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="number" value="${Math.abs(r.pts)}" min="1"
+                  style="width:65px;padding:4px 8px;background:var(--s2);border:1px solid var(--bd2);border-radius:6px;color:var(--err);font-family:'DM Mono',monospace;font-weight:700;text-align:center;outline:none;font-size:12px">
+                <span style="font-size:10px;color:var(--tx3)">pts</span>
+              </div>
+            </div>`).join('')}
+        </div>
+
+        <div class="card" style="margin:0">
+          <div class="card-head"><span class="card-title">🔢 Multiplicadores activos</span></div>
+          <div style="padding:14px 16px">
+            ${[
+              {label:'Fin de semana',   mult:'2x', activo:false, desc:'Puntos dobles sábado y domingo'},
+              {label:'Cumpleaños',      mult:'3x', activo:true,  desc:'Puntos triples el día del cumpleaños'},
+              {label:'Torneo oficial',  mult:'2x', activo:true,  desc:'Puntos dobles durante torneos'},
+              {label:'Primer mes',      mult:'2x', activo:true,  desc:'Bienvenida a nuevos socios'},
+            ].map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)44">
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:500">${m.label}</div>
+                <div style="font-size:10px;color:var(--tx3)">${m.desc}</div>
+              </div>
+              <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:800;color:var(--gold)">${m.mult}</span>
+              <div style="width:34px;height:19px;border-radius:10px;background:${m.activo?'var(--ok)':'var(--bd2)'};cursor:pointer;position:relative;transition:background .2s" onclick="this.style.background=this.style.background.includes('ok')?'var(--bd2)':'var(--ok)'">
+                <div style="position:absolute;top:2px;${m.activo?'left:17px':'left:2px'};width:15px;height:15px;border-radius:50%;background:#fff;transition:left .2s"></div>
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════════
+function openJugadorFid(id) {
+  const j = JUGADORES.find(x=>x.id===id)
+  if (!j) return
+  const nivel     = getNivel(j.pts)
+  const nivelNext = getNivelSiguiente(j.pts)
+  const pctNivel  = nivelNext ? Math.round((j.pts-nivel.min)/(nivelNext.min-nivel.min)*100) : 100
+  const ptsNext   = nivelNext ? (nivelNext.min - j.pts) : 0
+  const ini       = j.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')
+
+  showModal(`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="width:56px;height:56px;border-radius:50%;background:${nivel.color}22;color:${nivel.color};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;font-family:'Syne',sans-serif;margin:0 auto 10px">${ini}</div>
+      <div class="modal-title">${j.nombre}</div>
+      <span class="badge" style="background:${nivel.color}22;color:${nivel.color};font-size:12px;padding:4px 12px">${nivel.icon} ${nivel.nombre}</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        {l:'Puntos totales', v:j.pts.toLocaleString(), c:'var(--gold)'},
+        {l:'Este mes',       v:'+'+j.ptsMes,           c:'var(--ok)'},
+        {l:'Canjes',         v:j.canjes,               c:'var(--ac)'},
+        {l:'Racha',          v:j.racha+' sem.',        c:'var(--purple)'},
+        {l:'Deportes',       v:j.deportes.length,      c:'var(--teal)'},
+        {l:'Nivel',          v:nivel.nombre,           c:nivel.color},
+      ].map(s=>`<div style="background:var(--s2);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:${s.c}">${s.v}</div>
+        <div style="font-size:9px;color:var(--tx3);margin-top:2px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+
+    ${nivelNext?`
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:5px">
+        <span>${nivel.icon} ${nivel.nombre}</span>
+        <span style="color:var(--gold);font-weight:600">Le faltan ${ptsNext.toLocaleString()} pts para ${nivelNext.nombre} ${getNivel(nivelNext.min).icon}</span>
+      </div>
+      <div style="background:var(--bd);border-radius:4px;height:8px;overflow:hidden">
+        <div style="width:${pctNivel}%;height:100%;background:${nivel.color};border-radius:4px;transition:width .5s"></div>
+      </div>
+      <div style="font-size:10px;color:var(--tx3);margin-top:3px;text-align:right">${pctNivel}% del camino a ${nivelNext.nombre}</div>
+    </div>`:'<div style="text-align:center;padding:8px;margin-bottom:14px;background:var(--gold)0a;border:1px solid var(--gold)22;border-radius:8px;font-size:12px;color:var(--gold)">👑 Nivel máximo alcanzado</div>'}
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Beneficios activos</div>
+      ${nivel.beneficios.map(b=>`<div style="display:flex;gap:7px;font-size:11px;padding:5px 0;border-bottom:1px solid var(--bd)44">
+        <span style="color:${nivel.color};font-weight:700">✓</span><span style="color:var(--tx2)">${b}</span>
+      </div>`).join('')}
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal();openAjusteManual(${j.id})">+ Ajustar puntos</button>
+      <button class="btn btn-gold" onclick="closeModal();openCanjearPara(${j.id})">Canjear reward →</button>
+    </div>
+  `)
+}
+
+function openRewardDetail(id) {
+  const r = REWARDS.find(x=>x.id===id)
+  if (!r) return
+  showModal(`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:48px;margin-bottom:8px">${r.icon}</div>
+      <div class="modal-title" style="color:${r.color}">${r.nombre}</div>
+      <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:${r.color};margin-top:5px">${r.pts.toLocaleString()} pts</div>
+    </div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6;text-align:center">${r.desc}</div>
+    <div style="background:var(--s2);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--tx3);text-align:center">
+      ${r.stock!==null?r.stock+' unidades disponibles':'Sin límite de stock'} · Categoría: ${r.cat}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-gold" onclick="closeModal();openCanjear(${r.id})" ${r.agotado?'disabled':''}>Canjear este reward →</button>
+    </div>
+  `)
+}
+
+function openCanjear(rewardId) {
+  const r = REWARDS.find(x=>x.id===rewardId)
+  if (!r) return
+  const sorted = [...JUGADORES].filter(j=>j.pts>=r.pts).sort((a,b)=>b.pts-a.pts)
+  showModal(`
+    <div class="modal-title">🎁 Canjear reward</div>
+    <div class="modal-sub">${r.icon} ${r.nombre} — ${r.pts.toLocaleString()} pts</div>
+    <label class="flbl">Seleccioná el jugador</label>
+    <select class="fsel" id="cj-jugador">
+      ${sorted.length
+        ? sorted.map(j=>{
+            const n = getNivel(j.pts)
+            return `<option value="${j.id}">${j.nombre} — ${j.pts.toLocaleString()} pts (${n.nombre})</option>`
+          }).join('')
+        : '<option disabled>Ningún jugador tiene suficientes puntos</option>'}
+    </select>
+    ${sorted.length===0?'<div style="color:var(--err);font-size:12px;margin-bottom:10px">Ningún jugador alcanza el mínimo de '+r.pts.toLocaleString()+' pts para este reward.</div>':''}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="confirmarCanje(${rewardId})" ${sorted.length===0?'disabled':''}>Confirmar canje</button>
+    </div>
+  `)
+}
+
+function openCanjearPara(jugId) {
+  const j = JUGADORES.find(x=>x.id===jugId)
+  if (!j) return
+  const disponibles = REWARDS.filter(r=>r.pts<=j.pts&&!r.agotado)
+  showModal(`
+    <div class="modal-title">🎁 Canjear reward para ${j.nombre}</div>
+    <div class="modal-sub">${j.pts.toLocaleString()} puntos disponibles</div>
+    <div style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto">
+      ${disponibles.map(r=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--s2);border-radius:9px;cursor:pointer;transition:background .12s;border:1px solid var(--bd)" onclick="confirmarCanjeDirecto(${jugId},${r.id})" onmouseover="this.style.background='var(--s3)'" onmouseout="this.style.background='var(--s2)'">
+          <span style="font-size:20px">${r.icon}</span>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--tx)">${r.nombre}</div>
+          <div style="font-size:10px;color:var(--tx3)">${r.desc.slice(0,50)}...</div></div>
+          <span style="font-family:'DM Mono',monospace;font-weight:700;color:${r.color}">${r.pts.toLocaleString()}</span>
+        </div>`).join('')}
+      ${disponibles.length===0?'<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No hay rewards disponibles para el saldo actual</div>':''}
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button></div>
+  `)
+}
+
+function confirmarCanje(rewardId) {
+  const jugId = parseInt(document.getElementById('cj-jugador')?.value)
+  confirmarCanjeDirecto(jugId, rewardId)
+}
+
+function confirmarCanjeDirecto(jugId, rewardId) {
+  const j = JUGADORES.find(x=>x.id===jugId)
+  const r = REWARDS.find(x=>x.id===rewardId)
+  if (!j||!r) return
+  if (j.pts < r.pts) { toast('Puntos insuficientes','warn'); return }
+  j.pts -= r.pts
+  j.canjes++
+  if (r.stock!==null) r.stock--
+  if (r.stock===0) r.agotado=true
+  MOVIMIENTOS.unshift({id:MOVIMIENTOS.length+1, jug:j.id, tipo:'canje', accion:'Canje: '+r.nombre, pts:-r.pts, fecha:'Hoy'})
+  closeModal(); renderMain()
+  toast('✓ Canje confirmado — '+r.nombre+' para '+j.nombre+' (−'+r.pts.toLocaleString()+' pts)')
+}
+
+function openAjusteManual(jugId) {
+  showModal(`
+    <div class="modal-title">✏ Ajuste manual de puntos</div>
+    <div class="modal-sub">Para correcciones, bonos especiales o eventos fuera del sistema.</div>
+    <label class="flbl">Jugador</label>
+    <select class="fsel" id="am-jug">
+      ${JUGADORES.map(j=>`<option value="${j.id}" ${jugId===j.id?'selected':''}>${j.nombre} — ${j.pts.toLocaleString()} pts</option>`).join('')}
+    </select>
+    <div class="frow">
+      <div>
+        <label class="flbl">Tipo</label>
+        <select class="fsel" id="am-tipo">
+          <option value="1">Sumar puntos (+)</option>
+          <option value="-1">Restar puntos (−)</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Cantidad de puntos</label>
+        <input type="number" class="finp" id="am-pts" placeholder="Ej: 200" min="1" max="99999">
+      </div>
+    </div>
+    <label class="flbl">Motivo</label>
+    <input class="finp" id="am-motivo" placeholder="Ej: Bono por participación en evento especial">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveAjuste()">Confirmar ajuste</button>
+    </div>
+  `)
+}
+
+function saveAjuste() {
+  const jugId  = parseInt(document.getElementById('am-jug')?.value)
+  const signo  = parseInt(document.getElementById('am-tipo')?.value)||1
+  const pts    = parseInt(document.getElementById('am-pts')?.value)||0
+  const motivo = document.getElementById('am-motivo')?.value.trim()||'Ajuste manual'
+  if (!pts) { toast('Ingresá la cantidad de puntos','warn'); return }
+  const j = JUGADORES.find(x=>x.id===jugId)
+  if (!j) return
+  j.pts = Math.max(0, j.pts + signo*pts)
+  if (signo>0) j.ptsMes += pts
+  MOVIMIENTOS.unshift({id:MOVIMIENTOS.length+1, jug:j.id, tipo:signo>0?'suma':'penalidad', accion:motivo, pts:signo*pts, fecha:'Hoy'})
+  closeModal(); renderMain()
+  toast('✓ '+j.nombre+': '+(signo>0?'+':'')+signo*pts+' pts · '+motivo)
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function showModal(html){ document.getElementById('modal-body').innerHTML=html; document.getElementById('modal').style.display='flex' }
+function closeModal(){ document.getElementById('modal').style.display='none' }
+function filterNivel(nid){ toast('Filtrando por nivel '+nid) }
+function toast(msg,type='success'){
+  const cols={success:'var(--ok)',warn:'var(--warn)',error:'var(--err)'}
+  const t=document.createElement('div');t.className='toast'
+  t.innerHTML='<span style="color:'+(cols[type]||cols.success)+'">●</span> '+msg
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2600)
+}
+function toggleTheme(){
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+  localStorage.setItem('shos-theme',h.getAttribute('data-theme'))
+}
+const st=localStorage.getItem('shos-theme');if(st)document.documentElement.setAttribute('data-theme',st)
+renderMain()
+</script>
+</body>
+</html>

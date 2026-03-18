@@ -1,0 +1,871 @@
+// Sport Hub OS — Schema v2
+// Identidad global + perfiles locales + rentabilidad por espacio + comunidad
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════
+//  PLATAFORMA
+// ═══════════════════════════════════════════
+
+model Platform {
+  id        String   @id @default(cuid())
+  name      String   @default("Sport Hub OS")
+  createdAt DateTime @default(now())
+  clubs     Club[]
+}
+
+// ═══════════════════════════════════════════
+//  IDENTIDAD GLOBAL DEL JUGADOR
+//  Un registro único por persona en toda la plataforma
+//  Identificador universal: número de teléfono
+// ═══════════════════════════════════════════
+
+model GlobalPlayer {
+  id        String   @id @default(cuid())
+  phone     String   @unique   // pasaporte universal
+  name      String
+  email     String?
+  avatarUrl String?
+  birthDate DateTime?
+  zone      String?            // barrio/zona para matchmaking geográfico
+
+  sports    Sport[]            // deportes que practica
+  level     Json?              // { PADEL: "INTERMEDIO", FUTBOL5: "AMATEUR" }
+
+  // Consentimiento plataforma (para canal de canchas disponibles)
+  platformConsent  Boolean  @default(false)
+  consentDate      DateTime?
+
+  // Estadísticas globales (calculadas, no normalizadas)
+  totalMatchesPlayed Int    @default(0)
+  totalHoursPlayed   Float  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships   ClubMembership[]    // sus perfiles en cada club
+  matchRequests MatchRequest[]      // busca rivales
+
+  @@index([phone])
+}
+
+// ═══════════════════════════════════════════
+//  PERFIL LOCAL DEL JUGADOR EN CADA CLUB
+//  Un GlobalPlayer puede tener N memberships
+//  Cada club ve solo su membership, nunca el GlobalPlayer directo
+// ═══════════════════════════════════════════
+
+model ClubMembership {
+  id             String       @id @default(cuid())
+  globalPlayerId String
+  globalPlayer   GlobalPlayer @relation(fields: [globalPlayerId], references: [id])
+  clubId         String
+  club           Club         @relation(fields: [clubId], references: [id])
+
+  // Datos locales (el club puede personalizar)
+  localAlias     String?      // apodo en este club
+  localNumber    Int?         // número de socio / ID local
+  notes          String?      // notas internas del staff
+
+  // Consentimiento local (para mensajes del club)
+  marketingConsent Boolean  @default(false)
+  consentDate      DateTime?
+
+  // Estado en este club
+  isActive       Boolean   @default(true)
+  isBanned       Boolean   @default(false)
+  banReason      String?
+  balance        Float     @default(0)   // saldo a favor en este club
+
+  // Estadísticas en este club (cache calculado)
+  totalSpentHere Float     @default(0)
+  totalHoursHere Float     @default(0)
+  lastVisit      DateTime?
+  visitCount     Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings       Booking[]
+  saleItems      SaleItem[]
+  lessonEnrollments LessonEnrollment[]
+  messages       MessageRecipient[]
+
+  @@unique([globalPlayerId, clubId])   // un jugador, un perfil por club
+  @@index([clubId])
+  @@index([globalPlayerId])
+}
+
+// ═══════════════════════════════════════════
+//  CLUBS / COMPLEJOS DEPORTIVOS
+// ═══════════════════════════════════════════
+
+model Club {
+  id          String    @id @default(cuid())
+  platformId  String
+  platform    Platform  @relation(fields: [platformId], references: [id])
+
+  name        String
+  slug        String    @unique
+  address     String?
+  city        String?
+  phone       String?
+  email       String?
+  logoUrl     String?
+  description String?
+
+  // Modelo comercial (flexible)
+  planType      PlanType @default(FREE)
+  revenueShare  Float?   // % superadmin en modelo socio
+  monthlyFee    Float?   // mensualidad SaaS
+  isPartner     Boolean  @default(false)
+
+  // Config operativa
+  openTime   String  @default("08:00")
+  closeTime  String  @default("23:00")
+  timezone   String  @default("America/Argentina/Buenos_Aires")
+  currency   String  @default("ARS")
+
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  spaces         Space[]
+  users          User[]
+  memberships    ClubMembership[]
+  products       Product[]
+  sales          Sale[]
+  cashSessions   CashSession[]
+  tournaments    Tournament[]
+  events         Event[]
+  messages       Message[]
+  coaches        Coach[]
+
+  @@index([platformId])
+}
+
+enum PlanType { FREE SAAS PARTNER CUSTOM }
+
+// ═══════════════════════════════════════════
+//  ESPACIOS — unidad de rentabilidad
+//  Cada espacio tiene su P&L propio
+//  Un espacio puede ser una cancha, una sala de clases,
+//  un área de tienda, etc.
+// ═══════════════════════════════════════════
+
+model Space {
+  id          String    @id @default(cuid())
+  clubId      String
+  club        Club      @relation(fields: [clubId], references: [id])
+
+  name        String    // "Cancha 1", "Sala de clases", "Bar"
+  type        SpaceType
+  sport       Sport?    // solo si aplica
+  description String?
+
+  // Config física
+  isIndoor    Boolean  @default(false)
+  capacity    Int      @default(4)
+  surface     String?
+
+  // Pricing
+  pricePerHour     Float   @default(0)
+  pricePeakHour    Float?
+  peakHours        String[]
+  peakDays         String[] // ["SAT","SUN"]
+
+  // Costos operativos (para P&L real)
+  monthlyCost      Float?   // costo fijo mensual del espacio (luz, alquiler parcial)
+  maintenanceCost  Float?   // costo de mantenimiento promedio mensual
+
+  // Visibilidad
+  isActive         Boolean  @default(true)
+  publicVisible    Boolean  @default(true)   // aparece en canal de canchas disponibles
+
+  createdAt DateTime @default(now())
+
+  bookings       Booking[]
+  scheduleBlocks ScheduleBlock[]
+  lessons        Lesson[]
+
+  @@index([clubId])
+  @@index([type])
+}
+
+enum SpaceType {
+  COURT        // cancha para reservar
+  CLASS_ROOM   // sala para clases grupales
+  GYM          // gimnasio / fitness
+  STORE        // tienda
+  BAR          // bar / cantina
+  LOCKER_ROOM  // vestuarios (sin P&L, para bloqueos)
+  OTHER
+}
+
+enum Sport {
+  PADEL FUTBOL5 FUTBOL7 TENIS BASQUET VOLEY SQUASH NATACION OTHER
+}
+
+// ═══════════════════════════════════════════
+//  USUARIOS (staff del club)
+// ═══════════════════════════════════════════
+
+model User {
+  id        String   @id @default(cuid())
+  clubId    String?  // null = superadmin
+  club      Club?    @relation(fields: [clubId], references: [id])
+
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(OPERADOR)
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  lastLogin DateTime?
+
+  cashSessions     CashSession[]
+  bookingsCreated  Booking[]     @relation("BookingCreatedBy")
+
+  @@index([clubId])
+}
+
+enum UserRole { SUPERADMIN CLUB_OWNER OPERADOR VIEWER }
+
+// ═══════════════════════════════════════════
+//  RESERVAS
+// ═══════════════════════════════════════════
+
+model Booking {
+  id             String        @id @default(cuid())
+  spaceId        String
+  space          Space         @relation(fields: [spaceId], references: [id])
+  clubId         String        // denormalized para queries rápidas
+  membershipId   String?       // quién reservó (perfil local)
+  membership     ClubMembership? @relation(fields: [membershipId], references: [id])
+  createdById    String?
+  createdBy      User?         @relation("BookingCreatedBy", fields: [createdById], references: [id])
+
+  date           DateTime
+  startTime      String
+  endTime        String
+  durationMin    Int           @default(60)
+
+  status         BookingStatus @default(PENDING)
+  source         BookingSource @default(ADMIN)
+
+  price          Float
+  isPaid         Boolean       @default(false)
+  paymentMethod  PaymentMethod?
+  paidAt         DateTime?
+
+  isRecurring    Boolean       @default(false)
+  recurringId    String?
+
+  notes          String?
+  platformFee    Float?        // % de esta reserva para superadmin
+  origin         String?       // "club_directo" | "plataforma_canal"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  saleItems SaleItem[]
+
+  @@index([spaceId])
+  @@index([clubId])
+  @@index([membershipId])
+  @@index([date])
+  @@index([status])
+}
+
+enum BookingStatus  { PENDING CONFIRMED IN_PROGRESS COMPLETED CANCELLED NO_SHOW }
+enum BookingSource  { ADMIN PLAYER_APP PLATFORM PHONE }
+enum PaymentMethod  { EFECTIVO TRANSFERENCIA MERCADOPAGO TARJETA SALDO_FAVOR }
+
+// ═══════════════════════════════════════════
+//  BLOQUEOS DE HORARIO
+// ═══════════════════════════════════════════
+
+model ScheduleBlock {
+  id        String   @id @default(cuid())
+  spaceId   String
+  space     Space    @relation(fields: [spaceId], references: [id])
+  date      DateTime
+  startTime String
+  endTime   String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([spaceId])
+  @@index([date])
+}
+
+// ═══════════════════════════════════════════
+//  CLASES Y ACADEMIA
+// ═══════════════════════════════════════════
+
+model Coach {
+  id        String  @id @default(cuid())
+  clubId    String
+  club      Club    @relation(fields: [clubId], references: [id])
+
+  name      String
+  sport     Sport
+  phone     String?
+  bio       String?
+  photoUrl  String?
+  isActive  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  lessons   Lesson[]
+
+  @@index([clubId])
+}
+
+model Lesson {
+  id          String      @id @default(cuid())
+  spaceId     String
+  space       Space       @relation(fields: [spaceId], references: [id])
+  clubId      String      // denormalized
+  coachId     String
+  coach       Coach       @relation(fields: [coachId], references: [id])
+
+  name        String      // "Clase principiantes pádel", "Fútbol juvenil"
+  sport       Sport
+  level       String?     // "principiante", "intermedio"
+  dayOfWeek   Int[]       // 1=lun … 7=dom
+  startTime   String
+  endTime     String
+  maxStudents Int         @default(8)
+  pricePerMonth Float
+  pricePerClass Float?    // para pago por clase suelta
+
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+
+  enrollments LessonEnrollment[]
+
+  @@index([clubId])
+  @@index([spaceId])
+}
+
+model LessonEnrollment {
+  id           String         @id @default(cuid())
+  lessonId     String
+  lesson       Lesson         @relation(fields: [lessonId], references: [id])
+  membershipId String
+  membership   ClubMembership @relation(fields: [membershipId], references: [id])
+
+  status       EnrollmentStatus @default(ACTIVE)
+  startDate    DateTime
+  endDate      DateTime?
+  monthlyFee   Float            // precio pactado al momento de inscripción
+
+  createdAt DateTime @default(now())
+
+  @@unique([lessonId, membershipId])
+  @@index([lessonId])
+  @@index([membershipId])
+}
+
+enum EnrollmentStatus { ACTIVE PAUSED CANCELLED }
+
+// ═══════════════════════════════════════════
+//  COMUNIDAD — MATCHMAKING
+//  El jugador puede publicar que busca rival
+// ═══════════════════════════════════════════
+
+model MatchRequest {
+  id             String       @id @default(cuid())
+  globalPlayerId String
+  globalPlayer   GlobalPlayer @relation(fields: [globalPlayerId], references: [id])
+
+  sport          Sport
+  preferredDate  DateTime?
+  preferredTime  String?
+  zone           String?
+  levelRange     String?      // "intermedio-avanzado"
+  notes          String?
+  isOpen         Boolean      @default(true)  // false = ya encontró rival
+
+  createdAt DateTime @default(now())
+
+  @@index([globalPlayerId])
+  @@index([sport])
+  @@index([isOpen])
+}
+
+// ═══════════════════════════════════════════
+//  PRODUCTOS / TIENDA
+// ═══════════════════════════════════════════
+
+model Product {
+  id          String          @id @default(cuid())
+  clubId      String
+  club        Club            @relation(fields: [clubId], references: [id])
+  name        String
+  category    ProductCategory
+  price       Float
+  cost        Float?
+  stock       Int?
+  sku         String?
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  saleItems   SaleItem[]
+
+  @@index([clubId])
+}
+
+enum ProductCategory { BEBIDA COMIDA PALETA PELOTA ROPA CALZADO ACCESORIO ALQUILER OTRO }
+
+// ═══════════════════════════════════════════
+//  VENTAS Y CAJA
+// ═══════════════════════════════════════════
+
+model Sale {
+  id            String       @id @default(cuid())
+  clubId        String
+  club          Club         @relation(fields: [clubId], references: [id])
+  cashSessionId String?
+  cashSession   CashSession? @relation(fields: [cashSessionId], references: [id])
+  total         Float
+  paymentMethod PaymentMethod @default(EFECTIVO)
+  notes         String?
+  createdAt     DateTime     @default(now())
+  items         SaleItem[]
+
+  @@index([clubId])
+  @@index([createdAt])
+}
+
+model SaleItem {
+  id           String          @id @default(cuid())
+  saleId       String
+  sale         Sale            @relation(fields: [saleId], references: [id])
+  productId    String
+  product      Product         @relation(fields: [productId], references: [id])
+  membershipId String?
+  membership   ClubMembership? @relation(fields: [membershipId], references: [id])
+  bookingId    String?
+  booking      Booking?        @relation(fields: [bookingId], references: [id])
+  quantity     Int             @default(1)
+  unitPrice    Float
+  subtotal     Float
+
+  @@index([saleId])
+  @@index([membershipId])
+}
+
+model CashSession {
+  id             String   @id @default(cuid())
+  clubId         String
+  club           Club     @relation(fields: [clubId], references: [id])
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  date           DateTime @default(now())
+  openingBalance Float    @default(0)
+  closingBalance Float?
+  closedAt       DateTime?
+  notes          String?
+  sales          Sale[]
+  movements      CashMovement[]
+
+  @@index([clubId])
+  @@index([date])
+}
+
+model CashMovement {
+  id            String      @id @default(cuid())
+  cashSessionId String
+  cashSession   CashSession @relation(fields: [cashSessionId], references: [id])
+  type          MovementType
+  amount        Float
+  description   String
+  createdAt     DateTime    @default(now())
+}
+
+enum MovementType { INGRESO EGRESO AJUSTE }
+
+// ═══════════════════════════════════════════
+//  TORNEOS Y EVENTOS
+// ═══════════════════════════════════════════
+
+model Tournament {
+  id           String           @id @default(cuid())
+  clubId       String
+  club         Club             @relation(fields: [clubId], references: [id])
+  name         String
+  sport        Sport
+  startDate    DateTime
+  endDate      DateTime
+  maxTeams     Int?
+  pricePerTeam Float?
+  isPublic     Boolean          @default(true)
+  status       TournamentStatus @default(DRAFT)
+  createdAt    DateTime         @default(now())
+
+  @@index([clubId])
+}
+
+enum TournamentStatus { DRAFT OPEN IN_PROGRESS FINISHED CANCELLED }
+
+model Event {
+  id          String   @id @default(cuid())
+  clubId      String
+  club        Club     @relation(fields: [clubId], references: [id])
+  name        String
+  description String?
+  date        DateTime
+  capacity    Int?
+  ticketPrice Float?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([clubId])
+}
+
+// ═══════════════════════════════════════════
+//  MENSAJES / COMUNICACIONES
+// ═══════════════════════════════════════════
+
+model Message {
+  id         String        @id @default(cuid())
+  clubId     String
+  club       Club          @relation(fields: [clubId], references: [id])
+  type       MessageType
+  subject    String?
+  body       String
+  sentAt     DateTime?
+  status     MessageStatus @default(DRAFT)
+  createdAt  DateTime      @default(now())
+  recipients MessageRecipient[]
+
+  @@index([clubId])
+}
+
+model MessageRecipient {
+  id           String         @id @default(cuid())
+  messageId    String
+  message      Message        @relation(fields: [messageId], references: [id])
+  membershipId String
+  membership   ClubMembership @relation(fields: [membershipId], references: [id])
+  status       String         @default("pending")
+  sentAt       DateTime?
+
+  @@index([messageId])
+  @@index([membershipId])
+}
+
+enum MessageType   { REMINDER COMMERCIAL REACTIVATION PLATFORM SYSTEM }
+enum MessageStatus { DRAFT SENDING SENT FAILED }
+
+// ═══════════════════════════════════════════
+//  RANKING GLOBAL (tipo FIFA/videojuego)
+//  Los puntos se acumulan por torneos
+//  Separado por deporte y categoría de edad
+// ═══════════════════════════════════════════
+
+model RankingEntry {
+  id             String       @id @default(cuid())
+  globalPlayerId String
+  globalPlayer   GlobalPlayer @relation(fields: [globalPlayerId], references: [id])
+
+  sport          Sport
+  category       RankingCategory  // por edad o nivel
+  points         Int          @default(0)
+  position       Int?         // se recalcula periódicamente
+  peakPosition   Int?         // mejor posición histórica
+  peakPoints     Int          @default(0)
+
+  // Historial de movimiento de puntos
+  tournamentsPlayed Int       @default(0)
+  wins              Int       @default(0)
+  podiums           Int       @default(0)  // top 3
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  pointEvents RankingPointEvent[]
+
+  @@unique([globalPlayerId, sport, category])
+  @@index([sport, category, points])
+}
+
+model RankingPointEvent {
+  id              String       @id @default(cuid())
+  rankingEntryId  String
+  rankingEntry    RankingEntry @relation(fields: [rankingEntryId], references: [id])
+  tournamentId    String?
+  tournament      Tournament?  @relation(fields: [tournamentId], references: [id])
+
+  points          Int          // puede ser negativo (decaimiento)
+  reason          String       // "Victoria final", "Semifinal", "Decaimiento mensual"
+  createdAt       DateTime     @default(now())
+
+  @@index([rankingEntryId])
+}
+
+enum RankingCategory {
+  SUB14 SUB18 ADULTOS_A ADULTOS_B ADULTOS_C SENIOR LIBRE
+}
+
+// ═══════════════════════════════════════════
+//  TORNEOS — versión extendida con fixture
+// ═══════════════════════════════════════════
+
+// Extiende el Tournament existente con:
+model TournamentRegistration {
+  id           String     @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+
+  // Puede ser individual o equipo (dobles en pádel, equipo en fútbol)
+  teamName     String?
+  player1Id    String     // globalPlayerId
+  player2Id    String?    // para dobles/pareja
+  category     RankingCategory
+  isPaid       Boolean    @default(false)
+  paymentMethod PaymentMethod?
+  notes        String?
+
+  createdAt DateTime @default(now())
+
+  matchesAsTeam1 TournamentMatch[] @relation("MatchTeam1")
+  matchesAsTeam2 TournamentMatch[] @relation("MatchTeam2")
+
+  @@index([tournamentId])
+}
+
+model TournamentMatch {
+  id           String     @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+
+  round        String     // "Grupo A", "Cuartos", "Semi", "Final"
+  matchNumber  Int
+  team1Id      String
+  team1        TournamentRegistration @relation("MatchTeam1", fields: [team1Id], references: [id])
+  team2Id      String
+  team2        TournamentRegistration @relation("MatchTeam2", fields: [team2Id], references: [id])
+
+  // Resultado
+  score1       String?    // ej: "6-4 6-3" o "3-1"
+  score2       String?
+  winnerId     String?    // TournamentRegistration id
+
+  scheduledAt  DateTime?
+  courtId      String?    // Space id
+  status       MatchStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@index([tournamentId])
+  @@index([round])
+}
+
+enum MatchStatus { PENDING CONFIRMED IN_PROGRESS COMPLETED CANCELLED }
+
+// ═══════════════════════════════════════════
+//  MEMBRESÍAS DEL JUGADOR EN UN CLUB
+//  Distinto de ClubMembership (que es el perfil)
+//  Esto es la membresía pagada con beneficios
+// ═══════════════════════════════════════════
+
+model MembershipPlan {
+  id          String  @id @default(cuid())
+  clubId      String
+  club        Club    @relation(fields: [clubId], references: [id])
+
+  name        String  // "Básico", "Pro", "All-Inclusive"
+  description String?
+  price       Float   // por mes
+  billingCycle String @default("MONTHLY") // MONTHLY, QUARTERLY, ANNUAL
+
+  // Beneficios (configurables)
+  courtHoursPerMonth   Int?     // horas de cancha incluidas
+  classesPerMonth      Int?     // clases incluidas
+  gymAccessIncluded    Boolean  @default(false)
+  discountPct          Float?   // % descuento en reservas adicionales
+  guestPassesPerMonth  Int?     // pases para invitados
+  benefits             Json?    // beneficios extra en formato libre
+
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  subscriptions MembershipSubscription[]
+
+  @@index([clubId])
+}
+
+model MembershipSubscription {
+  id           String         @id @default(cuid())
+  planId       String
+  plan         MembershipPlan @relation(fields: [planId], references: [id])
+  membershipId String         // ClubMembership
+  clubMembership ClubMembership @relation(fields: [membershipId], references: [id])
+
+  status       SubscriptionStatus @default(ACTIVE)
+  startDate    DateTime
+  endDate      DateTime?
+  nextBillingDate DateTime?
+  monthlyFee   Float            // precio pactado
+
+  createdAt DateTime @default(now())
+
+  @@index([planId])
+  @@index([membershipId])
+}
+
+enum SubscriptionStatus { ACTIVE PAUSED CANCELLED EXPIRED }
+
+// ═══════════════════════════════════════════
+//  ESCUELITA / ACADEMIA (submodelo de Lesson)
+//  Grupos de niños con nivel y edad
+// ═══════════════════════════════════════════
+
+model AcademyGroup {
+  id          String  @id @default(cuid())
+  clubId      String
+  club        Club    @relation(fields: [clubId], references: [id])
+  coachId     String
+  coach       Coach   @relation(fields: [coachId], references: [id])
+
+  name        String  // "Escuelita Pádel Sub-10", "Fútbol Juvenil"
+  sport       Sport
+  ageMin      Int?
+  ageMax      Int?
+  level       String? // "iniciación", "desarrollo", "competencia"
+  maxStudents Int     @default(10)
+  pricePerMonth Float
+
+  schedule    Json    // [{ day: "LUN", time: "17:00", spaceId: "..." }]
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+
+  enrollments AcademyEnrollment[]
+
+  @@index([clubId])
+}
+
+model AcademyEnrollment {
+  id           String       @id @default(cuid())
+  groupId      String
+  group        AcademyGroup @relation(fields: [groupId], references: [id])
+  membershipId String
+  membership   ClubMembership @relation(fields: [membershipId], references: [id])
+
+  // Datos del niño (diferente del jugador adulto)
+  childName    String
+  childAge     Int
+  parentPhone  String
+
+  status       EnrollmentStatus @default(ACTIVE)
+  startDate    DateTime
+  monthlyFee   Float
+
+  createdAt DateTime @default(now())
+
+  @@index([groupId])
+}
+
+// ═══════════════════════════════════════════
+//  PUBLICIDAD DIGITAL
+//  Espacios para auspiciantes dentro de la plataforma
+// ═══════════════════════════════════════════
+
+model AdSpace {
+  id          String    @id @default(cuid())
+  // null = plataforma global, clubId = solo en ese club
+  clubId      String?
+  club        Club?     @relation(fields: [clubId], references: [id])
+
+  name        String    // "Banner confirmación de reserva", "Resultado de torneo"
+  placement   AdPlacement
+  format      AdFormat  @default(BANNER)
+  description String?
+
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  campaigns   AdCampaign[]
+}
+
+model AdCampaign {
+  id          String    @id @default(cuid())
+  adSpaceId   String
+  adSpace     AdSpace   @relation(fields: [adSpaceId], references: [id])
+
+  advertiser  String    // nombre de la marca
+  imageUrl    String?
+  linkUrl     String?
+  ctaText     String?
+
+  // Segmentación (a qué jugadores mostrar)
+  targetSports  Sport[]
+  targetZones   String[]
+  targetLevels  String[]
+
+  // Período y precio
+  startDate   DateTime
+  endDate     DateTime
+  price       Float     // lo que paga el auspiciante
+  impressions Int       @default(0)  // vistas acumuladas
+  clicks      Int       @default(0)
+
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@index([adSpaceId])
+}
+
+enum AdPlacement {
+  BOOKING_CONFIRMATION    // confirmación de reserva
+  TOURNAMENT_RESULTS      // resultados de torneo
+  PLAYER_PROFILE          // perfil del jugador
+  RANKING_PAGE            // página de ranking
+  AVAILABILITY_SEARCH     // búsqueda de canchas libres
+  EVENT_PAGE              // página de evento
+  PLATFORM_WIDE           // toda la plataforma
+}
+
+enum AdFormat { BANNER CARD SPONSORED_MESSAGE }
+
+// ═══════════════════════════════════════════
+//  MAPA DE DEMANDA (inteligencia estratégica)
+//  Se alimenta automáticamente de los datos
+//  Vos usás esto para decidir dónde construir
+// ═══════════════════════════════════════════
+
+model DemandSignal {
+  id        String   @id @default(cuid())
+  zone      String   // barrio / zona geográfica
+  sport     Sport
+  level     String?
+
+  // Demanda observada
+  playersCount     Int   @default(0)  // jugadores en esa zona ese deporte
+  waitlistCount    Int   @default(0)  // jugadores sin cancha cerca
+  avgHoursPerWeek  Float @default(0)  // promedio de juego semanal
+  avgSpend         Float @default(0)  // gasto promedio por jugador
+
+  // Oferta disponible
+  nearbyCourts     Int   @default(0)  // canchas en radio de 3km
+  occupancyRate    Float @default(0)  // ocupación promedio de canchas cercanas
+
+  // Score de oportunidad (calculado)
+  opportunityScore Float @default(0)  // alto = abrir complejo acá
+
+  lastUpdated DateTime @default(now())
+
+  @@unique([zone, sport])
+  @@index([sport, opportunityScore])
+}
